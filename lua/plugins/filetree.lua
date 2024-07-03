@@ -26,17 +26,56 @@ return {
             },
         })
     end,
-    keys = {
-        {
-            '<leader>j',
-            function()
-                require('neo-tree.command').execute({
-                    toggle = true,
-                    source = 'filesystem',
-                    position = 'left',
-                })
-            end,
-            desc = 'Toggle Neotree',
-        },
-    },
+    -- keys = {
+    --     {
+    --         '<leader>j',
+    --         function()
+    --             require('neo-tree.command').execute({
+    --                 toggle = true,
+    --                 source = 'filesystem',
+    --                 position = 'left',
+    --             })
+    --         end,
+    --         desc = 'Toggle Neotree',
+    --     },
+    -- },
+    keys = function() -- Funcion adapted from https://github.com/nvim-neo-tree/neo-tree.nvim/issues/1115#issuecomment-1784184617
+        local find_buffer_by_type = function(type)
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                local ft = vim.api.nvim_get_option_value('filetype', { buf = buf })
+                if ft == type then
+                    return buf
+                end
+            end
+            return -1
+        end
+        local toggle_neotree = function(toggle_command)
+            if find_buffer_by_type('neo-tree') > 0 then
+                require('neo-tree.command').execute({ action = 'close' })
+            else
+                toggle_command()
+            end
+        end
+
+        return {
+            {
+                '<leader>j',
+                function()
+                    toggle_neotree(function()
+                        require('neo-tree.command').execute({ action = 'focus', reveal = true, dir = vim.uv.cwd() })
+                    end)
+                end,
+                desc = 'Toggle File Explorer (cmd)',
+            },
+            {
+                '<leader>J',
+                function()
+                    toggle_neotree(function()
+                        require('neo-tree.command').execute({ action = 'focus', reveal = true })
+                    end)
+                end,
+                desc = 'Toggle File Explorer (root)',
+            },
+        }
+    end,
 }
