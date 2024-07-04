@@ -1,5 +1,5 @@
 -- Fike: plugins/init.lua
--- Author: calgeskog
+-- Author: caleskog
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
 return {
@@ -33,36 +33,6 @@ return {
         },
     },
 
-    -- This is often very useful to both group configuration, as well as handle
-    -- lazy loading plugins that don't need to be loaded immediately at startup.
-    --
-    -- For example, in the following configuration, we use:
-    --  event = 'VimEnter'
-    --
-    -- which loads which-key before all the UI elements are loaded. Events can be
-    -- normal autocommands events (`:help autocmd-events`).
-    --
-    -- Then, because we use the `config` key, the configuration only runs
-    -- after the plugin has been loaded:
-    --  config = function() ... end
-
-    { -- Useful plugin to show you pending keybinds.
-        'folke/which-key.nvim',
-        event = 'VimEnter', -- Sets the loading event to 'VimEnter'
-        config = function() -- This is the function that runs, AFTER loading
-            require('which-key').setup()
-
-            -- Document existing key chains
-            require('which-key').register({
-                ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-                ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-                ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-                ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-                ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-            })
-        end,
-    },
-
     {
         -- You can easily change to a different colorscheme.
         -- Change the name of the colorscheme plugin below, and then
@@ -80,5 +50,37 @@ return {
             -- You can configure highlights by doing something like:
             vim.cmd.hi('Comment gui=none')
         end,
+    },
+
+    -- Highlight todo, notes, etc in comments
+    {
+        -- NOTE: adding a note
+        -- PERF: fully optimised
+        -- HACK: hmm, this looks a bit funky
+        -- TODO: What else?
+        -- FIX: this needs fixing
+        -- WARNING: ??
+
+        -- HELP: Some kind of helpfull message
+
+        'folke/todo-comments.nvim',
+        event = 'VimEnter',
+        dependencies = {
+            'nvim-lua/plenary.nvim',
+            'nvim-telescope/telescope.nvim',
+        },
+        opts = {
+            signs = false,
+            keywords = {
+                HELP = {
+                    icon = '?',
+                    color = '#1e8704',
+                },
+            },
+            merge_keywords = true,
+        },
+        keys = {
+            { '<leader>st', '<cmd>TodoTelescope<cr>', desc = '[S]earch [T]odotList' }, -- Using Telescope
+        },
     },
 }
