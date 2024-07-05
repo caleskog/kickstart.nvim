@@ -3,7 +3,7 @@
 -- Description: A compainion script for 'init.lua' that hosts all keybindings and keymaps.
 -- HELP: :help vim.keymaps.set()
 
-function map(mode, key, invoke, desc)
+local function map(mode, key, invoke, desc)
     desc = desc or ''
     vim.keymap.set(mode, key, invoke, { desc = desc })
 end
@@ -26,17 +26,17 @@ map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic [Q]uickfix lis
 -- or just use <C-\><C-n> to exit terminal mode
 map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
--- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
---  See `:help wincmd` for a list of all window commands
+-- Basic keybindings for moving focus to another window
+-- HELP: See `:help wincmd` for a list of all window commands
 map('n', '<C-h>', '<C-w><C-h>', 'Move focus to the left window')
 map('n', '<C-l>', '<C-w><C-l>', 'Move focus to the right window')
 map('n', '<C-j>', '<C-w><C-j>', 'Move focus to the lower window')
 map('n', '<C-k>', '<C-w><C-k>', 'Move focus to the upper window')
+
+-- These mappings control the size of splits (height/width)
+-- `<M-,>` => Alt + `,`
+-- `<M-.>` => Alt + `.`
+map('n', '<M-,>', '<C-w>5<', 'Resize left')
+map('n', '<M-.>', '<C-w>5>', 'Resize right')
+map('n', '<M-u>', '<C-w>+', 'Resize up')
+map('n', '<M-d>', '<C-w>-', 'Resize down')

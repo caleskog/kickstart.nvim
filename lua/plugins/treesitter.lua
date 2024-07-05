@@ -1,4 +1,4 @@
--- File: plugins/tree-sitter.lua
+-- File: plugins/treesitter.lua
 -- Author: caleskog
 -- Description: Everything todo with `nvim-treesitter`, i.e., highlight, edit, and navigate code.
 

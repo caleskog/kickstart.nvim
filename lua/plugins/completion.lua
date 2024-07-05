@@ -1,4 +1,4 @@
--- File: plugins/autocmp.lua
+-- File: plugins/completion.lua
 -- Author: caleskog
 -- Description: Plugins for autocompletion.
 
