@@ -30,12 +30,10 @@ return {
     {
         'akinsho/toggleterm.nvim',
         version = '*',
-        config = true,
         opts = {
-            open_mapping = [[<C-\>]],
-            terminal_mapping = true,
-            auto_scroll = true,
+            open_mapping = '<C-\\>',
             direction = 'float',
         },
+        config = true,
     },
 }

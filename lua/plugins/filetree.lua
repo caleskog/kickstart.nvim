@@ -22,23 +22,14 @@ return {
                     ['g'] = function()
                         vim.api.nvim_exec2('Neotree focus git_status left', { output = true })
                     end,
+                    ['<C-p>'] = { 'scroll_preview', config = { direction = 10 } },
+                    ['<C-n>'] = { 'scroll_preview', config = { direction = -10 } },
+                    ['<C-b>'] = 'noop',
+                    ['<C-f>'] = 'noop',
                 },
             },
         })
     end,
-    -- keys = {
-    --     {
-    --         '<leader>j',
-    --         function()
-    --             require('neo-tree.command').execute({
-    --                 toggle = true,
-    --                 source = 'filesystem',
-    --                 position = 'left',
-    --             })
-    --         end,
-    --         desc = 'Toggle Neotree',
-    --     },
-    -- },
     keys = function() -- Funcion adapted from https://github.com/nvim-neo-tree/neo-tree.nvim/issues/1115#issuecomment-1784184617
         local find_buffer_by_type = function(type)
             for _, buf in ipairs(vim.api.nvim_list_bufs()) do

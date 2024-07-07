@@ -4,8 +4,18 @@
 
 local M = {}
 
--- Check if a module exists before requiring it
--- @param name - module name
+---Map a key to a action.
+---@param mode string
+---@param key string
+---@param invoke any
+---@param desc string
+function M.map(mode, key, invoke, desc)
+    desc = desc or ''
+    vim.keymap.set(mode, key, invoke, { desc = desc })
+end
+
+---Check if a module exists before requiring it
+---@param name string Module name
 function M.module_mxists(name)
     local status, _ = pcall(require, name)
     return status

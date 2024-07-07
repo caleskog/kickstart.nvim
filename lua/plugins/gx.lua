@@ -15,7 +15,7 @@ return {
         config = function()
             ---@diagnostic disable-next-line: missing-fields
             require('gx').setup({
-                open_browser_args = { '--background' },
+                -- open_browser_args = { '--background' },
                 handlers = {
                     plugin = true, -- open plugin links in lua (e.g. packer, lazy, ..)
                     github = true, -- open github issues
