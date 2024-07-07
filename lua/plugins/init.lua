@@ -80,7 +80,22 @@ return {
             merge_keywords = true,
         },
         keys = {
-            { '<leader>st', '<cmd>TodoTelescope<cr>', desc = '[S]earch [T]odotList' }, -- Using Telescope
+            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = '[S]earch [T]odotList' }, -- Using Telescope
         },
+    },
+    {
+        'mbbill/undotree',
+        config = function()
+            vim.keymap.set('n', '<leader>fu', '<cmd>Telescope undo<CR>', { desc = 'Telescope [U]ndo' })
+        end,
+    },
+    {
+        'iamcco/markdown-preview.nvim',
+        cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+        ft = { 'markdown' },
+        build = function()
+            vim.fn['mkdp#util#install']()
+        end,
+        keys = {},
     },
 }
