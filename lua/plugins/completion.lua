@@ -100,7 +100,14 @@ return {
                     --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
                 }),
                 sources = {
-                    { name = 'nvim_lsp' },
+                    {
+                        name = 'nvim_lsp',
+                        option = {
+                            markdown_oxide = {
+                                keyword_pattern = [[\(\k\| \|\/\|#\)\+]],
+                            },
+                        },
+                    },
                     { name = 'luasnip' },
                     { name = 'path' },
                 },

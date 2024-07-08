@@ -80,7 +80,7 @@ return {
             merge_keywords = true,
         },
         keys = {
-            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = '[S]earch [T]odotList' }, -- Using Telescope
+            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'Search [T]odotList' }, -- Using Telescope
         },
     },
     {
@@ -96,6 +96,22 @@ return {
         build = function()
             vim.fn['mkdp#util#install']()
         end,
-        keys = {},
+        keys = {
+            {
+                '<leader>dmt',
+                '<Plug>MarkdownPreviewToggle',
+                { desc = 'Document: Toggle Markdown Preview' },
+            },
+            {
+                '<leader>dmm',
+                '<Plug>MarkdownPreview',
+                { desc = 'Document: Start Markdown Preview' },
+            },
+            {
+                '<leader>dms',
+                '<Plug>MarkdownPreviewStop',
+                { desc = 'Document: Stop Markdown Preview' },
+            },
+        },
     },
 }

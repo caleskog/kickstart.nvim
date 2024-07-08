@@ -55,6 +55,12 @@ return {
             -- Add extended capabilities to lspconfig
             if pcall(require, 'cmp_nvim_lsp') then
                 capabilities = require('cmp_nvim_lsp').default_capabilities()
+                -- Ensure that dynamicRegistration is enabled! (for `markdown_oxide`)
+                capabilities.workspace = {
+                    didChangeWatchedFiles = {
+                        dynamicRegistration = true,
+                    },
+                }
             end
 
             -- Require it here in the case of usage in lsp servers configurations.
@@ -78,6 +84,7 @@ return {
                 rust_analyzer = true,
                 asm_lsp = true,
                 bashls = true,
+                markdown_oxide = true,
 
                 jsonls = {
                     settings = {
@@ -153,6 +160,7 @@ return {
                     capabilities = capabilities,
                 }, config)
 
+                -- TODO: Might need to ensure `markdown_oxide` is on attach config
                 lspconfig[name].setup(config)
             end
 
@@ -221,6 +229,16 @@ return {
                         vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
                             buffer = event.buf,
                             callback = vim.lsp.buf.clear_references,
+                        })
+                    end
+
+                    -- Refresh codelens on TextChanged and InsertLeave as well (Markdow Oxide)
+                    if client and client.server_capabilities.codeLensProvider then
+                        vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'LspAttach', 'BufEnter' }, {
+                            buffer = event.buf,
+                            callback = function()
+                                vim.lsp.codelens.refresh({ bufnr = 0 })
+                            end,
                         })
                     end
                 end,

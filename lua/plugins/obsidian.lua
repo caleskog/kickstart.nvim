@@ -1,8 +1,9 @@
 -- File: plugins/obsidian.lua
 -- Author: caleskog
 
+-- Commented out for testing the `markdown-oxide`, link: https://github.com/Feel-ix-343/markdown-oxide
 return {
-    {
+    --[[ {
         'epwalsh/obsidian.nvim',
         version = '*',
         lazy = true,
@@ -71,5 +72,5 @@ return {
                 },
             })
         end,
-    },
+    }, ]]
 }
