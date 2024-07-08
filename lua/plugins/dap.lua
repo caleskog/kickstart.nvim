@@ -23,11 +23,11 @@ return {
             require('dapui').setup()
             require('nvim-dap-virtual-text').setup({})
 
-            map('n', '<leader>bc', dap.continue, 'Continue')
-            map('n', '<leader>bt', dap.run_to_cursor, 'Run to Cursor')
+            map('n', '<leader>dc', dap.continue, 'Continue')
+            map('n', '<leader>dt', dap.run_to_cursor, 'Run to Cursor')
 
             -- Eval var under cursor
-            map('n', '<leader>?', function()
+            map('n', '<leader>d?', function()
                 ---@diagnostic disable-next-line: missing-fields
                 require('dapui').eval(nil, { enter = true })
             end, 'Debugger Eval Under Cursor')

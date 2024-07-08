@@ -80,13 +80,13 @@ return {
             merge_keywords = true,
         },
         keys = {
-            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'Search [T]odotList' }, -- Using Telescope
+            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = '[T]odotList' }, -- Using Telescope
         },
     },
     {
         'mbbill/undotree',
         config = function()
-            vim.keymap.set('n', '<leader>fu', '<cmd>Telescope undo<CR>', { desc = 'Telescope [U]ndo' })
+            vim.keymap.set('n', '<leader>fu', '<cmd>Telescope undo<CR>', { desc = '[U]ndoList' })
         end,
     },
     {
@@ -98,19 +98,19 @@ return {
         end,
         keys = {
             {
-                '<leader>dmt',
+                '<leader>pmt',
                 '<Plug>MarkdownPreviewToggle',
-                { desc = 'Document: Toggle Markdown Preview' },
+                desc = 'Document: Toggle Markdown Preview',
             },
             {
-                '<leader>dmm',
+                '<leader>pmm',
                 '<Plug>MarkdownPreview',
-                { desc = 'Document: Start Markdown Preview' },
+                desc = 'Document: Start Markdown Preview',
             },
             {
-                '<leader>dms',
+                '<leader>pms',
                 '<Plug>MarkdownPreviewStop',
-                { desc = 'Document: Stop Markdown Preview' },
+                desc = 'Document: Stop Markdown Preview',
             },
         },
     },

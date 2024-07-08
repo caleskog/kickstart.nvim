@@ -36,6 +36,7 @@ return {
                     'tpope/vim-rhubarb',
                 },
             },
+            'benfowler/telescope-luasnip.nvim',
         },
         config = function()
             -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -105,6 +106,7 @@ return {
             pcall(require('telescope').load_extension('undo'))
             pcall(require('telescope').load_extension('live_grep_args'))
             pcall(require('telescope').load_extension('advanced_git_search'))
+            pcall(require('telescope').load_extension('luasnip'))
 
             -- See `:help telescope.builtin`
             local builtin = require('telescope.builtin')
@@ -123,9 +125,9 @@ return {
             vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[D]iagnostics' })
             -- vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
             vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = '[R]ecent Files' })
-            vim.keymap.set('n', '<leader>b', builtin.buffers, { desc = 'Search [B]uffers' })
+            vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = '[B]uffers' })
             vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'All: Git Commits' })
-            vim.keymap.set('n', '<leader>gb', builtin.git_bcommits, { desc = 'Current Buffer Git Commits' })
+            vim.keymap.set('n', '<leader>gb', builtin.git_bcommits, { desc = 'Current Buffer: Git Commits' })
             vim.keymap.set('n', '<leader>ga', '<cmd>AdvancedGitSearch<CR>', { desc = '[A]dvancedGitSearch' })
 
             -- Slightly advanced example of overriding default behavior and theme
@@ -140,7 +142,7 @@ return {
             -- Shortcut for searching your Neovim configuration files
             vim.keymap.set('n', '<leader>fn', function()
                 builtin.find_files({ cwd = vim.fn.stdpath('config') })
-            end, { desc = '[S]earch [N]eovim files' })
+            end, { desc = '[N]eovim' })
         end,
     },
 }

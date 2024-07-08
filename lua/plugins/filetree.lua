@@ -22,8 +22,8 @@ return {
                     ['g'] = function()
                         vim.api.nvim_exec2('Neotree focus git_status left', { output = true })
                     end,
-                    ['<C-p>'] = { 'scroll_preview', config = { direction = 10 } },
-                    ['<C-n>'] = { 'scroll_preview', config = { direction = -10 } },
+                    ['<C-u>'] = { 'scroll_preview', config = { direction = 10 } },
+                    ['<C-d>'] = { 'scroll_preview', config = { direction = -10 } },
                     ['<C-b>'] = 'noop',
                     ['<C-f>'] = 'noop',
                 },

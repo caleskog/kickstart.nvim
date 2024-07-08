@@ -23,12 +23,7 @@ return {
                     -- `friendly-snippets` contains a variety of premade snippets.
                     --    See the README about individual language/framework/plugin snippets:
                     --    https://github.com/rafamadriz/friendly-snippets
-                    -- {
-                    --   'rafamadriz/friendly-snippets',
-                    --   config = function()
-                    --     require('luasnip.loaders.from_vscode').lazy_load()
-                    --   end,
-                    -- },
+                    'rafamadriz/friendly-snippets',
                 },
             },
             'saadparwaiz1/cmp_luasnip',
@@ -44,6 +39,12 @@ return {
             local cmp = require('cmp')
             local luasnip = require('luasnip')
             luasnip.config.setup({})
+
+            require('luasnip.loaders.from_vscode').lazy_load()
+            require('luasnip').filetype_extend('cpp', { 'unreal', 'cppdoc' })
+            require('luasnip').filetype_extend('c', { 'cdoc' })
+            require('luasnip').filetype_extend('lua', { 'luadoc' })
+            require('luasnip').filetype_extend('rust', { 'rustdoc' })
 
             cmp.setup({
                 snippet = {
@@ -64,8 +65,8 @@ return {
                     ['<C-p>'] = cmp.mapping.select_prev_item(),
 
                     -- Scroll the documentation window [b]ack / [f]orward
-                    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-                    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+                    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+                    ['<C-u>'] = cmp.mapping.scroll_docs(4),
 
                     -- Accept ([y]es) the completion.
                     --  This will auto-import if your LSP supports it.
@@ -85,12 +86,12 @@ return {
                     --
                     -- <c-.> will move you to the right of each of the expansion locations.
                     -- <c-,> is similar, except moving you backwards.
-                    ['<C-.>'] = cmp.mapping(function()
+                    ['<C-f>'] = cmp.mapping(function()
                         if luasnip.expand_or_locally_jumpable() then
                             luasnip.expand_or_jump()
                         end
                     end, { 'i', 's' }),
-                    ['<C-,>'] = cmp.mapping(function()
+                    ['<C-b>'] = cmp.mapping(function()
                         if luasnip.locally_jumpable(-1) then
                             luasnip.jump(-1)
                         end
