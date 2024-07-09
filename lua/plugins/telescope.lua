@@ -143,6 +143,9 @@ return {
             vim.keymap.set('n', '<leader>fn', function()
                 builtin.find_files({ cwd = vim.fn.stdpath('config') })
             end, { desc = '[N]eovim' })
+
+            -- Search for snippets
+            vim.keymap.set('n', '<leader>fl', '<CMD>Telescope luasnip<CR>', { desc = "[L]uasnip's snippets" })
         end,
     },
 }

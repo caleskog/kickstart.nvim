@@ -85,6 +85,7 @@ return {
                 asm_lsp = true,
                 bashls = true,
                 markdown_oxide = true,
+                marksman = true,
 
                 jsonls = {
                     settings = {
