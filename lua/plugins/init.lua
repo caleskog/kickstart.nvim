@@ -3,8 +3,6 @@
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
 return {
-    'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
     -- Use `opts = {}` to force a plugin to be loaded.
     --
     --  This is equivalent to:

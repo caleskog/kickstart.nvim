@@ -250,6 +250,7 @@ return {
                 notify_on_error = false,
                 formatters_by_ft = {
                     lua = { 'stylua' },
+                    bashls = { 'shfmt' },
                     -- Conform can also run multiple formatters sequentially
                     -- python = { "isort", "black" },
                     --
