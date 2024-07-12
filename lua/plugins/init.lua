@@ -2,6 +2,8 @@
 -- Author: caleskog
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
+local util = require('../util')
+
 return {
     -- Use `opts = {}` to force a plugin to be loaded.
     --
@@ -85,7 +87,7 @@ return {
     {
         'mbbill/undotree',
         config = function()
-            vim.keymap.set('n', '<leader>fu', '<cmd>Telescope undo<CR>', { desc = '[U]ndoList' })
+            util.map('n', '<leader>fu', '<cmd>Telescope undo<CR>', '[U]ndoList')
         end,
     },
 
