@@ -2,11 +2,6 @@
 -- Author: caleskog
 -- Description: Some debugging configuration.
 
-local function map(mode, key, invoke, desc)
-    desc = desc or ''
-    vim.keymap.set(mode, key, invoke, { desc = desc })
-end
-
 return {
     {
         'mfussenegger/nvim-dap',
@@ -19,25 +14,30 @@ return {
         config = function()
             local dap = require('dap')
             local ui = require('dapui')
+            local util = require('../util')
 
             require('dapui').setup()
             require('nvim-dap-virtual-text').setup({})
 
-            map('n', '<leader>dc', dap.continue, 'Continue')
-            map('n', '<leader>dt', dap.run_to_cursor, 'Run to Cursor')
+            util.map('n', '<leader>dc', dap.continue, 'Continue')
+            util.map('n', '<leader>dt', dap.run_to_cursor, 'Run to Cursor')
+            util.map('n', '<leader>dd', dap.toggle_breakpoint, 'Debug: Toggle Breakpoint')
+            util.map('n', '<leader>dD', function()
+                dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
+            end, 'Debug: Set Breakpoint with Conditions')
 
             -- Eval var under cursor
-            map('n', '<leader>d?', function()
+            util.map('n', '<leader>d?', function()
                 ---@diagnostic disable-next-line: missing-fields
                 require('dapui').eval(nil, { enter = true })
             end, 'Debugger Eval Under Cursor')
 
-            map('n', '<F5>', dap.continue, 'Debug: Continue')
-            map('n', '<F11>', dap.step_into, 'Debug: Step Into')
-            map('n', '<F10>', dap.step_over, 'Debug: Step Over')
-            map('n', '<F12>', dap.step_out, 'Debug: Step Out')
-            map('n', '<F9>', dap.step_back, 'Debug: Step Back')
-            map('n', '<F6>', dap.restart, 'Debug: Restart')
+            util.map('n', '<F5>', dap.continue, 'Debug: Continue')
+            util.map('n', '<F11>', dap.step_into, 'Debug: Step Into')
+            util.map('n', '<F10>', dap.step_over, 'Debug: Step Over')
+            util.map('n', '<F12>', dap.step_out, 'Debug: Step Out')
+            util.map('n', '<F9>', dap.step_back, 'Debug: Step Back')
+            util.map('n', '<F6>', dap.restart, 'Debug: Restart')
 
             dap.listeners.before.attach.dapui_config = function()
                 ui.open()

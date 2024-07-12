@@ -22,6 +22,9 @@ vim.opt.showmode = false
 --  See `:help 'clipboard'`
 vim.opt.clipboard = 'unnamedplus'
 
+-- Set highlight on search.
+vim.opt.hlsearch = true
+
 -- Enable break indent
 vim.opt.breakindent = true
 

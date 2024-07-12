@@ -81,12 +81,14 @@ return {
             { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = '[T]odotList' }, -- Using Telescope
         },
     },
+
     {
         'mbbill/undotree',
         config = function()
             vim.keymap.set('n', '<leader>fu', '<cmd>Telescope undo<CR>', { desc = '[U]ndoList' })
         end,
     },
+
     {
         'iamcco/markdown-preview.nvim',
         cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
@@ -111,5 +113,10 @@ return {
                 desc = 'Document: Stop Markdown Preview',
             },
         },
+    },
+
+    {
+        'rcarriga/nvim-notify',
+        opts = {},
     },
 }

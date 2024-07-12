@@ -5,10 +5,8 @@
 
 local util = require('util')
 
--- Set highlight on search, but clear on pressing <Esc> in normal mode
-vim.opt.hlsearch = true
----@diagnostic disable-next-line: missing-parameter
-util.map('n', '<Esc>', '<cmd>nohlsearch<CR>')
+-- As highlight on search is set in `options.lua`, but clear on pressing <Esc> in normal mode
+util.cmap('n', '<Esc>', 'nohlsearch')
 
 -- Allow navigating wrapped lines like physical lines
 util.emap('nv', 'j', "v:count ? 'j' : 'gj'")

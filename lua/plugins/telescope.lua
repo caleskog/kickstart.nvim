@@ -108,44 +108,41 @@ return {
             pcall(require('telescope').load_extension('advanced_git_search'))
             pcall(require('telescope').load_extension('luasnip'))
 
+            local util = require('../util')
+
             -- See `:help telescope.builtin`
             local builtin = require('telescope.builtin')
-            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[H]elp' })
-            vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[K]eymaps' })
-            vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[F]iles' })
-            -- vim.keymap.set('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-            vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[W]ord' })
-            vim.keymap.set('n', '<leader>fg', "<cmd>lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = 'Live [G]rep' })
-            vim.keymap.set(
-                'n',
-                '<leader>fc',
-                '<cmd>lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})<CR>',
-                { desc = 'Live Grep [C]ode' }
-            )
-            vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[D]iagnostics' })
-            -- vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-            vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = '[R]ecent Files' })
-            vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = '[B]uffers' })
-            vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'All: Git Commits' })
-            vim.keymap.set('n', '<leader>gb', builtin.git_bcommits, { desc = 'Current Buffer: Git Commits' })
-            vim.keymap.set('n', '<leader>ga', '<cmd>AdvancedGitSearch<CR>', { desc = '[A]dvancedGitSearch' })
+            util.map('n', '<leader>fh', builtin.help_tags, '[H]elp')
+            util.map('n', '<leader>fk', builtin.keymaps, '[K]eymaps')
+            util.map('n', '<leader>ff', builtin.find_files, '[F]iles')
+            -- util.cmap('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+            util.map('n', '<leader>fw', builtin.grep_string, '[W]ord')
+            util.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Live [G]rep}')
+            util.cmap('n', '<leader>fc', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Live Grep [C]ode')
+            util.map('n', '<leader>fd', builtin.diagnostics, '[D]iagnostics')
+            -- util.cmap('n', '<leader>sr', builtin.resume, '[S]earch [R]esume' )
+            util.map('n', '<leader>fr', builtin.oldfiles, '[R]ecent Files')
+            util.map('n', '<leader>fb', builtin.buffers, '[B]uffers')
+            util.map('n', '<leader>gc', builtin.git_commits, 'All: Git Commits')
+            util.map('n', '<leader>gb', builtin.git_bcommits, 'Current Buffer: Git Commits')
+            util.cmap('n', '<leader>ga', 'AdvancedGitSearch', '[A]dvancedGitSearch')
 
             -- Slightly advanced example of overriding default behavior and theme
-            vim.keymap.set('n', '<leader>/', function()
+            util.map('n', '<leader>/', function()
                 -- You can pass additional configuration to Telescope to change the theme, layout, etc.
                 builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown({
                     winblend = 10,
                     previewer = false,
                 }))
-            end, { desc = 'Current Buffer: Fuzzily search' })
+            end, 'Current Buffer: Fuzzily search')
 
             -- Shortcut for searching your Neovim configuration files
-            vim.keymap.set('n', '<leader>fn', function()
+            util.map('n', '<leader>fn', function()
                 builtin.find_files({ cwd = vim.fn.stdpath('config') })
-            end, { desc = '[N]eovim' })
+            end, '[N]eovim')
 
             -- Search for snippets
-            vim.keymap.set('n', '<leader>fl', '<CMD>Telescope luasnip<CR>', { desc = "[L]uasnip's snippets" })
+            util.cmap('n', '<leader>fl', 'Telescope luasnip', "[L]uasnip's snippets")
         end,
     },
 }

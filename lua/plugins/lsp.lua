@@ -50,6 +50,7 @@ return {
             --
             -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
             -- and elegantly composed help section, `:help lsp-vs-treesitter`
+            local util = require('../util')
 
             local capabilities = nil
             -- Add extended capabilities to lspconfig
@@ -173,7 +174,7 @@ return {
                 group = vim.api.nvim_create_augroup('custom-lsp-attach', { clear = true }),
                 callback = function(event)
                     local map = function(keys, func, desc)
-                        vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
+                        util.map('n', keys, func, 'LSP: ' .. desc, { buffer = event.buf })
                     end
 
                     -- Jump to the definition of the word under your cursor.

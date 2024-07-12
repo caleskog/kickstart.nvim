@@ -4,33 +4,7 @@
 
 local M = {}
 
-local popup = require('plenary.popup')
-
-local Win_ID
-
----@param msg string message to display
-function M.show_message(msg)
-    local height = 20
-    local width = 30
-    local borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' }
-
-    Win_ID = popup.create({ msg }, {
-        title = 'Message',
-        highlight = 'UtilityMessage',
-        line = math.floor(((vim.o.lines - height) / 2) - 1),
-        col = math.floor((vim.o.columns - width) / 2),
-        minwidth = width,
-        minheight = height,
-        borderchars = borderchars,
-        -- callback = nil,
-    })
-    local bufnr = vim.api.nvim_win_get_buf(Win_ID)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', '<CMD>:lua CloseMessageWindow()<CR>', { silent = false })
-end
-
-function CloseMessageWindow()
-    vim.api.nvim_win_close(Win_ID, true)
-end
+local notify = require('notify')
 
 ---Available modes for the map functions
 ---Example:
@@ -45,15 +19,13 @@ end
 M.Mode = setmetatable({
     -- See :h mode()
     _modes = { 'n', 'i', 'v', 'V', 'W', 's', 'S', 'Z', 'R', 't' },
-    _count = 0,
 }, {
     ---Index function
     ---@param self table
     ---@param key string
     __index = function(self, key)
-        M.show_message(key)
         local exists = 0
-        for i in 1, #key do
+        for i = 1, #key do
             for _, mode in ipairs(self._modes) do
                 if key:sub(i, i) == mode then
                     exists = exists + 1
@@ -81,16 +53,22 @@ M.TERMINAL = { 't' }
 ---@param key string
 ---@param invoke any
 ---@param desc? string
-function M.map(mode, key, invoke, desc)
+---@param opts? vim.keymap.set.Opts
+function M.map(mode, key, invoke, desc, opts)
     desc = desc or ''
-    --[[ if not M.Mode[mode] then
-        M.show_message("Invalid mode: '" .. M.Mode[mode] .. "'")
-    end ]]
-    -- vim.keymap.set(M.Mode[mode], key, invoke, { desc = desc })
-    vim.keymap.set(mode, key, invoke, { desc = desc })
+    opts = opts or {}
+    if not M.Mode[mode] then
+        ---@diagnostic disable-next-line: missing-fields
+        notify.notify("Invalid mode: '" .. mode .. "'", 'warning', {
+            title = 'Utility Library',
+        })
+        return false
+    end
+    vim.keymap.set(M.Mode[mode], key, invoke, table.insert(opts, { desc = desc }))
+    return true
 end
 
----Map a key to an action, assuming the `invoke` variable holds and expression
+---Map a key to a action, assuming the `invoke` variable holds an expression
 ---@param mode string
 ---@param key string
 ---@param invoke any
@@ -98,9 +76,32 @@ end
 function M.emap(mode, key, invoke, desc)
     desc = desc or ''
     if not M.Mode[mode] then
-        M.show_message("Invalid mode: '" .. M.Mode[mode] .. "'")
+        ---@diagnostic disable-next-line: missing-fields
+        notify.notify("Invalid mode: '" .. mode .. "'", 'warning', {
+            title = 'Utility Library',
+        })
+        return false
     end
     vim.keymap.set(M.Mode[mode], key, invoke, { desc = desc, expr = true })
+    return true
+end
+
+---Map a key to a action, assuming the `invoke` variable holds a command
+---@param mode string
+---@param key string
+---@param invoke any
+---@param desc? string
+function M.cmap(mode, key, invoke, desc)
+    desc = desc or ''
+    if not M.Mode[mode] then
+        ---@diagnostic disable-next-line: missing-fields
+        notify.notify("Invalid mode: '" .. mode .. "'", 'warning', {
+            title = 'Utility Library',
+        })
+        return false
+    end
+    vim.keymap.set(M.Mode[mode], key, '<CMD>' .. invoke .. '<CR>', { desc = desc })
+    return true
 end
 
 ---Check if a module exists before requiring it
