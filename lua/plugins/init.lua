@@ -2,7 +2,6 @@
 -- Author: caleskog
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
-local util = require('../util')
 
 return {
     -- Use `opts = {}` to force a plugin to be loaded.
@@ -86,7 +85,11 @@ return {
 
     {
         'mbbill/undotree',
+        dependencies = {
+            'rcarriga/nvim-notify',
+        },
         config = function()
+            local util = require('../util')
             util.map('n', '<leader>fu', '<cmd>Telescope undo<CR>', '[U]ndoList')
         end,
     },
