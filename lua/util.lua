@@ -4,14 +4,103 @@
 
 local M = {}
 
+local popup = require('plenary.popup')
+
+local Win_ID
+
+---@param msg string message to display
+function M.show_message(msg)
+    local height = 20
+    local width = 30
+    local borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' }
+
+    Win_ID = popup.create({ msg }, {
+        title = 'Message',
+        highlight = 'UtilityMessage',
+        line = math.floor(((vim.o.lines - height) / 2) - 1),
+        col = math.floor((vim.o.columns - width) / 2),
+        minwidth = width,
+        minheight = height,
+        borderchars = borderchars,
+        -- callback = nil,
+    })
+    local bufnr = vim.api.nvim_win_get_buf(Win_ID)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', '<CMD>:lua CloseMessageWindow()<CR>', { silent = false })
+end
+
+function CloseMessageWindow()
+    vim.api.nvim_win_close(Win_ID, true)
+end
+
+---Available modes for the map functions
+---Example:
+---     M.Mode['nv'] results in { 'n', 'v' }
+---     M.Mode['iv'] results in { 'i', 'v' }
+---     M.Mode['ntV'] results in { 'n', 't', 'V' }
+---Note:
+---     'W' => 'ctrl-v'
+---     'Z' => 'ctrl-s'
+---
+---@class Modes
+M.Mode = setmetatable({
+    -- See :h mode()
+    _modes = { 'n', 'i', 'v', 'V', 'W', 's', 'S', 'Z', 'R', 't' },
+    _count = 0,
+}, {
+    ---Index function
+    ---@param self table
+    ---@param key string
+    __index = function(self, key)
+        M.show_message(key)
+        local exists = 0
+        for i in 1, #key do
+            for _, mode in ipairs(self._modes) do
+                if key:sub(i, i) == mode then
+                    exists = exists + 1
+                end
+            end
+        end
+        if exists == string.len(key) then
+            local ret_tbl = {}
+            for c in key:gmatch('.') do
+                table.insert(ret_tbl, c)
+            end
+            return ret_tbl
+        end
+        return false
+    end,
+    __newindex = nil,
+})
+M.NORMAL = { 'n' }
+M.INSERT = { 'i' }
+M.VISUAL = { 'v' }
+M.TERMINAL = { 't' }
+
 ---Map a key to a action.
 ---@param mode string
 ---@param key string
 ---@param invoke any
----@param desc string
+---@param desc? string
 function M.map(mode, key, invoke, desc)
     desc = desc or ''
+    --[[ if not M.Mode[mode] then
+        M.show_message("Invalid mode: '" .. M.Mode[mode] .. "'")
+    end ]]
+    -- vim.keymap.set(M.Mode[mode], key, invoke, { desc = desc })
     vim.keymap.set(mode, key, invoke, { desc = desc })
+end
+
+---Map a key to an action, assuming the `invoke` variable holds and expression
+---@param mode string
+---@param key string
+---@param invoke any
+---@param desc? string
+function M.emap(mode, key, invoke, desc)
+    desc = desc or ''
+    if not M.Mode[mode] then
+        M.show_message("Invalid mode: '" .. M.Mode[mode] .. "'")
+    end
+    vim.keymap.set(M.Mode[mode], key, invoke, { desc = desc, expr = true })
 end
 
 ---Check if a module exists before requiring it

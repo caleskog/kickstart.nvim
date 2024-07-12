@@ -10,6 +10,10 @@ vim.opt.hlsearch = true
 ---@diagnostic disable-next-line: missing-parameter
 util.map('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Allow navigating wrapped lines like physical lines
+util.emap('nv', 'j', "v:count ? 'j' : 'gj'")
+util.emap('nv', 'k', "v:count ? 'k' : 'gk'")
+
 -- Diagnostic keymaps
 util.map('n', '[d', vim.diagnostic.goto_prev, 'Go to previous [D]iagnostic message')
 util.map('n', ']d', vim.diagnostic.goto_next, 'Go to next [D]iagnostic message')
