@@ -2,7 +2,6 @@
 -- Author: caleskog
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
-
 return {
     -- Use `opts = {}` to force a plugin to be loaded.
     --
@@ -105,17 +104,17 @@ return {
             {
                 '<leader>pmt',
                 '<Plug>MarkdownPreviewToggle',
-                desc = 'Document: Toggle Markdown Preview',
+                desc = 'Toggle Markdown Preview',
             },
             {
                 '<leader>pmm',
                 '<Plug>MarkdownPreview',
-                desc = 'Document: Start Markdown Preview',
+                desc = 'Start Markdown Preview',
             },
             {
                 '<leader>pms',
                 '<Plug>MarkdownPreviewStop',
-                desc = 'Document: Stop Markdown Preview',
+                desc = 'Stop Markdown Preview',
             },
         },
     },

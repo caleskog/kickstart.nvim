@@ -7,6 +7,7 @@ return {
         'folke/which-key.nvim',
         event = 'VeryLazy', -- Sets the loading event to 'VimEnter'
         opts = {
+            preset = 'modern',
             spec = {
                 { '<leader>f', group = '[F]find' },
                 -- { '<leader>w', group = '[W]orkspace'},
@@ -19,6 +20,5 @@ return {
                 { 'z=', group = 'Spelling suggestions' },
             },
         },
-        keys = {},
     },
 }
