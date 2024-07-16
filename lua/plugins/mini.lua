@@ -3,6 +3,26 @@
 -- Description: Usefull plugins/modules for improving overall Neovim experience.
 local util = require('../util')
 
+local function which_key_spec(mode)
+    local desc_t = {
+        util.WhichKey_ai(mode, '[a]rgument/parameter'),
+        util.WhichKey_ai(mode, '[f]unction call'),
+        util.WhichKey_ai(mode, '[F]unction'),
+        util.WhichKey_ai(mode, '[c]onditional'),
+        util.WhichKey_ai(mode, '[C]lass'),
+        util.WhichKey_ai(mode, '[S]tatement'),
+        util.WhichKey_ai(mode, '[L]oop'),
+        -- util.WhichKey_ai('[b]lock'),    --TODO: 'ab' and 'ib' doeen't show up in which-key. I don't know if it uses the treesitter version or not?
+
+        -- The following didn't work due to errors in which-key on start-up
+        -- B = false, -- Disabling aB and iB as treesitter is a better option for block searches
+    }
+    -- util.dump_dict(desc_t, 'desc_t_before.dump')
+    desc_t = util.flatten(desc_t)
+    -- util.dump_dict(desc_t, 'desc_t_after.dump')
+    return desc_t
+end
+
 local function mini_ai()
     -- Better Around/Inside textobjects
     --
@@ -29,29 +49,10 @@ local function mini_ai()
 
     require('mini.ai').setup(setup_tlb)
 
-    local desc_t = {
-        util.WhichKey_ai('[a]rgument/parameter'),
-        util.WhichKey_ai('[f]unction call'),
-        util.WhichKey_ai('[F]unction'),
-        util.WhichKey_ai('[c]onditional'),
-        util.WhichKey_ai('[C]lass'),
-        util.WhichKey_ai('[S]tatement'),
-        util.WhichKey_ai('[L]oop'),
-        -- util.WhichKey_ai('[b]lock'),    --TODO: 'ab' and 'ib' doeen't show up in which-key. I don't know if it uses the treesitter version or not?
-
-        -- The following didn't work due to errors in which-key on start-up
-        -- B = false, -- Disabling aB and iB as treesitter is a better option for block searches
-    }
-    -- util.dump_dict(desc_t, 'desc_t_before.dump')
-    desc_t = util.flatten(desc_t)
-    -- util.dump_dict(desc_t, 'desc_t_after.dump')
-
+    local wk = require('which-key')
     -- Document Mini.AI custom textobjects for operator-pending mode
-    -- TODO: Updated Which-Key mappings
-    require('which-key').register(desc_t, { mode = 'o', prefix = '' })
     -- Document Mini.AI custom textobjects for visual mode
-    -- TODO: Updated Which-Key mappings
-    require('which-key').register(desc_t, { mode = 'x', prefix = '' })
+    wk.add(which_key_spec({ 'o', 'x' }))
 end
 
 return {
