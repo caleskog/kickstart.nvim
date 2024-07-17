@@ -70,39 +70,34 @@ function M.map(mode, key, invoke, desc, opts)
 end
 
 ---Map a key to a action, assuming the `invoke` variable holds an expression
+---Essentially a wrapper of `util.map(...)`
 ---@param mode string
 ---@param key string
----@param invoke any
+---@param invoke string
 ---@param desc? string
 function M.emap(mode, key, invoke, desc)
-    desc = desc or ''
-    if not M.Mode[mode] then
-        ---@diagnostic disable-next-line: missing-fields
-        notify.notify("Invalid mode: '" .. mode .. "'", 'warning', {
-            title = 'Utility Library',
-        })
-        return false
-    end
-    vim.keymap.set(M.Mode[mode], key, invoke, { desc = desc, expr = true })
-    return true
+    return M.map(mode, key, invoke, desc, { expr = true })
 end
 
 ---Map a key to a action, assuming the `invoke` variable holds a command
+---Essentially a wrapper of `util.map(...)`
 ---@param mode string
 ---@param key string
----@param invoke any
+---@param invoke string
 ---@param desc? string
 function M.cmap(mode, key, invoke, desc)
-    desc = desc or ''
-    if not M.Mode[mode] then
-        ---@diagnostic disable-next-line: missing-fields
-        notify.notify("Invalid mode: '" .. mode .. "'", 'warning', {
-            title = 'Utility Library',
-        })
-        return false
-    end
-    vim.keymap.set(M.Mode[mode], key, '<CMD>' .. invoke .. '<CR>', { desc = desc })
-    return true
+    return M.map(mode, key, '<CMD>' .. invoke .. '<CR>', desc)
+end
+
+---Map a key to a action, assuming the `invoke` variable holds a function
+---Essentially a wrapper of `util.map(...)`
+---@param mode string
+---@param key string
+---@param invoke function
+---@param desc? string
+---@param opts? vim.keymap.set.Opts
+function M.fmap(mode, key, invoke, desc, opts)
+    return M.map(mode, key, invoke, desc, opts)
 end
 
 ---Check if a module exists before requiring it

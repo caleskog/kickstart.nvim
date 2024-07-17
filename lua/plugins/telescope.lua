@@ -28,14 +28,14 @@ return {
 
             'debugloop/telescope-undo.nvim',
             'nvim-telescope/telescope-live-grep-args.nvim',
-            {
-                'aaronhallaert/advanced-git-search.nvim',
-                dependencies = {
-                    'nvim-telescope/telescope.nvim',
-                    'tpope/vim-fugitive',
-                    'tpope/vim-rhubarb',
-                },
-            },
+            -- {
+            --     'aaronhallaert/advanced-git-search.nvim',
+            --     dependencies = {
+            --         'nvim-telescope/telescope.nvim',
+            --         'tpope/vim-fugitive',
+            --         'tpope/vim-rhubarb',
+            --     },
+            -- },
             'benfowler/telescope-luasnip.nvim',
         },
         config = function()
@@ -105,7 +105,7 @@ return {
             pcall(require('telescope').load_extension, 'ui-select')
             pcall(require('telescope').load_extension('undo'))
             pcall(require('telescope').load_extension('live_grep_args'))
-            pcall(require('telescope').load_extension('advanced_git_search'))
+            -- pcall(require('telescope').load_extension('advanced_git_search'))
             pcall(require('telescope').load_extension('luasnip'))
 
             local util = require('../util')
@@ -123,9 +123,7 @@ return {
             -- util.cmap('n', '<leader>sr', builtin.resume, '[S]earch [R]esume' )
             util.map('n', '<leader>fr', builtin.oldfiles, '[R]ecent Files')
             util.map('n', '<leader>fb', builtin.buffers, '[B]uffers')
-            util.map('n', '<leader>gc', builtin.git_commits, 'All: Git Commits')
-            util.map('n', '<leader>gb', builtin.git_bcommits, 'Current Buffer: Git Commits')
-            util.cmap('n', '<leader>ga', 'AdvancedGitSearch', '[A]dvancedGitSearch')
+            -- util.cmap('n', '<leader>ga', 'AdvancedGitSearch', '[A]dvancedGitSearch')
 
             -- Slightly advanced example of overriding default behavior and theme
             util.map('n', '<leader>/', function()
