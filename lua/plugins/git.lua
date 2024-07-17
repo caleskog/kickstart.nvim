@@ -24,6 +24,9 @@ return {
             util.fmap('n', '<leader>fC', telescope.git_bcommits, 'Buffer | Git Commits')
             util.fmap('n', '<leader>fb', telescope.git_branches, 'Git Branches')
 
+            util.cmap('n', '<leader>gw', "lua require('telescope').extensions.git_worktree.git_worktrees()", 'Git Worktrees')
+            util.cmap('n', '<leader>gW', "lua require('telescope').extensions.git_worktree.create_git_worktree()", 'Create Git Worktree')
+
             neogit.setup({})
         end,
     },

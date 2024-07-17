@@ -37,6 +37,7 @@ return {
             --     },
             -- },
             'benfowler/telescope-luasnip.nvim',
+            'ThePrimeagen/git-worktree.nvim',
         },
         config = function()
             -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -107,6 +108,7 @@ return {
             pcall(require('telescope').load_extension('live_grep_args'))
             -- pcall(require('telescope').load_extension('advanced_git_search'))
             pcall(require('telescope').load_extension('luasnip'))
+            pcall(require('telescope').load_extension('git_worktree'))
 
             local util = require('../util')
 
