@@ -13,10 +13,10 @@ util.emap('nv', 'j', "v:count ? 'j' : 'gj'")
 util.emap('nv', 'k', "v:count ? 'k' : 'gk'")
 
 -- Diagnostic keymaps
-util.map('n', '[d', vim.diagnostic.goto_prev, 'Go to previous [D]iagnostic message')
-util.map('n', ']d', vim.diagnostic.goto_next, 'Go to next [D]iagnostic message')
-util.map('n', '<leader>e', vim.diagnostic.open_float, 'Show diagnostic [E]rror messages')
-util.map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic [Q]uickfix list')
+util.map('n', '[d', vim.diagnostic.goto_prev, 'Go to previous Diagnostic message')
+util.map('n', ']d', vim.diagnostic.goto_next, 'Go to next Diagnostic message')
+util.map('n', '<leader>e', vim.diagnostic.open_float, 'Show diagnostic Error messages')
+util.map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic Quickfix list')
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which

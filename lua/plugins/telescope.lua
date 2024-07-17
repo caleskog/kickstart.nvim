@@ -112,18 +112,18 @@ return {
 
             -- See `:help telescope.builtin`
             local builtin = require('telescope.builtin')
-            util.map('n', '<leader>fh', builtin.help_tags, '[H]elp')
-            util.map('n', '<leader>fk', builtin.keymaps, '[K]eymaps')
-            util.map('n', '<leader>ff', builtin.find_files, '[F]iles')
-            -- util.cmap('n', '<leader>sS', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-            util.map('n', '<leader>fw', builtin.grep_string, '[W]ord')
-            util.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Live [G]rep}')
-            util.cmap('n', '<leader>fc', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Live Grep [C]ode')
-            util.map('n', '<leader>fd', builtin.diagnostics, '[D]iagnostics')
-            -- util.cmap('n', '<leader>sr', builtin.resume, '[S]earch [R]esume' )
-            util.map('n', '<leader>fr', builtin.oldfiles, '[R]ecent Files')
-            util.map('n', '<leader>fb', builtin.buffers, '[B]uffers')
-            -- util.cmap('n', '<leader>ga', 'AdvancedGitSearch', '[A]dvancedGitSearch')
+            util.map('n', '<leader>fh', builtin.help_tags, 'Help')
+            util.map('n', '<leader>fk', builtin.keymaps, 'Keymaps')
+            util.map('n', '<leader>ff', builtin.find_files, 'Files')
+            -- util.cmap('n', '<leader>sS', builtin.builtin, { desc = 'Search Select Telescope' })
+            util.map('n', '<leader>fw', builtin.grep_string, 'Word')
+            util.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
+            util.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
+            util.map('n', '<leader>fd', builtin.diagnostics, 'Diagnostics')
+            -- util.cmap('n', '<leader>sr', builtin.resume, 'Search Resume' )
+            util.map('n', '<leader>fr', builtin.oldfiles, 'Recent Files')
+            util.map('n', '<leader>b', builtin.buffers, 'Find Buffers')
+            -- util.cmap('n', '<leader>ga', 'AdvancedGitSearch', 'AdvancedGitSearch')
 
             -- Slightly advanced example of overriding default behavior and theme
             util.map('n', '<leader>/', function()
@@ -132,15 +132,15 @@ return {
                     winblend = 10,
                     previewer = false,
                 }))
-            end, 'Current Buffer: Fuzzily search')
+            end, 'Buffer | Fuzzily search')
 
             -- Shortcut for searching your Neovim configuration files
             util.map('n', '<leader>fn', function()
                 builtin.find_files({ cwd = vim.fn.stdpath('config') })
-            end, '[N]eovim')
+            end, 'Neovim')
 
             -- Search for snippets
-            util.cmap('n', '<leader>fl', 'Telescope luasnip', "[L]uasnip's snippets")
+            util.cmap('n', '<leader>fl', 'Telescope luasnip', "Luasnip's Snippets")
         end,
     },
 }

@@ -19,8 +19,8 @@ return {
             require('dapui').setup()
             require('nvim-dap-virtual-text').setup({})
 
-            util.map('n', '<leader>dc', dap.continue, 'Continue')
-            util.map('n', '<leader>dt', dap.run_to_cursor, 'Run to Cursor')
+            util.map('n', '<leader>dc', dap.continue, 'Debug: Continue')
+            util.map('n', '<leader>dt', dap.run_to_cursor, 'Debug: Run to Cursor')
             util.map('n', '<leader>dd', dap.toggle_breakpoint, 'Debug: Toggle Breakpoint')
             util.map('n', '<leader>dD', function()
                 dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
@@ -30,7 +30,7 @@ return {
             util.map('n', '<leader>d?', function()
                 ---@diagnostic disable-next-line: missing-fields
                 require('dapui').eval(nil, { enter = true })
-            end, 'Debugger Eval Under Cursor')
+            end, 'Debug: Evaluate Under Cursor')
 
             util.map('n', '<F5>', dap.continue, 'Debug: Continue')
             util.map('n', '<F11>', dap.step_into, 'Debug: Step Into')

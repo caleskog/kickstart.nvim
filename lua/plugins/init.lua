@@ -78,7 +78,7 @@ return {
             merge_keywords = true,
         },
         keys = {
-            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = '[T]odotList' }, -- Using Telescope
+            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'TodotList' }, -- Using Telescope
         },
     },
 
@@ -89,7 +89,7 @@ return {
         },
         config = function()
             local util = require('../util')
-            util.map('n', '<leader>fu', '<cmd>Telescope undo<CR>', '[U]ndoList')
+            util.cmap('n', '<leader>fu', 'Telescope undo', 'UndoList')
         end,
     },
 
