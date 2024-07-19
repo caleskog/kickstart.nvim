@@ -174,4 +174,37 @@ function M.contains(tbl, val)
     return false
 end
 
+---Open file with system default app. If possible, create/re-create the corresponding `target` file.
+---
+---NOTE: This function uses `plenary` for path operations. Please make sure that it is loaded before using this function.
+---
+---@param filepath? string The path to the file that should be opend. Default: vim.api.nvim_buf_get_name(0).
+---@param filetypes? table<string> A list of filetypes that should be converted into `target` files when trying to open them. Default: {"markdown"}. For possible extensions see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+---@param target? string The prefered convertion result file type. Default: "html".
+function M.open(filepath, filetypes, target)
+    filepath = filepath or vim.api.nvim_buf_get_name(0)
+    filetypes = filetypes or { 'markdown' }
+    target = target or 'html'
+    local Path = require('plenary.path')
+    if not Path:new(filepath):exists() then
+        vim.notify('The path [' .. filepath .. '] does not exist', vim.log.levels.INFO)
+        return
+    end
+
+    local filetype = require('plenary.filetype')
+    local extension = filetype.detect(filepath, {})
+
+    local p = filepath:match('^(.+/.+)%.(.+)$')
+    ---@diagnostic disable-next-line: param-type-mismatch
+    if M.contains(filetypes, extension) then
+        vim.notify('(re)creating and opening complementary `' .. target .. '` file', vim.log.levels.INFO)
+        os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. p .. '.' .. target .. ' &>/dev/null')
+        filepath = p .. '.' .. target
+    else
+        vim.notify('Opening file', vim.log.levels.INFO)
+    end
+
+    vim.api.nvim_exec2('!xdg-open ' .. filepath, { output = true })
+end
+
 return M

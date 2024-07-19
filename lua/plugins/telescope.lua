@@ -61,7 +61,45 @@ return {
 
             -- [[ Configure Telescope ]]
             -- See `:help telescope` and `:help telescope.setup()`
+            --
+
             local actions = require('telescope.actions')
+            local transform_mod = require('telescope.actions.mt').transform_mod
+            local custom_actions = {}
+            --- Open file with system default. create/re-create the corresponding html file.
+            ---
+            ---@param sources? table<string> A talbe specifying the filetypes that it tryes to convert to `target` before opening the file. Default: {"markdown"}
+            ---@param target? string The filetype that it tries to convert into. Default: "html"
+            custom_actions.system_default_html = function(sources, target)
+                ---@param prompt_bufnr number The prompt bufnr
+                return function(prompt_bufnr)
+                    -- Info found at: https://github.com/nvim-telescope/telescope.nvim/blob/master/lua/telescope/actions/set.lua#L127
+                    sources = sources or { 'markdown' }
+                    target = target or 'html'
+                    local action_state = require('telescope.actions.state')
+                    local entry = action_state.get_selected_entry()
+                    actions.close(prompt_bufnr)
+                    if not entry then
+                        vim.notify('Nothing currently selected', vim.log.levels.WARN)
+                        return
+                    end
+                    if entry.path or entry.filename then
+                        local filename = entry.path or entry.filename
+                        vim.notify(filename or 'Nil', vim.log.levels.INFO)
+                        local util = require('../util')
+                        util.open(vim.fn.fnameescape(filename), sources, target)
+                    end
+                    --[[ -- Use default open command
+                    local action_set = require('telescope.actions.set')
+                    return action_set.select(prompt_bufnr, 'default') ]]
+                end
+            end
+            --- Transform custom_actions module and sets the correct metatables.
+            --- These custom actions includes the following functions: `:replace(f)`, `:replace_if(f, c)`,
+            --- `replace_map(tbl)` and `enhance(tbl)`. More information on these functions
+            --- can be found in the `developers.md` and `lua/tests/automated/action_spec.lua`
+            custom_actions = transform_mod(custom_actions)
+
             require('telescope').setup({
                 -- You can put your default mappings / updates / etc. in here
                 --  All the info you're looking for is in `:help telescope.setup()`
@@ -71,6 +109,7 @@ return {
                         i = {
                             ['<C-j>'] = actions.cycle_history_next, -- To search forward of previous searches
                             ['<C-k>'] = actions.cycle_history_prev, -- To search backwards of previous searches
+                            ['<C-s>'] = custom_actions.system_default_html(),
                         },
                     },
                 },
