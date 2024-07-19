@@ -26,7 +26,15 @@ return {
                     ['<C-d>'] = { 'scroll_preview', config = { direction = -10 } },
                     ['<C-b>'] = 'noop',
                     ['<C-f>'] = 'noop',
+                    ['O'] = 'system_open',
                 },
+            },
+            commands = {
+                system_open = function(state)
+                    local node = state.tree:get_node()
+                    local path = node:get_id()
+                    vim.fn.jobstart({ 'xdg-open', path }, { detach = true })
+                end,
             },
         })
     end,
