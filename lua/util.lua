@@ -160,4 +160,18 @@ function M.flatten(tlb, depth)
     return vim.iter(tlb):flatten(depth):totable()
 end
 
+---Check if a table contains a specific value
+---
+---@param tbl table
+---@param val any
+---@return boolean
+function M.contains(tbl, val)
+    for _, value in ipairs(tbl) do
+        if value == val then
+            return true
+        end
+    end
+    return false
+end
+
 return M

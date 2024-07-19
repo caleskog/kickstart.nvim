@@ -26,6 +26,32 @@ util.map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic Quickfix 
 -- or just use <C-\><C-n> to exit terminal mode
 util.map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 
+util.fmap('n', 'gO', function()
+    local Path = require('plenary.path')
+    local filepath = vim.api.nvim_buf_get_name(0)
+    if not Path:new(filepath):exists() then
+        vim.notify('The path [' .. filepath .. '] does not exist', vim.log.levels.INFO)
+        return
+    end
+
+    local filetype = require('plenary.filetype')
+    local extension = filetype.detect(filepath, {})
+
+    local p = filepath:match('^(.+/.+)%.(.+)$')
+    if Path:new(p .. '.html'):exists() then
+        filepath = p .. '.html'
+        vim.notify('Opening complementary HTML file', vim.log.levels.INFO)
+    elseif util.contains({ 'markdown' }, extension) then -- Possible extensions: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+        vim.notify('Creating and opening complementary HTML file', vim.log.levels.INFO)
+        os.execute('~/.bash.ext/converters/_2html.sh ' .. filepath .. ' ' .. p .. '.html')
+        filepath = p .. '.html'
+    else
+        vim.notify('Opening file', vim.log.levels.INFO)
+    end
+
+    vim.api.nvim_exec2('!xdg-open ' .. filepath, { output = true })
+end, 'Open file w/ system default (possibly convert to HTML)')
+
 -- NOTE: See lua/plugins/navigation.lua
 --
 --[[ -- Basic keybindings for moving focus to another window
