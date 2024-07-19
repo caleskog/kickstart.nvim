@@ -2,6 +2,8 @@
 -- Author: caleskog
 -- Description: Adding more capabilities to the `gx` keymapping.
 
+-- TODO: Test if it can open .md, .pdf, and .html files. Open them with util.open.
+
 return {
     {
         'chrishrb/gx.nvim',
