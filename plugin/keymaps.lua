@@ -38,11 +38,8 @@ util.fmap('n', 'gO', function()
     local extension = filetype.detect(filepath, {})
 
     local p = filepath:match('^(.+/.+)%.(.+)$')
-    if Path:new(p .. '.html'):exists() then
-        filepath = p .. '.html'
-        vim.notify('Opening complementary HTML file', vim.log.levels.INFO)
-    elseif util.contains({ 'markdown' }, extension) then -- Possible extensions: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
-        vim.notify('Creating and opening complementary HTML file', vim.log.levels.INFO)
+    if util.contains({ 'markdown' }, extension) then -- Possible extensions: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+        vim.notify('(re)creating and opening complementary HTML file', vim.log.levels.INFO)
         os.execute('~/.bash.ext/converters/_2html.sh ' .. filepath .. ' ' .. p .. '.html')
         filepath = p .. '.html'
     else
