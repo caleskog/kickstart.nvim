@@ -15,6 +15,7 @@ return {
         dependencies = { 'nvim-lua/plenary.nvim' },
         submodules = false, -- not needed, submodules are required only for tests
         config = function()
+            -- ~/.config/nvim/Neovim.html
             ---@diagnostic disable-next-line: missing-fields
             require('gx').setup({
                 -- open_browser_args = { '--background' },
@@ -31,6 +32,48 @@ return {
 
                             if crate then
                                 return 'https://crates.io/crates/' .. crate
+                            end
+                        end,
+                    },
+                    -- ~/.config/nvim/Neovim.html
+                    html = { -- Custom handler to open local files via browser (possible convert to html)
+                        name = 'html',
+                        handle = function(mode, line, _)
+                            local helper = require('gx.helper')
+                            local Path = require('plenary.path')
+                            local util = require('../util')
+
+                            -- Need to be in normal mode
+                            if mode ~= 'n' then
+                                return
+                            end
+
+                            local pattern = '([0-9a-zA-Z%-%._/~&{}]+)'
+                            ---@type string|nil
+                            local filename = helper.find(line, mode, pattern)
+                            if filename then
+                                ---@type string
+                                local filepath = Path:new(filename):expand()
+
+                                -- Try and convert filepath to HTML file
+                                local targetpath, ecode = util.convert(filepath, { 'markdown' }, 'html', false)
+
+                                -- If not a local file, then return
+                                if ecode == 1 then
+                                    return
+                                end
+                                -- Not allowed to overwrite the target file
+                                if ecode == 2 then
+                                    return
+                                end
+                                -- Do not open if filepath is not of a supported file format
+                                if ecode == 5 then
+                                    return
+                                end
+
+                                -- print('URI: [' .. vim.uri_from_fname(filepath) .. ']')
+                                ---@diagnostic disable-next-line: param-type-mismatch
+                                return vim.uri_from_fname(targetpath)
                             end
                         end,
                     },

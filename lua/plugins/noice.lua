@@ -1,6 +1,8 @@
 ---@name plugins/noice.lua
 ---@author caleskog
 
+local util = require('../util')
+
 return {
     {
         'folke/noice.nvim',
@@ -15,6 +17,10 @@ return {
             --   `nvim-notify` is only needed, if you want to use the notification view.
             --   If not available, we use `mini` as the fallback
             'rcarriga/nvim-notify',
+            'nvim-telescope/telescope.nvim', -- Already loaded at VimEnter, see `telescope.lua`
+        },
+        keys = {
+            { '<leader>fH', '<CMD>Noice telescope<CR>', desc = 'Notification history' },
         },
         config = function(_opts)
             require('noice').setup({

@@ -174,6 +174,60 @@ function M.contains(tbl, val)
     return false
 end
 
+---Convert file to `target` format.
+---
+---NOTE: This function uses `plenary` for path operations. Please make sure that it is loaded before using this function.
+---
+---@param filepath string The path to the file that should be converted.
+---@param filetypes? table<string> A list of filetypes that should be converted into `target` files. Default: {"markdown"}. For possible extensions see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+---@param target? string The prefered convertion result file type. Default: "html".
+---@param overwrite? boolean If it should overwrite the target file if it exists. Default: false
+---@return string|nil # The path to the created file, the filepath, or nil. (See EXITCODES for details on exactly when they each are returned).
+---@return number # Exit code (See EXITCODES for details).
+---
+---EXITCODES:
+--- 1 => `filepath` does not exists, (returns `nil`)
+--- 2 => Trying to overwrite an existing file, (returns `nil`)
+--- 3 => Overwrote an existing target, (returns target file)
+--- 4 => Created the target file, (returns target file)
+--- 5 => File is NOT of a type in `filetypes`, (returns `filepath`)
+--- 6 => `filepath` is already of type `target`, (returns `filepath`)
+function M.convert(filepath, filetypes, target, overwrite)
+    local Path = require('plenary.path')
+    local filetype = require('plenary.filetype')
+
+    -- Default values
+    filetypes = filetypes or { 'markdown' }
+    target = target or 'html'
+    overwrite = overwrite or false
+
+    -- Check if the path exists
+    if not Path:new(filepath):exists() then
+        return nil, 1
+    end
+
+    if filetype.detect_from_extension(filepath) == target then
+        return filepath, 6
+    end
+
+    -- Check if the file is a supported format for converting
+    local extension = filetype.detect(filepath, {})
+    local targetpath = filepath:match('^(.+/.+)%.(.+)$')
+    targetpath = targetpath .. '.' .. target
+    ---@diagnostic disable-next-line: param-type-mismatch
+    if M.contains(filetypes, extension) then
+        if not overwrite and Path:new(targetpath):exists() then
+            return nil, 2
+        end
+        os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' &>/dev/null')
+        if overwrite then
+            return targetpath, 3
+        end
+        return targetpath, 4
+    end
+    return filepath, 5
+end
+
 ---Open file with system default app. If possible, create/re-create the corresponding `target` file.
 ---
 ---NOTE: This function uses `plenary` for path operations. Please make sure that it is loaded before using this function.
@@ -185,26 +239,17 @@ function M.open(filepath, filetypes, target)
     filepath = filepath or vim.api.nvim_buf_get_name(0)
     filetypes = filetypes or { 'markdown' }
     target = target or 'html'
-    local Path = require('plenary.path')
-    if not Path:new(filepath):exists() then
+    local targetpath, ecode = M.convert(filepath, filetypes, target, true)
+    if ecode == 1 then
         vim.notify('The path [' .. filepath .. '] does not exist', vim.log.levels.INFO)
         return
+    elseif ecode == 3 then
+        vim.notify('Updateing complementary `' .. target .. '` file', vim.log.levels.INFO)
+    elseif ecode == 4 then
+        vim.notify('Creating complementary `' .. target .. '` file', vim.log.levels.INFO)
     end
-
-    local filetype = require('plenary.filetype')
-    local extension = filetype.detect(filepath, {})
-
-    local p = filepath:match('^(.+/.+)%.(.+)$')
-    ---@diagnostic disable-next-line: param-type-mismatch
-    if M.contains(filetypes, extension) then
-        vim.notify('(re)creating and opening complementary `' .. target .. '` file', vim.log.levels.INFO)
-        os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. p .. '.' .. target .. ' &>/dev/null')
-        filepath = p .. '.' .. target
-    else
-        vim.notify('Opening file', vim.log.levels.INFO)
-    end
-
-    vim.api.nvim_exec2('!xdg-open ' .. filepath, { output = true })
+    vim.notify('Opening file', vim.log.levels.INFO)
+    vim.api.nvim_exec2('!xdg-open ' .. targetpath, { output = true })
 end
 
 return M

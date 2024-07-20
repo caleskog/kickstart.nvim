@@ -28,7 +28,7 @@ util.map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic Quickfix 
 util.map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 
 -- Can only use this keybinding if `plenary` is loaded.
-util.fmap('n', 'gO', function()
+util.fmap('n', '<C-s>', function()
     util.open()
 end, 'Open file w/ system default (possibly convert to HTML)')
 
