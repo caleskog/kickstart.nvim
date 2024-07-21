@@ -5,8 +5,21 @@
 return {
     {
         -- GitHub Copilot
-        -- Setup via command: :Copilot setup
-        'github/copilot.vim',
+        'zbirenbaum/copilot.lua',
+        cmd = 'Copilot',
+        event = 'InsertEnter',
+        config = function()
+            require('copilot').setup({
+                suggestion = { enabled = false },
+                panel = { enabled = false },
+            })
+        end,
+    },
+    {
+        'zbirenbaum/copilot-cmp',
+        config = function()
+            require('copilot_cmp').setup()
+        end,
     },
     {
         'hrsh7th/nvim-cmp',
@@ -38,6 +51,21 @@ return {
             --  into multiple repos for maintenance purposes.
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-path',
+
+            -- VSCode-like pictograms
+            {
+                'onsails/lspkind.nvim',
+                config = function()
+                    -- lspkind.lua
+                    local lspkind = require('lspkind')
+                    lspkind.init({
+                        symbol_map = {
+                            Copilot = '',
+                        },
+                    })
+                    vim.api.nvim_set_hl(0, 'CmpItemKindCopilot', { fg = '#6CC644' })
+                end,
+            },
         },
         config = function()
             -- See `:help cmp`
@@ -106,16 +134,18 @@ return {
                     --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
                 }),
                 sources = {
+                    { name = 'copilot', group_index = 2 },
                     {
                         name = 'nvim_lsp',
+                        group_index = 2,
                         option = {
                             markdown_oxide = {
                                 keyword_pattern = [[\(\k\| \|\/\|#\)\+]],
                             },
                         },
                     },
-                    { name = 'luasnip' },
-                    { name = 'path' },
+                    { name = 'luasnip', group_index = 2 },
+                    { name = 'path', group_index = 2 },
                 },
             })
         end,
