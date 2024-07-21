@@ -4,6 +4,11 @@
 
 return {
     {
+        -- GitHub Copilot
+        -- Setup via command: :Copilot setup
+        'github/copilot.vim',
+    },
+    {
         'hrsh7th/nvim-cmp',
         event = 'InsertEnter',
         dependencies = {
