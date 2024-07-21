@@ -9,8 +9,8 @@ return {
         opts = {
             preset = 'modern',
             spec = {
-                { '<leader>f', group = 'Ffind' },
-                -- { '<leader>w', group = 'Workspace'},
+                { '<leader>f', group = 'Find' },
+                { '<leader>w', group = 'Workspace' },
                 { '<leader>d', group = 'Debugger' },
                 { '<leader>g', group = 'Git' },
                 { '<leader>p', group = 'Programs' },

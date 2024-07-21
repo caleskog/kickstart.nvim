@@ -22,7 +22,7 @@ return {
             -- [[Autoformatting]]
             { 'stevearc/conform.nvim' },
 
-            -- A bunch of schea informations for jsonls and yamlls
+            -- A bunch of schema informations for jsonls and yamlls
             { 'b0o/SchemaStore.nvim' },
         },
         config = function()
@@ -200,7 +200,7 @@ return {
 
                     -- Fuzzy find all the symbols in your current workspace.
                     --  Similar to document symbols, except searches over your entire project.
-                    map('<leader>fW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
+                    map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
 
                     -- Rename the variable under your cursor.
                     --  Most Language Servers support renaming across files, etc.
