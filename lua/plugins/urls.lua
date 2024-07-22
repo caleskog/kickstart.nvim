@@ -55,8 +55,9 @@ return {
                                 ---@type string
                                 local filepath = Path:new(filename):expand()
 
-                                -- Try and convert filepath to HTML file
-                                local targetpath, ecode = util.convert(filepath, { 'markdown' }, 'html', false)
+                                -- Convert filepath to HTML file if possible
+                                local targetpath, ecode = util.convert(filepath, { 'markdown' }, { '.html', '.pdf' }, false, false)
+                                vim.notify(tostring(ecode), vim.log.levels.INFO)
 
                                 -- If not a local file, then return
                                 if ecode == 1 then
@@ -66,6 +67,7 @@ return {
                                 if ecode == 2 then
                                     return
                                 end
+
                                 -- Do not open if filepath is not of a supported file format
                                 if ecode == 5 then
                                     return

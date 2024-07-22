@@ -179,10 +179,11 @@ end
 ---NOTE: This function uses `plenary` for path operations. Please make sure that it is loaded before using this function.
 ---
 ---@param filepath string The path to the file that should be converted.
----@param filetypes? table<string> A list of filetypes that should be converted into `target` files. Default: {"markdown"}. For possible extensions see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
----@param target? string The prefered convertion result file type. Default: "html".
+---@param filetypes? table<string> A list of filetypes that should be converted into `target` files. Default: {"markdown"}. For possible filetypes see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+---@param targets? string|table<string> The prefered convertion result file type(s). Default: ".html"
 ---@param overwrite? boolean If it should overwrite the target file if it exists. Default: false
----@return string|nil # The path to the created file, the filepath, or nil. (See EXITCODES for details on exactly when they each are returned).
+---@param to_all? boolean If it should convert the file to all `targets` or only the first `targets`. Default: false
+---@return string|nil|table # The path to the created file, all created files (Only returned if `to_all` is set to true and `overwrite` is set to false), the filepath, or nil. (See EXITCODES for details on exactly when they each are returned).
 ---@return number # Exit code (See EXITCODES for details).
 ---
 ---EXITCODES:
@@ -192,30 +193,49 @@ end
 --- 4 => Created the target file, (returns target file)
 --- 5 => File is NOT of a type in `filetypes`, (returns `filepath`)
 --- 6 => `filepath` is already of type `target`, (returns `filepath`)
-function M.convert(filepath, filetypes, target, overwrite)
+--- 7 => Convert `filepath` to all `targets`
+function M.convert(filepath, filetypes, targets, overwrite, to_all)
     local Path = require('plenary.path')
     local filetype = require('plenary.filetype')
 
     -- Default values
     filetypes = filetypes or { 'markdown' }
-    target = target or 'html'
+    targets = targets or '.html'
     overwrite = overwrite or false
+    to_all = to_all or false
 
     -- Check if the path exists
     if not Path:new(filepath):exists() then
         return nil, 1
     end
 
-    if filetype.detect_from_extension(filepath) == target then
+    if type(targets) == 'table' then
+        for _, t in ipairs(targets) do
+            if filepath:match('^.+(%..+)$') == t then
+                return filepath, 6
+            end
+        end
+    elseif filepath:match('^.+(%..+)$') == targets then
         return filepath, 6
     end
 
     -- Check if the file is a supported format for converting
     local extension = filetype.detect(filepath, {})
-    local targetpath = filepath:match('^(.+/.+)%.(.+)$')
-    targetpath = targetpath .. '.' .. target
     ---@diagnostic disable-next-line: param-type-mismatch
     if M.contains(filetypes, extension) then
+        local targetpath = filepath:match('^(.+/.+)%.(.+)$')
+        if to_all and type(targets) == 'table' and not overwrite then
+            local target_paths = {}
+            for _, t in ipairs(targets) do
+                local target = targetpath .. t
+                os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. target .. ' &>/dev/null')
+                target_paths[#target_paths + 1] = target
+            end
+            return target_paths, 7
+        end
+
+        targetpath = targetpath .. targets
+
         if not overwrite and Path:new(targetpath):exists() then
             return nil, 2
         end
@@ -234,11 +254,11 @@ end
 ---
 ---@param filepath? string The path to the file that should be opend. Default: vim.api.nvim_buf_get_name(0).
 ---@param filetypes? table<string> A list of filetypes that should be converted into `target` files when trying to open them. Default: {"markdown"}. For possible extensions see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
----@param target? string The prefered convertion result file type. Default: "html".
+---@param target? string The prefered convertion result file type. Default: ".html".
 function M.open(filepath, filetypes, target)
     filepath = filepath or vim.api.nvim_buf_get_name(0)
     filetypes = filetypes or { 'markdown' }
-    target = target or 'html'
+    target = target or '.html'
     local targetpath, ecode = M.convert(filepath, filetypes, target, true)
     if ecode == 1 then
         vim.notify('The path [' .. filepath .. '] does not exist', vim.log.levels.INFO)

@@ -10,13 +10,13 @@ local M = {}
 --- See the following link for more information on how this was made:
 --- <https://github.com/nvim-telescope/telescope.nvim/blob/master/lua/telescope/actions/set.lua#L127>
 ---
----@param sources? table<string> A talbe specifying the filetypes that it tryes to convert to `target` before opening the file. Default: {"markdown"}
----@param target? string The filetype that it tries to convert into. Default: "html"
+---@param sources? table<string> A talbe specifying the filetypes that it tryes to convert to `target` before opening the file. Default: {"markdown"}. For possible filetypes see: https://github.com/nvim-lua/plenary.nvim/blob/master/data/plenary/filetypes/base.lua
+---@param target? string The filetype that it tries to convert into. Default: ".html"
 M.system_default_html = function(sources, target)
     ---@param prompt_bufnr number The prompt bufnr
     return function(prompt_bufnr)
         sources = sources or { 'markdown' }
-        target = target or 'html'
+        target = target or '.html'
         local action_state = require('telescope.actions.state')
         local entry = action_state.get_selected_entry()
         actions.close(prompt_bufnr)
