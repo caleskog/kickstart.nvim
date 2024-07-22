@@ -80,7 +80,10 @@ return {
             --  Some languages (like typescript) have entire language plugins that can be useful: https://github.com/pmizio/typescript-tools.nvim
             --  But for many setups, the LSP (`tsserver`) will work just fine
             local servers = {
-                clangd = true,
+                clangd = {
+                    cmd = { 'clangd', '--offset-encoding=utf-16' },
+                    filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+                },
                 pyright = true,
                 rust_analyzer = true,
                 asm_lsp = true,
@@ -118,8 +121,11 @@ return {
                             completion = {
                                 callSnippet = 'Replace',
                             },
-                            -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-                            -- diagnostics = { disable = { 'missing-fields' } },
+                            diagnostics = {
+                                -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+                                -- disable = { 'missing-fields' }
+                                globals = { 'vim', 'premake' },
+                            },
                         },
                     },
                 },
@@ -260,13 +266,19 @@ return {
                     -- javascript = { { "prettierd", "prettier" } },
                 },
                 format_on_save = function(bufnr)
-                    -- Disable "format_on_save lsp_fallback" for languages that don't
-                    -- have a well standardized coding style. You can add additional
-                    -- languages here or re-enable it for the disabled ones.
-                    local disable_filetypes = { c = true, cpp = true }
+                    -- Don't autoformat on these filetypes
+                    local ignore_filetypes = { 'c', 'cpp' }
+                    if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
+                        return
+                    end
+                    -- Don't format premake5.lua files
+                    local bufname = vim.api.nvim_buf_get_name(bufnr)
+                    if bufname:match('premake5.lua$') then
+                        return
+                    end
                     return {
                         timeout_ms = 500,
-                        lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+                        lsp_fallback = 'fallback',
                     }
                 end,
             })
