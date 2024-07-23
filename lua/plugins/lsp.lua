@@ -90,6 +90,7 @@ return {
                 bashls = true,
                 markdown_oxide = true,
                 marksman = true,
+                cmake = true,
 
                 jsonls = {
                     settings = {
@@ -150,6 +151,10 @@ return {
             local ensure_installed = {
                 'stylua',
                 'lua_ls',
+                'clang-format',
+                'asmfmt',
+                'cmakelang',
+                'codelldb',
             }
 
             vim.list_extend(ensure_installed, servers_to_install)
@@ -202,7 +207,7 @@ return {
 
                     -- Fuzzy find all the symbols in your current document.
                     --  Symbols are things like variables, functions, types, etc.
-                    map('<leader>fs', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
+                    map('<leader>cs', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
 
                     -- Fuzzy find all the symbols in your current workspace.
                     --  Similar to document symbols, except searches over your entire project.
@@ -253,11 +258,16 @@ return {
             })
 
             -- [[Autoformatting Setup]]
-            require('conform').setup({
+            local conform = require('conform')
+            conform.setup({
                 notify_on_error = false,
                 formatters_by_ft = {
                     lua = { 'stylua' },
                     bashls = { 'shfmt' },
+                    c = { 'clang-format' },
+                    cpp = { 'clang-format', 'cppcheck' },
+                    asm = { 'asmfmt' },
+                    cmake = { 'cmakelang' },
                     -- Conform can also run multiple formatters sequentially
                     -- python = { "isort", "black" },
                     --
@@ -267,7 +277,7 @@ return {
                 },
                 format_on_save = function(bufnr)
                     -- Don't autoformat on these filetypes
-                    local ignore_filetypes = { 'c', 'cpp' }
+                    local ignore_filetypes = { 'txt', 'md' }
                     if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
                         return
                     end
@@ -282,6 +292,14 @@ return {
                     }
                 end,
             })
+
+            -- In normal mode it will apply to the whole file and in visual mode it will apply to the selected text.
+            util.fmap('nv', '<leader>cf', function()
+                conform.format({
+                    timeout_ms = 500,
+                    lsp_fallback = 'fallback',
+                })
+            end, 'Format File')
         end,
     },
 }

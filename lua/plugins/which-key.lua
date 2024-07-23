@@ -11,6 +11,7 @@ return {
             spec = {
                 { '<leader>f', group = 'Find' },
                 { '<leader>w', group = 'Workspace' },
+                { '<leader>c', group = 'Code' },
                 { '<leader>d', group = 'Debugger' },
                 { '<leader>g', group = 'Git' },
                 { '<leader>p', group = 'Programs' },

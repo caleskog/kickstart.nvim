@@ -66,3 +66,6 @@ vim.opt.scrolloff = 10
 
 vim.opt.undodir = vim.fn.stdpath('state') .. '/undodir'
 vim.opt.undofile = true
+
+-- Recommened options for sessionoptions by author of auto-session.
+vim.o.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'

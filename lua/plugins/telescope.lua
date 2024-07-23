@@ -45,7 +45,7 @@ local function keymaps()
     ---------------------- Extensions' Keymaps ----------------------
     -- Live grep
     util.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
-    util.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
+    -- util.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
     -- Search for snippets
     util.cmap('n', '<leader>fl', 'Telescope luasnip', "Luasnip's Snippets")
 end
