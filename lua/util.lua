@@ -239,8 +239,10 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         if not overwrite and Path:new(targetpath):exists() then
             return nil, 2
         end
+        -- vim.notify('filepath: ' .. filepath, vim.log.levels.INFO)
+        -- vim.notify('targetpath: ' .. targetpath, vim.log.levels.INFO)
         os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' &>/dev/null')
-        if overwrite then
+        if overwrite and Path:new(targetpath):exists() then
             return targetpath, 3
         end
         return targetpath, 4
