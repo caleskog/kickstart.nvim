@@ -18,14 +18,19 @@ M.setup = function()
     registered = true
 
     -- Generate completion api if not already generated
+    -- TODO: Fix so that this only happen when it needs to. Now it will download it every time Neovim starts
     if not premake.api_filepath then
-        premake.generate_cmp_metadata(vim.fn.expand('~/.config/nvim/lua/after/ftplugin/premake.lua'))
+        premake.generate_cmp_metadata('premake/premake-core', 'src/_premake_init.lua')
     end
 
     local source = {}
 
     source.new = function()
         local self = setmetatable({}, { __index = source })
+        M.api_completions = nil
+        if vim.fn.filereadable(premake.api_filepath) then
+            M.api_completions = loadfile(premake.api_filepath)()
+        end
         return self
     end
 
@@ -45,10 +50,31 @@ M.setup = function()
     ---@param params cmp.SourceCompletionApiParams
     ---@param callback fun(response: lsp.CompletionResponse|nil)
     function source:complete(params, callback)
-        local api_completions = require(premake.api_filepath)
-        callback({
-            items = metadata,
-        })
+        -- Gracefully exit if the API file is not
+        if not M.api_completions then
+            return
+        end
+        ---@type table<lsp.CompletionItem>
+        local items = {}
+
+        ---@type table<caleskog.cmp.ApiFunction>
+        local api_items = loadstring(M.api_completions)()
+        for api_item in api_items do
+            -- TODO: Change item based on kind and other properties; can be found here: https://github.com/premake/premake-core/blob/master/src/base/api.lua#L239
+            if api_item.name  then
+                ---@type lsp.CompletionItem
+                local item = {
+                    label = api_item.name,
+                    detail = api_item.detail,
+                }
+                if api_item.deprecated then
+                    item.deprecated = api_item.deprecated
+                    item.documentation = { kind = 'markdown', value = api_item.description }
+                end
+                table.insert(items, item)
+            end
+        end
+        callback({ items = items })
     end
 
     ---Resolve completion item (optional). This is called right before the completion is about to be displayed.
