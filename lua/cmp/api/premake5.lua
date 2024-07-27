@@ -49,10 +49,87 @@ function M.extract_premake_api(path)
     if file then
         ---@type string
         content = file:read('*a')
-        api_functions = M.get_registed_api_functions(content)
+        -- api_functions = M.get_registed_api_functions(content)
+        api_functions = M.parse_premake_api(content)
         file:close()
     end
     return api_functions, content
+end
+
+--- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
+---@param content string The content of the `_premake_init.lua` file.
+---@return table<caleskog.cmp.ApiFunction> table with extracted `premake.api.register` calls.
+function M.parse_premake_api(content)
+    ---@type table<caleskog.cmp.ApiFunction>
+    local api = {}
+    -- Query to extract `api.register` calls
+    local query = [[
+    ; Match api.register calls
+    (function_call
+      name: (dot_index_expression
+        table: (identifier) @api (#eq? @api "api")
+        field: (identifier) @func_name (#eq? @func_name "register")
+      )
+      arguments: (arguments
+        (table_constructor) @table
+      )
+    )
+
+    ; Match p.api.register calls
+    (function_call
+      name: (dot_index_expression
+        table: (dot_index_expression
+            table: (identifier)
+            field: (identifier) @api (#eq? @api "api")
+        )
+        field: (identifier) @register (#eq? @register "register")
+      )
+      arguments: (arguments
+        (table_constructor) @table
+      )
+    )
+    ]]
+    content = [[
+        local p = premake
+        local api = p.api
+
+        api.register {
+            name = "basedir",
+            scope = "project",
+            kind = "path"
+        }
+    ]]
+    -- Parse the file content using Tree-Sitter
+    local parser = vim.treesitter.get_string_parser(content, 'lua')
+    local trees = parser:parse()
+    if not trees or not trees[1] then
+        print("Failed to parse the file content.")
+        return {}
+    end
+
+    local root = trees[1]:root()
+
+    -- Apply the query to the parsed content
+    local query_obj = vim.treesitter.query.parse('lua', query)
+
+    -- Traverse the trre and print the tables in api.register calls
+    for id, node, metadata, match in query_obj:iter_captures(root, content) do
+        local capture_name = query_obj.captures[id]
+        -- Extract the first argument of the api.register call
+        if capture_name == 'table' then
+            -- Look after fields: name, scope, kind, allowed, tokens, pathVars, deprecated, description
+            local item = {}
+            for child in node:iter_children() do
+                local field_name = child:id()
+                local field_value = child:id()
+                item[field_name] = field_value
+            end
+            table.insert(api, item)
+        end
+    end
+
+    print('API functions:', vim.inspect(api))
+    return api
 end
 
 --- Get all registered API functions.
@@ -63,10 +140,11 @@ function M.get_registed_api_functions(content)
     ---@type table<caleskog.cmp.ApiFunction>
     local api = {}
     -- See this link for fields in the register call: https://github.com/premake/premake-core/blob/master/src/base/api.lua#L239
-    local register_pattern = 'api%.register%s*%b{}' .. '|api%.register%s*%((.-%)%)' -- Also matches calls without curly brackets
+    local register_pattern = 'api%.register%s*%b{}|api%.register%s*%((.-%)%)' -- Also matches calls without curly brackets
     for api_func in content:gmatch(register_pattern) do
         ---@type caleskog.cmp.ApiFunction
         local api_data = loadstring("return " .. api_func)()
+        print('API data:', vim.inspect(api_data))
         if api_data.name then
             -- As I don't have the `premake-core` source code, it's not possilbe to parse the allowed fields if they are functions.
             if type(api_data.allowed) == "function" then
@@ -86,7 +164,7 @@ function M.get_registed_api_functions(content)
             end
         end
     end
-    print(vim.inspect(api))
+    print('API functions:', vim.inspect(api))
     return api
 end
 
