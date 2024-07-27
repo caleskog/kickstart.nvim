@@ -2,14 +2,19 @@
 ---@description Completion API for nvim-cmp regarding premake5.
 ---@version 0.0.1
 
-local Json = require('plenary.json')
+local http = require("socket.http")
 
 local M = {
-    PREMANE_NAME = 'premake5',
+    PREMAKE_NAME = 'premake5',
     API_DATA = vim.fn.stdpath('data') .. '/cmp_api',
     API_CACHE = vim.fn.stdpath('cache') .. '/cmp_api',
-    api_filepath = M.API_CACHE .. '/' .. M.PREMAKE_NAME .. '_api_completions.lua',
 }
+
+--- Called when any field is accessed in the `M` table.
+function M.initialize()
+    vim.fn.mkdir(M.API_CACHE, 'p')
+    vim.fn.mkdir(M.API_DATA, 'p')
+end
 
 ---@alias caleskog.cmp.Scope
 ---| '"project"' # The field applies to workspaces and projects
@@ -81,6 +86,7 @@ function M.get_registed_api_functions(content)
             end
         end
     end
+    print(vim.inspect(api))
     return api
 end
 
@@ -92,11 +98,12 @@ end
 ---@param path string Path to the `_premake_init.lua` file. Starting from the root of the repository.
 ---@param filename? string The name of the Lua file to save the metadata to. Default is `<NVIM_DATA>/cmp_api/<PREMAKE_NAME>-api_completions.lua`
 function M.generate_cmp_metadata(repo, path, filename)
-    M.api_filepath = filename or M.api_filepath
-    M.download_premake_file(repo, path)
-    if not M.api_filepath then
-        vim.notify('Could not download `' .. repo .. '/' .. path .. '` from Github', vim.log.levels.ERROR)
-        return nil
+    M.initialize()
+    M.api_filepath = filename or M.API_CACHE .. '/' .. M.PREMAKE_NAME .. '_api_completions.lua'
+
+    local success = M.download_premake_file(repo, path)
+    if not success then
+        pwarning('Could not download `' .. repo .. '/' .. path .. '` from Github')
     end
     local _, api_functions_str = M.extract_premake_api(M.api_filepath)
     local file = io.open(M.api_filepath, 'w')
@@ -107,22 +114,23 @@ function M.generate_cmp_metadata(repo, path, filename)
     end
 end
 
---- Estimate short SHA commit from the installed `premake` binary.
---- The function tries to extract the short SHA commit from the output of `premake5 --help`.
+--- Estimate short SHA commit from the installed `premake` binary with the help of the package manager.
+--- The function tries to extract the short SHA commit from the output of `dnf info premake`.
 --- The function uses a set of patterns to match against the version string.
 ---@param short_sha string|nil The short SHA commit of the installed `premake` binary.
----@return string|nil short_sha The short SHA commit of the installed `premake` binary.
+---@return string short_sha The short SHA commit of the installed `premake` binary.
 function M.retrieve_short_sha(short_sha)
     short_sha = short_sha or nil
     if short_sha then
         return short_sha
     end
-    local premake_version = vim.fn.system('premake5 --help')
+    local command = 'dnf info premake'
+    local premake_version = vim.fn.system(command)
     -- Available version patterns to match against the output of `premake`
     local version_patterns = {
-        'Release%s:%s[0-9]+%.[0-9]+git([a-z0-9]+)%.fc[0-9]+',
-        'Source%s:%spremake%-[0-9%.]+%-[0-9]+%.[0-9]+git([a-z0-9]+)%.fc[0-9]+%.src%.rpm',
-        'Release%s:%s[0-9]+%.[0-9]+git([a-z0-9]+)%.',
+        'Release%s*:%s*[0-9]+%.[0-9]+git([a-z0-9]+)%.fc[0-9]+',
+        'Source%s*:%s*premake%-[0-9%.]+%-[0-9]+%.[0-9]+git([a-z0-9]+)%.fc[0-9]+%.src%.rpm',
+        'Release%s*:%s*[0-9]+%.[0-9]+git([a-z0-9]+)%.',
     }
     -- Extract the version from the output of `premake5 --help`.
     -- Use the first pattern that matches, testing the patterns in order.
@@ -132,36 +140,25 @@ function M.retrieve_short_sha(short_sha)
             return sha
         end
     end
-    vim.notify('Could not extract short SHA from `premake5 --help` string', vim.log.levels.ERROR)
-    return nil
+    error('Could not extract short SHA from `' .. command .. '` string', vim.log.levels.WARN)
 end
 
 --- Retrieve the full SHA commit of the installed `premake` binary.
 ---@param repo string GitHub repository name in the form `username/repo`.
 ---@param short_sha string The short SHA commit of `premake` to use.
----@return string|nil full_sha The full SHA commit of the installed `premake` binary.
+---@return string full_sha The full SHA commit of the installed `premake` binary.
 function M.retrieve_full_sha(repo, short_sha)
     local gh_api = 'https://api.github.com/repos/' .. repo .. '/commits/' .. short_sha
-    local tmp = M.API_CACHE .. '/premake-core-' .. short_sha .. '.json'
-    vim.fn.system('curl -L ' .. gh_api .. ' -o ' .. tmp)
-    if not vim.fn.filereadable(tmp) then
-        vim.notify('Could not retrieve response from Github API', vim.log.levels.ERROR)
-        return nil
+    local response_body, code = http.request(gh_api)
+
+    if code ~= 200 then
+        error('Failed to get full SHA from GitHub API, HTTP code:' .. code)
     end
-    -- Parse the JSON response from the Github API
-    local file = io.open(tmp, 'r')
-    ---@diagnostic disable-next-line: need-check-nil
-    local content = file:read('*a')
-    ---@diagnostic disable-next-line: missing-parameter
-    local json_string = Json.json_strip_comments(content)
-    local json_data = vim.fn.json_decode(json_string)
-    local full_sha = json_data.sha
-    ---@diagnostic disable-next-line: need-check-nil
-    file:close()
+
+    local full_sha = response_body:match('"sha"%s*:%s*"(%w+)"')
 
     if not full_sha then
-        vim.notify('Could not retrieve full SHA from GitHub API', vim.log.levels.ERROR)
-        return nil
+        error('Could not retrieve full SHA from GitHub API', vim.log.levels.WARN)
     end
     return full_sha
 end
@@ -174,13 +171,21 @@ end
 function M.download_premake_file(repo, path, short_sha)
     short_sha = short_sha or nil
     short_sha = M.retrieve_short_sha(short_sha)
-    local sha = M.retrive_full_sha(repo, short_sha)
+    local sha = M.retrieve_full_sha(repo, short_sha)
     local gh_api = string.format('https://raw.githubusercontent.com/%s/%s/%s', repo, sha, path)
-    local sourcefile = M.api_filepath
-    vim.fn.system('curl -L ' .. gh_api .. ' -o ' .. M.api_filepath)
-    if not vim.fn.filereadable(M.api_filepath) then
+    local response_body, code = http.request(gh_api)
+    if code ~= 200 then
+        error('Failed to download file from GitHub, HTTP code: ' .. code, vim.log.levels.WARN)
         return false
     end
+    local converted_content = response_body:gsub("%^I", "\t")
+    local file, err = io.open(M.api_filepath, "w")
+    if not file then
+        error('Failed to open file [' .. M.api_filepath .. '] for writing: ' .. err)
+        return false
+    end
+    file:write(converted_content)
+    file:close()
     return true
 end
 

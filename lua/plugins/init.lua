@@ -122,5 +122,47 @@ return {
     {
         'rcarriga/nvim-notify',
         opts = {},
+        config = function()
+            local notify = require('notify')
+            vim.notify = notify
+            ---Override the default print function to make use of notify
+            _G.print = function(...)
+                local print_safe_args = {}
+                local _ = { ... }
+                for i = 1, #_ do
+                    table.insert(print_safe_args, vim.inspect(_[i]))
+                end
+                notify(table.concat(print_safe_args, ' '), 'info', {
+                    title = 'Print',
+                })
+            end
+            --- Add global function for printing WARNING messages
+            _G.pwarning = function(...)
+                local print_safe_args = {}
+                local _ = { ... }
+                for i = 1, #_ do
+                    table.insert(print_safe_args, vim.inspect(_[i]))
+                end
+                notify(table.concat(print_safe_args, ' '), 'warning', {
+                    title = 'Print [Warning]',
+                })
+            end
+            --- Add global function for printing ERROR messages
+            --- This function will not exit the program, just continue running.
+            _G.perror = function(...)
+                local print_safe_args = {}
+                local _ = { ... }
+                for i = 1, #_ do
+                    table.insert(print_safe_args, vim.inspect(_[i]))
+                end
+                notify(table.concat(print_safe_args, ' '), 'error', {
+                    title = 'Print [Error]',
+                })
+            end
+            ---@diagnostic disable-next-line: missing-fields
+            notify.setup({
+                stages = 'fade',
+            })
+        end,
     },
 }
