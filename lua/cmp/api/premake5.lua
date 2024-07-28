@@ -50,11 +50,45 @@ function M.extract_premake_api(path)
     if file then
         ---@type string
         content = file:read('*a')
+        -- convert ^I to tabs
+        content = content:gsub("%^I", "\t")
         -- api_functions = M.get_registed_api_functions(content)
         api_functions = M.parse_premake_api(content)
         file:close()
     end
     return api_functions, content
+end
+
+-- Helper function to split a string by a delimiter
+local function split(str, delimiter)
+    local result = {}
+    local pattern = string.format("([^%s]+)", delimiter)
+    for match in string.gmatch(str, pattern) do
+        table.insert(result, match)
+    end
+    return result
+end
+
+-- Function to get a specific line from a multi-line string
+local function code_range(str, row_start, col_start, row_end, col_end)
+    local lines = split(str, "\n")  -- Split the string into lines
+    local code = ""
+    for i, line in ipairs(lines) do
+        if i >= row_start and i <= row_end then
+            if row_start == row_end then
+                line = line:sub(col_start+1, col_end)
+            else
+                if i == row_start then
+                    line = line:sub(col_start+1, -1)
+                end
+                if i == row_end then
+                    line = line:sub(1, col_end)
+                end
+            end
+            code = code .. line
+        end
+    end
+    return code
 end
 
 --- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
@@ -98,18 +132,39 @@ function M.parse_premake_api(content)
     local query_obj = vim.treesitter.query.parse('lua', query)
 
     -- Traverse the trre and print the tables in api.register calls
-    for id, node, metadata, match in query_obj:iter_captures(root, content) do
+    for id, node, _, _ in query_obj:iter_captures(root, content) do
         local capture_name = query_obj.captures[id]
-        -- Extract the first argument of the api.register call
-        if capture_name == 'table' then
-            -- Look after fields: name, scope, kind, allowed, tokens, pathVars
-            local item = {}
-            for child in node:iter_children() do
-                local field_name = child:id()
-                local field_value = child:id()
-                item[field_name] = field_value
+        --[[ if capture_name == 'func_name' then
+            -- Print the code around the currect capture.
+            local start_row, start_col, end_row, end_col = node:range()
+            -- Get the correct line in content string of the capture
+            local code = code_range(content, start_row, start_col, end_row, end_col)
+            print('Code:', code)
+            -- As we are sure we are in the correct function call,
+            -- capture the fields: name, scope, and kind.
+            local source = code
+            local func_node = node:parent():parent():child(2):child(1)
+            for id2, node2, _, _ in query_obj:iter_captures(func_node, source) do
+                local capture_name2 = query_obj.captures[id2]
+                print('Capture name:', capture_name2)
             end
-            table.insert(api, item)
+        end ]]
+        if capture_name == 'register_func' then
+            -- Print the code around the currect capture.
+            local start_row, start_col, end_row, end_col = node:range()
+            -- Get the correct line in content string of the capture
+            local code = code_range(content, start_row, start_col, end_row, end_col)
+            print('Code:', code)
+            -- As we are sure we are in the correct function call,
+            -- capture the fields: name, scope, and kind.
+            local source = code
+            local details_node = node
+            -- print('details_node:', query_obj.capture[details_node:id()])
+            for field_id, field_node, _, _ in query_obj:iter_captures(details_node, source) do
+                local name = query_obj.captures[field_id]
+                print('Capture name:', name)
+            end
+
         end
     end
 
