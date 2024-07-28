@@ -38,6 +38,7 @@ end
 ---@field deprecated? boolean A boolean indicating whether this field is deprecated.
 ---@field description? string A description of the field, for use in the help system.
 
+--- Parse the provided lua file containing the `premake.api.register` calls. Retrive the necessary information from the registered API functions.
 ---@param path string Path to the `_premake_init.lua` file.
 ---@return table table with extracted `premake.api.register` calls.
 ---@return string string The content of the `_premake_init.lua` file.
@@ -62,33 +63,7 @@ end
 function M.parse_premake_api(content)
     ---@type table<caleskog.cmp.ApiFunction>
     local api = {}
-    -- Query to extract `api.register` calls
-    local query = [[
-    ; Match api.register calls
-    (function_call
-      name: (dot_index_expression
-        table: (identifier) @api (#eq? @api "api")
-        field: (identifier) @func_name (#eq? @func_name "register")
-      )
-      arguments: (arguments
-        (table_constructor) @table
-      )
-    )
-
-    ; Match p.api.register calls
-    (function_call
-      name: (dot_index_expression
-        table: (dot_index_expression
-            table: (identifier)
-            field: (identifier) @api (#eq? @api "api")
-        )
-        field: (identifier) @register (#eq? @register "register")
-      )
-      arguments: (arguments
-        (table_constructor) @table
-      )
-    )
-    ]]
+    -- Test content
     content = [[
         local p = premake
         local api = p.api
@@ -103,11 +78,21 @@ function M.parse_premake_api(content)
     local parser = vim.treesitter.get_string_parser(content, 'lua')
     local trees = parser:parse()
     if not trees or not trees[1] then
-        print("Failed to parse the file content.")
+        perror("Failed to parse the file content.")
         return {}
     end
 
     local root = trees[1]:root()
+
+    -- Query string from file ./queries/api_register.scm
+    local filename = vim.fn.stdpath('config') .. '/lua/cmp/api/queries/api_register.scm'
+    print('Query file:', filename)
+    local file = io.open(filename, 'r')
+    if not file then
+        perror('Could not open the query file: ' .. filename)
+        return {}
+    end
+    local query = file:read('*a')
 
     -- Apply the query to the parsed content
     local query_obj = vim.treesitter.query.parse('lua', query)
@@ -117,7 +102,7 @@ function M.parse_premake_api(content)
         local capture_name = query_obj.captures[id]
         -- Extract the first argument of the api.register call
         if capture_name == 'table' then
-            -- Look after fields: name, scope, kind, allowed, tokens, pathVars, deprecated, description
+            -- Look after fields: name, scope, kind, allowed, tokens, pathVars
             local item = {}
             for child in node:iter_children() do
                 local field_name = child:id()
@@ -177,13 +162,15 @@ end
 ---@param filename? string The name of the Lua file to save the metadata to. Default is `<NVIM_DATA>/cmp_api/<PREMAKE_NAME>-api_completions.lua`
 function M.generate_cmp_metadata(repo, path, filename)
     M.initialize()
-    M.api_filepath = filename or M.API_CACHE .. '/' .. M.PREMAKE_NAME .. '_api_completions.lua'
 
     local success = M.download_premake_file(repo, path)
     if not success then
         pwarning('Could not download `' .. repo .. '/' .. path .. '` from Github')
     end
-    local _, api_functions_str = M.extract_premake_api(M.api_filepath)
+
+    local _, api_functions_str = M.extract_premake_api(M.premake_api)
+
+    M.api_filepath = filename or M.API_DATA .. '/' .. M.PREMAKE_NAME .. '_cmp_source.lua'
     local file = io.open(M.api_filepath, 'w')
     if file then
         file:write('---Generated API file for ' .. M.PREMAKE_NAME .. ' completions\n')
@@ -257,9 +244,10 @@ function M.download_premake_file(repo, path, short_sha)
         return false
     end
     local converted_content = response_body:gsub("%^I", "\t")
-    local file, err = io.open(M.api_filepath, "w")
+    M.premake_api = M.API_CACHE .. '/' .. M.PREMAKE_NAME .. '_api.lua'
+    local file, err = io.open(M.premake_api, "w")
     if not file then
-        error('Failed to open file [' .. M.api_filepath .. '] for writing: ' .. err)
+        error('Failed to open file [' .. M.premake_api .. '] for writing: ' .. err)
         return false
     end
     file:write(converted_content)
