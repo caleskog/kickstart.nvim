@@ -19,14 +19,18 @@
     (field
         name: (identifier) @name_key (#eq? @name_key "name")
         value: (string
-            content: (string_content) @name)
+            content: (string_content ) @name )
     )
     (field
         name: (identifier) @scope_key (#eq? @scope_key "scope")
         value: [
             (string
                 content: (string_content) @scope)
-            (table_constructor) @scope
+            (table_constructor
+                (field
+                    value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+                )+ @scope_values
+            ) @scope
         ]
     )
     (field
@@ -36,7 +40,11 @@
     )
     (field
         name: (identifier) @allowed_key (#eq? @allowed_key "allowed")
-        value: (table_constructor) @allowed ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+        value: (table_constructor
+            (field
+                value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+            )+
+        )
     )?
     (field
         name: (identifier) @aliases_key (#eq? @aliases_key "aliases")

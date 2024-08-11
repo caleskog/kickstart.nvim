@@ -2,7 +2,7 @@
 ---@description Completion API for nvim-cmp regarding premake5.
 ---@version 0.0.1
 
-local http = require("socket.http")
+local http = require('socket.http')
 
 local M = {
     PREMAKE_NAME = 'premake5',
@@ -44,14 +44,14 @@ end
 ---@return string string The content of the `_premake_init.lua` file.
 ---@usage local api = extract_premake_api('path/to/_premake_init.lua')
 function M.extract_premake_api(path)
-    local content = ""
+    local content = ''
     local api_functions = {}
     local file = io.open(path, 'r')
     if file then
         ---@type string
         content = file:read('*a')
         -- convert ^I to tabs
-        content = content:gsub("%^I", "\t")
+        content = content:gsub('%^I', '\t')
         -- api_functions = M.get_registed_api_functions(content)
         api_functions = M.parse_premake_api(content)
         file:close()
@@ -62,7 +62,7 @@ end
 -- Helper function to split a string by a delimiter
 local function split(str, delimiter)
     local result = {}
-    local pattern = string.format("([^%s]+)", delimiter)
+    local pattern = string.format('([^%s]+)', delimiter)
     for match in string.gmatch(str, pattern) do
         table.insert(result, match)
     end
@@ -71,15 +71,15 @@ end
 
 -- Function to get a specific line from a multi-line string
 local function code_range(str, row_start, col_start, row_end, col_end)
-    local lines = split(str, "\n")  -- Split the string into lines
-    local code = ""
+    local lines = split(str, '\n') -- Split the string into lines
+    local code = ''
     for i, line in ipairs(lines) do
         if i >= row_start and i <= row_end then
             if row_start == row_end then
-                line = line:sub(col_start+1, col_end)
+                line = line:sub(col_start + 1, col_end)
             else
                 if i == row_start then
-                    line = line:sub(col_start+1, -1)
+                    line = line:sub(col_start + 1, -1)
                 end
                 if i == row_end then
                     line = line:sub(1, col_end)
@@ -89,6 +89,60 @@ local function code_range(str, row_start, col_start, row_end, col_end)
         end
     end
     return code
+end
+
+local function p(tbl, msg)
+    if msg then
+        msg = msg .. ': '
+    end
+    if tbl then
+        gprint(msg, vim.inspect(tbl))
+    elseif msg then
+        -- print(msg, "Is nil")
+        return
+    else
+        gprint('Nil')
+    end
+end
+
+local function ptsn(node, source)
+    gprint(vim.treesitter.get_node_text(node, source))
+end
+
+---Cehck and return a capture field
+---@param query vim.treesitter.Query
+---@param name string Capture name
+---@param target string
+---@param node TSNode the captured node
+---@param content string The content of the file
+---@return string|boolean|table|nil
+local function capture_fields(query, name, target, node, content)
+    if name == target then
+        if node:type() == 'string_content' then
+            return vim.treesitter.get_node_text(node, content)
+        elseif node:type() == 'true' then
+            return true
+        elseif node:type() == 'false' then
+            return false
+        elseif node:type() == 'table_constructor' then
+            -- Make a table of strings from the node
+            gprint('nr of childern', node:named_child_count())
+            ptsn(node, content)
+            local tbl = {}
+            local param_opts = { '2', { rule = '<' } }
+            gprint('Content:', '\n' .. content, { param_opts = param_opts })
+            for id, inner_node, _, _ in query:iter_captures(node, content) do
+                local capture_name = query.captures[id]
+                gprint('Capture name:', capture_name)
+                if capture_name == 'value_str' then
+                    local node_text = vim.treesitter.query.get_node_text(inner_node, content)
+                    table.insert(tbl, node_text)
+                end
+            end
+            return tbl
+        end
+    end
+    return nil
 end
 
 --- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
@@ -107,12 +161,36 @@ function M.parse_premake_api(content)
             scope = "project",
             kind = "path"
         }
+
+        api.register {
+            name = "filename",
+            scope = { "project", "rule" },
+            kind = "string",
+            pathVars = true,
+            tokens = true,
+        }
+
+        api.register {
+            name = "flags",
+            scope = "config",
+            kind  = "list:string",
+            allowed = {
+                "Component",           -- DEPRECATED
+                "DebugEnvsDontMerge",
+                "EnableSSE",           -- DEPRECATED
+                "EnableSSE2",          -- DEPRECATED
+            },
+            aliases = {
+                FatalWarnings = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
+                Optimise = 'Optimize',
+            },
+        }
     ]]
     -- Parse the file content using Tree-Sitter
     local parser = vim.treesitter.get_string_parser(content, 'lua')
     local trees = parser:parse()
     if not trees or not trees[1] then
-        perror("Failed to parse the file content.")
+        gperror('Failed to parse the file content.')
         return {}
     end
 
@@ -120,10 +198,9 @@ function M.parse_premake_api(content)
 
     -- Query string from file ./queries/api_register.scm
     local filename = vim.fn.stdpath('config') .. '/lua/cmp/api/queries/api_register.scm'
-    print('Query file:', filename)
     local file = io.open(filename, 'r')
     if not file then
-        perror('Could not open the query file: ' .. filename)
+        gperror('Could not open the query file: ' .. filename)
         return {}
     end
     local query = file:read('*a')
@@ -154,21 +231,20 @@ function M.parse_premake_api(content)
             local start_row, start_col, end_row, end_col = node:range()
             -- Get the correct line in content string of the capture
             local code = code_range(content, start_row, start_col, end_row, end_col)
-            print('Code:', code)
+            -- print('Code:', code)
             -- As we are sure we are in the correct function call,
             -- capture the fields: name, scope, and kind.
-            local source = code
-            local details_node = node
-            -- print('details_node:', query_obj.capture[details_node:id()])
-            for field_id, field_node, _, _ in query_obj:iter_captures(details_node, source) do
-                local name = query_obj.captures[field_id]
-                print('Capture name:', name)
+            for field_id, field_node, _, _ in query_obj:iter_captures(node, content) do
+                local inner_capture_name = query_obj.captures[field_id]
+                -- local name = capture_fields(inner_capture_name, 'name', field_node, content)
+                -- p(name, 'name')
+                local scope = capture_fields(query_obj, inner_capture_name, 'scope', field_node, content)
+                -- p(scope, 'scope')
             end
-
         end
     end
 
-    print('API functions:', vim.inspect(api))
+    -- print('API functions:', vim.inspect(api))
     return api
 end
 
@@ -183,11 +259,11 @@ function M.get_registed_api_functions(content)
     local register_pattern = 'api%.register%s*%b{}|api%.register%s*%((.-%)%)' -- Also matches calls without curly brackets
     for api_func in content:gmatch(register_pattern) do
         ---@type caleskog.cmp.ApiFunction
-        local api_data = loadstring("return " .. api_func)()
+        local api_data = loadstring('return ' .. api_func)()
         print('API data:', vim.inspect(api_data))
         if api_data.name then
             -- As I don't have the `premake-core` source code, it's not possilbe to parse the allowed fields if they are functions.
-            if type(api_data.allowed) == "function" then
+            if type(api_data.allowed) == 'function' then
                 api_data.allowed = nil
             end
             table.insert(api, api_data)
@@ -298,9 +374,9 @@ function M.download_premake_file(repo, path, short_sha)
         error('Failed to download file from GitHub, HTTP code: ' .. code, vim.log.levels.WARN)
         return false
     end
-    local converted_content = response_body:gsub("%^I", "\t")
+    local converted_content = response_body:gsub('%^I', '\t')
     M.premake_api = M.API_CACHE .. '/' .. M.PREMAKE_NAME .. '_api.lua'
-    local file, err = io.open(M.premake_api, "w")
+    local file, err = io.open(M.premake_api, 'w')
     if not file then
         error('Failed to open file [' .. M.premake_api .. '] for writing: ' .. err)
         return false
@@ -309,5 +385,10 @@ function M.download_premake_file(repo, path, short_sha)
     file:close()
     return true
 end
+
+--- Testing purposes only
+--- TODO: Remove this when the function is no longer needed.
+--- NOTE: :lua vim.keymap.set('n', '<leader>,,', ':luafile ./lua/cmp/api/premake5.lua<cr>', { silent=true, noremap=true})
+M.parse_premake_api('premake5_api_completions.lua')
 
 return M

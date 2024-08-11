@@ -14,7 +14,7 @@ return {
             local neogit = require('neogit')
             local telescope = require('telescope.builtin')
 
-            util.fmap('n', '<leader>gg', neogit.open, 'Open Neogit')
+            util.fmap('n', '<leader>gs', neogit.open, 'Open Neogit')
             util.cmap('n', '<leader>gc', 'Neogit commit', 'Git Commit')
             util.cmap('n', '<leader>gp', 'Neogit pull', 'Git Pull')
             util.cmap('n', '<leader>gP', 'Neogit push', 'Git Push')
