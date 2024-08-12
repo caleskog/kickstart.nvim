@@ -86,7 +86,10 @@ return {
                 },
                 pyright = true,
                 rust_analyzer = true,
-                asm_lsp = true,
+                asm_lsp = {
+                    cmd = { 'asm-lsp' },
+                    filetypes = { 'asm', 's', 'S' },
+                },
                 bashls = true,
                 markdown_oxide = true,
                 marksman = true,
@@ -329,7 +332,7 @@ return {
                     bashls = { 'shfmt' },
                     c = { 'clang-format' },
                     cpp = { 'cppcheck', 'clang-fmt-pre', 'clang-format', 'clang-fmt-post' },
-                    asm = { 'asmfmt' },
+                    -- asm = { 'asmfmt' }, -- Disabled due to being specific to GO assembly rather than general assembly
                     cmake = { 'cmakelang' },
                     -- Conform can also run multiple formatters sequentially
                     -- python = { "isort", "black" },
