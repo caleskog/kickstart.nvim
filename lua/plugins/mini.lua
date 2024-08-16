@@ -69,7 +69,20 @@ return {
             -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
             -- - sd'   - [S]urround [D]elete [']quotes
             -- - sr)'  - [S]urround [R]eplace [)] [']
-            require('mini.surround').setup()
+            require('mini.surround').setup({
+                -- Change the default key from 's' to '<leader>s'
+                mappings = {
+                    add = '<leader>sa',
+                    delete = '<leader>sd',
+                    find = '<leader>sf',
+                    find_left = '<leader>sF',
+                    highlight = '<leader>sh',
+                    replace = '<leader>sr',
+                    update = '<leader>su',
+                    suffix_last = '<leader>s,',
+                    suffix_next = '<leader>s;',
+                },
+            })
 
             -- Simple and easy statusline.
             --  You could remove this setup call if you don't like it,
