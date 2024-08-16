@@ -11,6 +11,9 @@ vim.opt.shiftwidth = 4 -- Number of spaces inserted when indenting
 vim.opt.number = true
 vim.opt.relativenumber = true
 
+-- Enable true color support
+vim.opt.termguicolors = true
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
 
