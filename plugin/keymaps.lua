@@ -16,8 +16,8 @@ util.emap('nv', 'k', "v:count ? 'k' : 'gk'")
 -- Allow navigating with arrow keys as they werer 'hjkl'
 util.emap('nv', '<Up>', "v:count ? 'k' : 'gk'")
 util.emap('nv', '<Down>', "v:count ? 'j' : 'gj'")
-util.emap('nv', '<Left>', 'h')
-util.emap('nv', '<Right>', 'l')
+util.map('nv', '<Left>', 'h')
+util.map('nv', '<Right>', 'l')
 
 -- Diagnostic keymaps
 util.map('n', '[d', vim.diagnostic.goto_prev, 'Go to previous Diagnostic message')
