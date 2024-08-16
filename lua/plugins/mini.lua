@@ -6,12 +6,12 @@ local util = require('../util')
 local function which_key_spec(mode)
     local desc_t = {
         util.WhichKey_ai(mode, '[a]rgument/parameter'),
-        util.WhichKey_ai(mode, '[f]unction call'),
-        util.WhichKey_ai(mode, '[F]unction'),
-        util.WhichKey_ai(mode, '[c]onditional'),
-        util.WhichKey_ai(mode, '[C]lass'),
+        -- util.WhichKey_ai(mode, '[f]unction call'),
+        util.WhichKey_ai(mode, '[f]unction'),
+        util.WhichKey_ai(mode, 'Cond[i]tional'),
+        util.WhichKey_ai(mode, '[c]lass'),
         util.WhichKey_ai(mode, '[S]tatement'),
-        util.WhichKey_ai(mode, '[L]oop'),
+        util.WhichKey_ai(mode, '[l]oop'),
         -- util.WhichKey_ai('[b]lock'),    --TODO: 'ab' and 'ib' doeen't show up in which-key. I don't know if it uses the treesitter version or not?
 
         -- The following didn't work due to errors in which-key on start-up
@@ -32,17 +32,25 @@ local function mini_ai()
     --  - ci'  - [C]hange [I]nside [']quote
     local setup_tlb = {
         n_lines = 500,
+        mappings = {
+            -- Next/last textobject
+            around_next = 'a;',
+            inside_next = 'i;',
+            around_last = 'a,',
+            inside_last = 'i,',
+        },
     }
     if util.module_mxists('nvim-treesitter-textobjects') then
         local spec_treesitter = require('mini.ai').gen_spec.treesitter
         setup_tlb['custom_textobjects'] = {
             a = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
-            f = spec_treesitter({ a = '@call.outer', i = '@call.inner' }),
-            F = spec_treesitter({ a = '@function.outer', i = '@function.inner' }),
-            c = spec_treesitter({ a = '@conditional.outer', i = '@conditional.inner' }),
-            C = spec_treesitter({ a = '@class.outer', i = '@class.inner' }),
+            -- f = spec_treesitter({ a = '@call.outer', i = '@call.inner' }),
+            f = spec_treesitter({ a = '@function.outer', i = '@function.inner' }),
+            i = spec_treesitter({ a = '@conditional.outer', i = '@conditional.inner' }),
+            c = spec_treesitter({ a = '@class.outer', i = '@class.inner' }),
             S = spec_treesitter({ a = '@statement.outer', i = '@statement.inner' }),
-            L = spec_treesitter({ a = '@loop.outer', i = '@loop.inner' }),
+            l = spec_treesitter({ a = '@loop.outer', i = '@loop.inner' }),
+            x = spec_treesitter({ a = '@comment.outer', i = '@comment.outer' }),
             -- b = spec_treesitter({ a = '@block.outer', i = '@block.inner' }),
         }
     end
