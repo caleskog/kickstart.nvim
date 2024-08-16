@@ -7,7 +7,8 @@
 local util = require('util')
 
 -- As highlight on search is set in `options.lua`, but clear on pressing <Esc> in normal mode
-util.cmap('n', '<Esc>', 'nohlsearch')
+-- util.cmap('n', '<Esc>', 'nohlsearch') -- Disable due to issues with folke/flash.nvim
+util.map('n', '<CR>', ':nohlsearch<CR>', 'Clear search highlights')
 
 -- Allow navigating wrapped lines like physical lines
 util.emap('nv', 'j', "v:count ? 'j' : 'gj'")
