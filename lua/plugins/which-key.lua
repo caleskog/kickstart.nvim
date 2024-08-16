@@ -16,7 +16,7 @@ return {
                 { '<leader>g', group = 'Git' },
                 { '<leader>p', group = 'Programs' },
                 { '<leader>pm', group = 'Markdown' },
-                { 's', group = 'Surround' },
+                { '<leader>s', group = 'Surround' },
                 { 'z', group = 'View, Folds, Misc.' },
                 { 'z=', group = 'Spelling suggestions' },
                 { '<C-t>', desc = 'Jump back (tag)' },
