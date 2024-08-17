@@ -14,53 +14,59 @@
   arguments: (arguments (table_constructor))
 ) @register_func
 
-; Match the table counstructor for the function
-(table_constructor
-    (field
-        name: (identifier) @name_key (#eq? @name_key "name")
-        value: (string
-            content: (string_content ) @name )
-    )
-    (field
-        name: (identifier) @scope_key (#eq? @scope_key "scope")
-        value: [
-            (string
-                content: (string_content) @scope)
-            (table_constructor
-                (field
-                    value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
-                )+ @scope_values
-            ) @scope
-        ]
-    )
-    (field
-        name: (identifier) @kind_key (#eq? @kind_key "kind")
-        value: (string
-            content: (string_content) @kind)
-    )
-    (field
-        name: (identifier) @allowed_key (#eq? @allowed_key "allowed")
-        value: (table_constructor
-            (field
-                value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
-            )+
-        )
-    )?
-    (field
-        name: (identifier) @aliases_key (#eq? @aliases_key "aliases")
-        value: (table_constructor) @aliases ; List of key-value pairs. Values are of the following types: string, table_constructor of strings.
-    )?
-    (field
-        name: (identifier) @tokens (#eq? @tokens "tokens")
-        value: (true)
-    )?
-    (field
-        name: (identifier) @pathVars (#eq? @pathVars "pathVars")
-        value: (true)
-    )?
-    (field
-        name: (identifier) @allowDuplicates (#eq? @allowDuplicates "allowDuplicates")
-        value: (true)
-    )?
-)
+; Match api.register fields
+(field
+  name: (identifier) @name_key (#eq? @name_key "name")
+  value: (string
+           content: (string_content ) @name )
+  )
 
+(field
+  name: (identifier) @scope_key (#eq? @scope_key "scope")
+  value: [
+          (string
+            content: (string_content) @scope)
+          (table_constructor) @scope
+          ]
+  )
+
+(table_constructor
+  (field
+    value: (string (string_content) @scope_value) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+    )
+  )
+
+(field
+  name: (identifier) @kind_key (#eq? @kind_key "kind")
+  value: (string
+           content: (string_content) @kind)
+  )
+
+(field
+  name: (identifier) @allowed_key (#eq? @allowed_key "allowed")
+  value: (table_constructor
+           (field
+             value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+             )+
+           )
+  )
+
+(field
+  name: (identifier) @aliases_key (#eq? @aliases_key "aliases")
+  value: (table_constructor) @aliases ; List of key-value pairs. Values are of the following types: string, table_constructor of strings.
+  )
+
+(field
+  name: (identifier) @tokens (#eq? @tokens "tokens")
+  value: (true)
+  )
+
+(field
+  name: (identifier) @pathVars (#eq? @pathVars "pathVars")
+  value: (true)
+  )
+
+(field
+  name: (identifier) @allowDuplicates (#eq? @allowDuplicates "allowDuplicates")
+  value: (true)
+  )

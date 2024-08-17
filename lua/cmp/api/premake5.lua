@@ -120,26 +120,44 @@ local function capture_fields(query, name, target, node, content)
     if name == target then
         if node:type() == 'string_content' then
             return vim.treesitter.get_node_text(node, content)
-        elseif node:type() == 'true' then
-            return true
-        elseif node:type() == 'false' then
-            return false
         elseif node:type() == 'table_constructor' then
+            -- To be able to iterate over the fields in the table, the parent node is needed.
+            -- Don't know why this is needed, but it works.
+            local parent = node:parent()
+            if not parent then
+                return nil
+            end
             -- Make a table of strings from the node
-            gprint('nr of childern', node:named_child_count())
-            ptsn(node, content)
             local tbl = {}
-            local param_opts = { '2', { rule = '<' } }
-            gprint('Content:', '\n' .. content, { param_opts = param_opts })
-            for id, inner_node, _, _ in query:iter_captures(node, content) do
-                local capture_name = query.captures[id]
-                gprint('Capture name:', capture_name)
-                if capture_name == 'value_str' then
-                    local node_text = vim.treesitter.query.get_node_text(inner_node, content)
-                    table.insert(tbl, node_text)
+            -- local param_opts = { '2', { rule = '<' } }
+            -- gprint('Content:', '\n' .. content, { param_opts = param_opts })
+            for _, match, _ in query:iter_matches(parent, content, 0, -1, { all = true }) do
+                for id, nodes in pairs(match) do
+                    local capture_name = query.captures[id]
+                    -- gpdebug('Capture name:', capture_name)
+                    if capture_name == 'scope_value' then
+                        local node_text = vim.treesitter.get_node_text(nodes[1], content)
+                        gprint('Node text:', node_text)
+                        table.insert(tbl, node_text)
+                    end
                 end
             end
             return tbl
+        elseif node:type() == 'identifier' then
+            local parent = node:parent()
+            ---@diagnostic disable-next-line: need-check-nil
+            local value_node = parent:child(2)
+            if not value_node then
+                return nil
+            end
+            -- Ckeck if the value filed of the identifier is a false or true (indicating a boolean value)
+            if value_node:type() == 'true' then
+                return true
+            end
+            if value_node:type() == 'false' then
+                return false
+            end
+            return true
         end
     end
     return nil
@@ -211,21 +229,6 @@ function M.parse_premake_api(content)
     -- Traverse the trre and print the tables in api.register calls
     for id, node, _, _ in query_obj:iter_captures(root, content) do
         local capture_name = query_obj.captures[id]
-        --[[ if capture_name == 'func_name' then
-            -- Print the code around the currect capture.
-            local start_row, start_col, end_row, end_col = node:range()
-            -- Get the correct line in content string of the capture
-            local code = code_range(content, start_row, start_col, end_row, end_col)
-            print('Code:', code)
-            -- As we are sure we are in the correct function call,
-            -- capture the fields: name, scope, and kind.
-            local source = code
-            local func_node = node:parent():parent():child(2):child(1)
-            for id2, node2, _, _ in query_obj:iter_captures(func_node, source) do
-                local capture_name2 = query_obj.captures[id2]
-                print('Capture name:', capture_name2)
-            end
-        end ]]
         if capture_name == 'register_func' then
             -- Print the code around the currect capture.
             local start_row, start_col, end_row, end_col = node:range()
@@ -239,6 +242,7 @@ function M.parse_premake_api(content)
                 -- local name = capture_fields(inner_capture_name, 'name', field_node, content)
                 -- p(name, 'name')
                 local scope = capture_fields(query_obj, inner_capture_name, 'scope', field_node, content)
+                -- local pathVars = capture_fields(query_obj, inner_capture_name, 'pathVars', field_node, content)
                 -- p(scope, 'scope')
             end
         end
