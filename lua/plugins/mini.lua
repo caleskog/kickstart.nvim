@@ -44,13 +44,14 @@ local function mini_ai()
         local spec_treesitter = require('mini.ai').gen_spec.treesitter
         setup_tlb['custom_textobjects'] = {
             a = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
-            -- f = spec_treesitter({ a = '@call.outer', i = '@call.inner' }),
-            f = spec_treesitter({ a = '@function.outer', i = '@function.inner' }),
+            f = spec_treesitter({ a = '@call.outer', i = '@call.inner' }),
+            m = spec_treesitter({ a = '@function.outer', i = '@function.inner' }),
             i = spec_treesitter({ a = '@conditional.outer', i = '@conditional.inner' }),
             c = spec_treesitter({ a = '@class.outer', i = '@class.inner' }),
             S = spec_treesitter({ a = '@statement.outer', i = '@statement.inner' }),
             l = spec_treesitter({ a = '@loop.outer', i = '@loop.inner' }),
             x = spec_treesitter({ a = '@comment.outer', i = '@comment.outer' }),
+            -- ['='] = spec_treesitter({ a = '@assignment.outer', i = '@assignment.inner' }),
             -- b = spec_treesitter({ a = '@block.outer', i = '@block.inner' }),
         }
     end
@@ -68,10 +69,10 @@ return {
         'echasnovski/mini.nvim',
         version = '*',
         dependencies = {
-            'nvim-treesitter/nvim-treesitter-textobjects',
+            -- 'nvim-treesitter/nvim-treesitter-textobjects',
         },
         config = function()
-            mini_ai()
+            -- mini_ai()
             -- Add/delete/replace surroundings (brackets, quotes, etc.)
             --
             -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
