@@ -219,8 +219,72 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         return filepath, 6
     end
 
-    -- Check if the file is a supported format for converting
     local extension = filetype.detect(filepath, {})
+    -- Opsions table when converting the file with the bash script
+    local options = {}
+
+    -- If filetype is 'markdown' then retrieve the conversion metadata and place it in the options table
+    if extension == 'markdown' then
+        local mdfile = io.open(filepath, 'r')
+        if mdfile then
+            local metadata_content = ''
+            local line = mdfile:read()
+            while line do
+                if line:match('^---$') then
+                    line = mdfile:read()
+                    while line and not line:match('^---$') do
+                        metadata_content = metadata_content .. line .. '\n'
+                        line = mdfile:read()
+                    end
+                    break
+                end
+                line = mdfile:read()
+            end
+            local yaml = require('tinyyaml')
+            local metadata = yaml.parse(metadata_content)
+            -- Find the convert table in the metadata
+            if metadata and metadata.convert then
+                -- append the metadata to the options table
+                for k, v in pairs(metadata.convert) do
+                    options[k] = v
+                end
+            end
+            -- Close the file
+            mdfile:close()
+        end
+    end
+
+    -- Options that start with a '<key>-' are considered as metatable options for the pandoctool
+    -- The <key> need to be an existing key in the metatable
+    local pandoc_metatable = {}
+    for k, v in pairs(options) do
+        if k:match('^.+-.+$') then
+            local main_key, sub_key = k:match('^(.+)-(.+)$')
+            if options[main_key] then
+                pandoc_metatable[sub_key] = v
+                options[k] = nil
+            end
+        end
+    end
+
+    -- Convert options table to string
+    local options_str = ''
+    for k, v in pairs(options) do
+        if type(v) == 'boolean' then
+            if v then
+                options_str = options_str .. ' --' .. k
+            end
+        else
+            options_str = options_str .. ' --' .. k .. ' ' .. v
+        end
+    end
+
+    -- Convert pandoc metatable to string
+    for k, v in pairs(pandoc_metatable) do
+        options_str = options_str .. ' --metadata ' .. k .. '=' .. tostring(v)
+    end
+
+    -- Check if the file is a supported format for converting
     ---@diagnostic disable-next-line: param-type-mismatch
     if M.contains(filetypes, extension) then
         local targetpath = filepath:match('^(.+/.+)%.(.+)$')
@@ -228,7 +292,8 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
             local target_paths = {}
             for _, t in ipairs(targets) do
                 local target = targetpath .. t
-                os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. target .. ' &>/dev/null')
+                local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. target .. ' ' .. options_str .. ' &>/dev/null'
+                os.execute(cmd)
                 target_paths[#target_paths + 1] = target
             end
             return target_paths, 7
@@ -241,7 +306,8 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         end
         -- vim.notify('filepath: ' .. filepath, vim.log.levels.INFO)
         -- vim.notify('targetpath: ' .. targetpath, vim.log.levels.INFO)
-        os.execute('~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' &>/dev/null')
+        local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' ' .. options_str .. ' &>/dev/null'
+        os.execute(cmd)
         if overwrite and Path:new(targetpath):exists() then
             return targetpath, 3
         end
