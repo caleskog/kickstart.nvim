@@ -258,10 +258,12 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
     -- The <key> need to be an existing key in the metatable
     local pandoc_metatable = {}
     for k, v in pairs(options) do
-        if k:match('^.+-.+$') then
-            local main_key, sub_key = k:match('^(.+)-(.+)$')
+        if k:match('^[^-]+-.+$') then
+            local main_key, sub_key = k:match('^([^-]+)-(.+)$')
             if options[main_key] then
                 pandoc_metatable[sub_key] = v
+                options[k] = nil
+            else
                 options[k] = nil
             end
         end
@@ -279,9 +281,14 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         end
     end
 
-    -- Convert pandoc metatable to string
-    for k, v in pairs(pandoc_metatable) do
-        options_str = options_str .. ' --metadata ' .. k .. '=' .. tostring(v)
+    -- Check if bandoc_metatable is not empty
+    if pandoc_metatable then
+        -- Tell convesion script to passthrough the following options
+        options_str = options_str .. ' --'
+        -- Convert pandoc metatable to string
+        for k, v in pairs(pandoc_metatable) do
+            options_str = options_str .. ' --metadata ' .. k .. '=' .. tostring(v)
+        end
     end
 
     -- Check if the file is a supported format for converting
@@ -307,7 +314,10 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         -- vim.notify('filepath: ' .. filepath, vim.log.levels.INFO)
         -- vim.notify('targetpath: ' .. targetpath, vim.log.levels.INFO)
         local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' ' .. options_str .. ' &>/dev/null'
-        os.execute(cmd)
+        -- vim.notify(cmd, vim.log.levels.INFO)
+        -- local out = io.popen(cmd, 'r'):read('*a'):gsub('[\n\r]', '\n')
+        -- vim.notify(out, vim.log.levels.DEBUG)
+        os.execute(cmd) -- Use io.popen(..) if you want to capture the output (remove the '&>/dev/null' part)
         if overwrite and Path:new(targetpath):exists() then
             return targetpath, 3
         end
