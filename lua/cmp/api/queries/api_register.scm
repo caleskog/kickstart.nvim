@@ -59,7 +59,10 @@
 
 (field
   name: (identifier) @allowed_key (#eq? @allowed_key "allowed")
-  value: (table_constructor) @allowed
+  value: [
+          (table_constructor) @allowed
+          (function_definition) @allowed
+          ]
   )
 
 (field

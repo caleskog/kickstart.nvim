@@ -155,6 +155,17 @@ local function capture_dotted_index_expression(root, content, repo, commit_sha)
     }
 end
 
+---@param root TSNode the captured node
+---@param content string The content of the file
+local function capture_function_definition(root, content)
+    local function_name = vim.treesitter.get_node_text(root:named_child(0), content)
+    return {
+        text = 'function' .. function_name .. '\n...\nend',
+        type = 'function',
+        origin = 'local',
+    }
+end
+
 ---Cehck and return a capture field
 ---@param query vim.treesitter.Query
 ---@param node TSNode the captured node
@@ -271,6 +282,9 @@ local function capture_fields(query, name, node, content, repo, commit_sha)
             }
         end
         return capture_identifier(node, content)
+    elseif node:type() == 'function_definition' then
+        local tbl = capture_function_definition(node, content)
+        return tbl
     end
     return nil
 end
@@ -321,11 +335,33 @@ function M.parse_premake_api(content, repo, commit_sha)
                 myArch,
             },
             aliases = {
-                FatalWarningsKey = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
-                OptimiseKey = 'Optimize',
-                OptimiseSizeKey = 'OptimizeSize',
+                FatalWarnings = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
+                Optimise = 'Optimize',
+                OptimiseSize = 'OptimizeSize',
                 x64 = p.x86_64,
             },
+        }
+
+        api.register {
+            name = "uuid",
+            scope = "project",
+            kind = "string",
+            allowed = function(value)
+                local ok = true
+                if (#value ~= 36) then ok = false end
+                for i=1,36 do
+                    local ch = value:sub(i,i)
+                    if (not ch:find("[ABCDEFabcdef0123456789-]")) then ok = false end
+                end
+                if (value:sub(9,9) ~= "-")   then ok = false end
+                if (value:sub(14,14) ~= "-") then ok = false end
+                if (value:sub(19,19) ~= "-") then ok = false end
+                if (value:sub(24,24) ~= "-") then ok = false end
+                if (not ok) then
+                    return nil, "invalid UUID"
+                end
+                return value:upper()
+            end
         }
     ]]
     -- Parse the file content using Tree-Sitter
