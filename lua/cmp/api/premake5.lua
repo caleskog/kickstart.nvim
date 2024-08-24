@@ -40,20 +40,23 @@ end
 
 --- Parse the provided lua file containing the `premake.api.register` calls. Retrive the necessary information from the registered API functions.
 ---@param path string Path to the `_premake_init.lua` file.
+---@param repo string GitHub repository name in the form `username/repo`.
 ---@return table table with extracted `premake.api.register` calls.
 ---@return string string The content of the `_premake_init.lua` file.
 ---@usage local api = extract_premake_api('path/to/_premake_init.lua')
-function M.extract_premake_api(path)
+function M.extract_premake_api(path, repo)
     local content = ''
     local api_functions = {}
     local file = io.open(path, 'r')
     if file then
         ---@type string
         content = file:read('*a')
+        -- Retrive the SHA commit from the file content
+        local sha = content:match('^#%[INJECTED AUTOMATICALLY%]%s+SHA=(%w+)')
         -- convert ^I to tabs
         content = content:gsub('%^I', '\t')
         -- api_functions = M.get_registed_api_functions(content)
-        api_functions = M.parse_premake_api(content)
+        api_functions = M.parse_premake_api(content, repo, sha)
         file:close()
     end
     return api_functions, content
@@ -115,8 +118,10 @@ end
 ---@param target string
 ---@param node TSNode the captured node
 ---@param content string The content of the file
+---@param repo string GitHub repository name in the form `username/repo`.
+---@param commit_sha string The SHA commit of the `premake` binary used for retriveing the premake api functions.
 ---@return string|boolean|table|nil
-local function capture_fields(query, name, target, node, content)
+local function capture_fields(query, name, target, node, content, repo, commit_sha)
     if name == target then
         if node:type() == 'string_content' then
             return vim.treesitter.get_node_text(node, content)
@@ -135,11 +140,34 @@ local function capture_fields(query, name, target, node, content)
                 for id, nodes in pairs(match) do
                     local capture_name = query.captures[id]
                     -- gpdebug('Capture name:', capture_name)
-                    if capture_name == 'scope_value' then
+                    if capture_name == 'field_string' then
                         local node_text = vim.treesitter.get_node_text(nodes[1], content)
-                        gprint('Node text:', node_text)
+                        -- gprint('Field string:', node_text)
                         table.insert(tbl, node_text)
+                    elseif capture_name == 'allowed_identifier' then
+                        local identifier_name = vim.treesitter.get_node_text(nodes[1], content)
+                        gprint('Allowed field [identifier]:', identifier_name)
+                        table.insert(tbl, {
+                            identifier = identifier_name,
+                            from = 'local',
+                        })
+                    elseif capture_name == 'allowed_dotted_identifier' then
+                        local identifier_name = vim.treesitter.get_node_text(nodes[1], content)
+                        local dotted_id_node = nodes[1]:parent():child(0)
+                        ---@diagnostic disable-next-line: param-type-mismatch
+                        local dotted_id_name = vim.treesitter.get_node_text(dotted_id_node, content)
+                        if dotted_id_name == 'p' then
+                            dotted_id_name = 'premake'
+                        end
+                        gprint('Allowed field1 [dotted_identifier]:', dotted_id_name)
+                        gprint('Allowed field2 [identifier]:', identifier_name)
+                        table.insert(tbl, {
+                            source = "https://github.com/".. repo .."/blob/" .. commit_sha .. "/src/base/_foundation.lua#L26",
+                            identifier = identifier_name,
+                            from = dotted_id_name,
+                        })
                     end
+
                 end
             end
             return tbl
@@ -165,8 +193,10 @@ end
 
 --- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
 ---@param content string The content of the `_premake_init.lua` file.
+---@param repo string GitHub repository name in the form `username/repo`.
+---@param commit_sha string The SHA commit of the `premake` binary used for retriveing the premake api functions.
 ---@return table<caleskog.cmp.ApiFunction> table with extracted `premake.api.register` calls.
-function M.parse_premake_api(content)
+function M.parse_premake_api(content, repo, commit_sha)
     ---@type table<caleskog.cmp.ApiFunction>
     local api = {}
     -- Test content
@@ -186,6 +216,7 @@ function M.parse_premake_api(content)
             kind = "string",
             pathVars = true,
             tokens = true,
+            allowDuplicates = true,
         }
 
         api.register {
@@ -197,10 +228,14 @@ function M.parse_premake_api(content)
                 "DebugEnvsDontMerge",
                 "EnableSSE",           -- DEPRECATED
                 "EnableSSE2",          -- DEPRECATED
+                p.X86,
+                p.X86_64,
+                myArch,
             },
             aliases = {
                 FatalWarnings = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
                 Optimise = 'Optimize',
+                x64 = p.x86_64,
             },
         }
     ]]
@@ -241,8 +276,15 @@ function M.parse_premake_api(content)
                 local inner_capture_name = query_obj.captures[field_id]
                 -- local name = capture_fields(inner_capture_name, 'name', field_node, content)
                 -- p(name, 'name')
-                local scope = capture_fields(query_obj, inner_capture_name, 'scope', field_node, content)
-                -- local pathVars = capture_fields(query_obj, inner_capture_name, 'pathVars', field_node, content)
+                -- local scope = capture_fields(query_obj, inner_capture_name, 'scope', field_node, content, repo, commit_sha)
+                -- if scope then
+                --     gpdebug('scope:', scope)
+                -- end
+                -- local pathVars = capture_fields(query_obj, inner_capture_name, 'pathVars', field_node, content, repo, commit_sha)
+                local allowed = capture_fields(query_obj, inner_capture_name, 'allowed', field_node, content, repo, commit_sha)
+                if allowed then
+                    gpdebug('allowed:', allowed)
+                end
                 -- p(scope, 'scope')
             end
         end
@@ -252,6 +294,8 @@ function M.parse_premake_api(content)
     return api
 end
 
+--- TODO: Not used, can be removed.
+---
 --- Get all registered API functions.
 ---Extracting `premake.api.register` calls from `premake-core/src/_premake_init.lua`
 ---@param content string The content of the `_premake_init.lua` file.
@@ -300,16 +344,16 @@ function M.generate_cmp_metadata(repo, path, filename)
 
     local success = M.download_premake_file(repo, path)
     if not success then
-        pwarning('Could not download `' .. repo .. '/' .. path .. '` from Github')
+        gpwarning('Could not download `' .. repo .. '/' .. path .. '` from Github')
     end
 
-    local _, api_functions_str = M.extract_premake_api(M.premake_api)
+    local api_functions, api_file_content = M.extract_premake_api(M.premake_api, repo)
 
     M.api_filepath = filename or M.API_DATA .. '/' .. M.PREMAKE_NAME .. '_cmp_source.lua'
     local file = io.open(M.api_filepath, 'w')
     if file then
         file:write('---Generated API file for ' .. M.PREMAKE_NAME .. ' completions\n')
-        file:write(api_functions_str)
+        file:write(api_file_content)
         file:close()
     end
 end
@@ -385,6 +429,7 @@ function M.download_premake_file(repo, path, short_sha)
         error('Failed to open file [' .. M.premake_api .. '] for writing: ' .. err)
         return false
     end
+    file:write("#[INJECTED AUTOMATICALLY] SHA=" .. sha .. "\n")
     file:write(converted_content)
     file:close()
     return true
@@ -393,6 +438,6 @@ end
 --- Testing purposes only
 --- TODO: Remove this when the function is no longer needed.
 --- NOTE: :lua vim.keymap.set('n', '<leader>,,', ':luafile ./lua/cmp/api/premake5.lua<cr>', { silent=true, noremap=true})
-M.parse_premake_api('premake5_api_completions.lua')
+M.parse_premake_api('premake5_api_completions.lua', 'premake/premake-core', '9c9b6fc4ca1937ce2ec2e40621a9bb273306906d')
 
 return M

@@ -4,8 +4,11 @@
     ; Could replace the table below with `table: (_)`
     table: [
         (dot_index_expression
-            table: (identifier)
-            field: (identifier) ; @api
+          table: [
+                  (identifier)
+                  (dot_index_expression)
+                 ]
+          field: (identifier) ; @api
         )
         (identifier) ; @api
     ]
@@ -32,7 +35,19 @@
 
 (table_constructor
   (field
-    value: (string (string_content) @scope_value) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
+    value: [
+            ; The `scope` field is a table_constructor of values. Each vaule is a string type.
+            (string
+              content: (string_content) @field_string)
+            ; The `allowed` field is a table_constructor of key-value pairs. Values are of the following types: string, table_constructor of strings.
+            (dot_index_expression
+              table: [
+                      (identifier)
+                      (dot_index_expression)
+                      ]
+            field: (identifier) @allowed_dotted_identifier)
+            (identifier) @allowed_identifier
+            ]
     )
   )
 
@@ -44,11 +59,7 @@
 
 (field
   name: (identifier) @allowed_key (#eq? @allowed_key "allowed")
-  value: (table_constructor
-           (field
-             value: (string (string_content) @value_str) ; List of values. Values is of the following: string, dot_index_expression, or identifier.
-             )+
-           )
+  value: (table_constructor) @allowed
   )
 
 (field
