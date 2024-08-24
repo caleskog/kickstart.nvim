@@ -33,23 +33,23 @@
           ]
   )
 
-(table_constructor
-  (field
-    value: [
-            ; The `scope` field is a table_constructor of values. Each vaule is a string type.
-            (string
-              content: (string_content) @field_string)
-            ; The `allowed` field is a table_constructor of key-value pairs. Values are of the following types: string, table_constructor of strings.
-            (dot_index_expression
-              table: [
-                      (identifier)
-                      (dot_index_expression)
-                      ]
-            field: (identifier) @allowed_dotted_identifier)
-            (identifier) @allowed_identifier
-            ]
-    )
-  )
+(field
+  ; This matches the case where there is an optional `name:` child.
+  name: (identifier)? @field_name
+  value: [
+          ; The `scope` field is a table_constructor of values. Each vaule is a string type.
+          (string) @field_string
+          ; The `allowed` field is a table_constructor of key-value pairs. Values are of the following types: string, table_constructor of strings.
+          (dot_index_expression
+            table: [
+                    (identifier)
+                    (dot_index_expression)
+                    ]
+            field: (identifier)) @field_dotted_expression
+          (identifier) @field_identifier
+          (table_constructor) @field_table
+          ]
+  ) @premake_field
 
 (field
   name: (identifier) @kind_key (#eq? @kind_key "kind")
@@ -64,7 +64,7 @@
 
 (field
   name: (identifier) @aliases_key (#eq? @aliases_key "aliases")
-  value: (table_constructor) @aliases ; List of key-value pairs. Values are of the following types: string, table_constructor of strings.
+  value: (table_constructor) @aliases
   )
 
 (field

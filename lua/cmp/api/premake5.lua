@@ -112,81 +112,165 @@ local function ptsn(node, source)
     gprint(vim.treesitter.get_node_text(node, source))
 end
 
+---@param root TSNode the captured node
+---@param content string The content of the file
+local function capture_string(root, content)
+    local string_content = root:named_child(0)
+---@diagnostic disable-next-line: param-type-mismatch
+    local field_text = vim.treesitter.get_node_text(string_content, content)
+    -- gprint('Field string:', node_text)
+    return {
+        text = field_text,
+        type = 'string',
+        origin = 'static',
+    }
+end
+
+---@param root TSNode the captured node
+---@param content string The content of the file
+local function capture_identifier(root, content)
+    local identifier_name = vim.treesitter.get_node_text(root, content)
+    return {
+        text = identifier_name,
+        type = 'identifier',
+        origin = 'local',
+    }
+end
+
+---@param root TSNode the captured node
+---@param content string The content of the file
+local function capture_dotted_index_expression(root, content, repo, commit_sha)
+---@diagnostic disable-next-line: param-type-mismatch
+    local dotted_id_name = vim.treesitter.get_node_text(root:named_child(0), content)
+    if dotted_id_name == 'p' then
+        dotted_id_name = 'premake'
+    end
+---@diagnostic disable-next-line: param-type-mismatch
+    local identifier_name = vim.treesitter.get_node_text(root:named_child(1), content)
+    return {
+        source = "https://github.com/".. repo .."/blob/" .. commit_sha .. "/src/base/_foundation.lua#L26",
+        text = identifier_name,
+        type = 'identifier',
+        origin = dotted_id_name,
+    }
+end
+
 ---Cehck and return a capture field
 ---@param query vim.treesitter.Query
----@param name string Capture name
----@param target string
 ---@param node TSNode the captured node
 ---@param content string The content of the file
 ---@param repo string GitHub repository name in the form `username/repo`.
 ---@param commit_sha string The SHA commit of the `premake` binary used for retriveing the premake api functions.
 ---@return string|boolean|table|nil
-local function capture_fields(query, name, target, node, content, repo, commit_sha)
-    if name == target then
-        if node:type() == 'string_content' then
-            return vim.treesitter.get_node_text(node, content)
-        elseif node:type() == 'table_constructor' then
-            -- To be able to iterate over the fields in the table, the parent node is needed.
-            -- Don't know why this is needed, but it works.
-            local parent = node:parent()
-            if not parent then
-                return nil
-            end
-            -- Make a table of strings from the node
-            local tbl = {}
-            -- local param_opts = { '2', { rule = '<' } }
-            -- gprint('Content:', '\n' .. content, { param_opts = param_opts })
-            for _, match, _ in query:iter_matches(parent, content, 0, -1, { all = true }) do
-                for id, nodes in pairs(match) do
-                    local capture_name = query.captures[id]
-                    -- gpdebug('Capture name:', capture_name)
-                    if capture_name == 'field_string' then
-                        local node_text = vim.treesitter.get_node_text(nodes[1], content)
-                        -- gprint('Field string:', node_text)
-                        table.insert(tbl, node_text)
-                    elseif capture_name == 'allowed_identifier' then
-                        local identifier_name = vim.treesitter.get_node_text(nodes[1], content)
-                        gprint('Allowed field [identifier]:', identifier_name)
-                        table.insert(tbl, {
-                            identifier = identifier_name,
-                            from = 'local',
-                        })
-                    elseif capture_name == 'allowed_dotted_identifier' then
-                        local identifier_name = vim.treesitter.get_node_text(nodes[1], content)
-                        local dotted_id_node = nodes[1]:parent():child(0)
-                        ---@diagnostic disable-next-line: param-type-mismatch
-                        local dotted_id_name = vim.treesitter.get_node_text(dotted_id_node, content)
-                        if dotted_id_name == 'p' then
-                            dotted_id_name = 'premake'
-                        end
-                        gprint('Allowed field1 [dotted_identifier]:', dotted_id_name)
-                        gprint('Allowed field2 [identifier]:', identifier_name)
-                        table.insert(tbl, {
-                            source = "https://github.com/".. repo .."/blob/" .. commit_sha .. "/src/base/_foundation.lua#L26",
-                            identifier = identifier_name,
-                            from = dotted_id_name,
-                        })
-                    end
-
+local function capture_fields(query, name, node, content, repo, commit_sha)
+    if node:type() == 'string_content' then
+        local node_text = vim.treesitter.get_node_text(node, content)
+        return {
+            text = node_text,
+            type = 'string',
+            origin = 'static',
+        }
+    elseif node:type() == 'table_constructor' then
+        -- Make a table of strings from the node
+        local tbl = {}
+        -- local param_opts = { '2', { rule = '<' } }
+        -- gprint('Content:', '\n' .. content, { param_opts = param_opts })
+        for _, top_match, _ in query:iter_matches(node, content, 0, -1, { all = true }) do
+            local field_node = nil
+            for id, nodes in pairs(top_match) do
+                local capture_name = query.captures[id]
+                if capture_name == 'premake_field' then
+                    field_node = nodes[1]
+                    break
                 end
             end
-            return tbl
-        elseif node:type() == 'identifier' then
-            local parent = node:parent()
-            ---@diagnostic disable-next-line: need-check-nil
-            local value_node = parent:child(2)
-            if not value_node then
-                return nil
+            if field_node then
+                -- ptsn(field_node, content)
+                for _, match, _ in query:iter_matches(field_node, content, 0, -1, { all = true }) do
+                    if name == 'aliases' then
+                        -- For checking if the field inclusion is @field_name
+                        for id, nodes in pairs(match) do
+                            local capture_name = query.captures[id]
+                            local root = nodes[1]
+                            -- gpdebug('Capture name:', capture_name)
+                            -- ptsn(root, content)
+                            if capture_name == "field_name" then
+                                -- ptsn(nodes[1]:parent():named_child(0), content)
+                                -- ptsn(nodes[1]:parent():named_child(1), content)
+                                -- p(nodes[1]:parent():named_child(1):type(), 'Field name')
+                                local lhs_node = root:parent():named_child(0)
+                                ---@diagnostic disable-next-line: param-type-mismatch
+                                local lhs_text = vim.treesitter.get_node_text(lhs_node, content)
+                                local rhs_fields = {}
+                                for rhs_id, rhs_nodes in pairs(match) do
+                                    local rhs_capture_name = query.captures[rhs_id]
+                                    local rhs_root = rhs_nodes[1]
+                                    if rhs_capture_name == 'field_string' then
+                                        local inner_tbl = capture_string(rhs_root, content)
+                                        table.insert(rhs_fields, inner_tbl)
+                                    elseif rhs_capture_name == 'field_identifier' then
+                                        local inner_tbl = capture_identifier(rhs_root, content)
+                                        table.insert(rhs_fields, inner_tbl)
+                                    elseif rhs_capture_name == 'field_dotted_expression' then
+                                        local inner_tbl = capture_dotted_index_expression(rhs_root, content, repo, commit_sha)
+                                        table.insert(rhs_fields, inner_tbl)
+                                    elseif rhs_capture_name == 'field_table' then
+                                        ---@diagnostic disable-next-line: cast-local-type
+                                        rhs_fields = capture_fields(query, '', rhs_root, content, repo, commit_sha)
+                                    end
+                                end
+                                table.insert(tbl, {
+                                    key = lhs_text,
+                                    values = rhs_fields,
+                                })
+                                break -- Exit early once we find `@field_name`
+                            end
+                        end
+                    else
+                        for id, nodes in pairs(match) do
+                            local capture_name = query.captures[id]
+                            local root = nodes[1]
+
+                            if capture_name == 'field_string' then
+                                local inner_tbl = capture_string(root, content)
+                                table.insert(tbl, inner_tbl)
+                            elseif capture_name == 'field_identifier' then
+                                local inner_tbl = capture_identifier(root, content)
+                                table.insert(tbl, inner_tbl)
+                            elseif capture_name == 'field_dotted_expression' then
+                                local inner_tbl = capture_dotted_index_expression(root, content, repo, commit_sha)
+                                table.insert(tbl, inner_tbl)
+                            end
+                        end
+                    end
+                end
+
             end
-            -- Ckeck if the value filed of the identifier is a false or true (indicating a boolean value)
-            if value_node:type() == 'true' then
-                return true
-            end
-            if value_node:type() == 'false' then
-                return false
-            end
-            return true
         end
+        return tbl
+    elseif node:type() == 'identifier' then
+        local parent = node:parent()
+        ---@diagnostic disable-next-line: need-check-nil
+        local value_node = parent:child(2)
+        if not value_node then
+            return nil
+        end
+        -- Ckeck if the value filed of the identifier is a false or true (indicating a boolean value)
+        if value_node:type() == 'true' then
+            return {
+                text = 'true',
+                type = 'boolean',
+                origin = 'static',
+            }
+        end
+        if value_node:type() == 'false' then
+            return {
+                text = 'false',
+                type = 'boolean',
+                origin = 'static',
+            }
+        end
+        return capture_identifier(node, content)
     end
     return nil
 end
@@ -228,13 +312,18 @@ function M.parse_premake_api(content, repo, commit_sha)
                 "DebugEnvsDontMerge",
                 "EnableSSE",           -- DEPRECATED
                 "EnableSSE2",          -- DEPRECATED
+                "FatalCompileWarnings",
+                "FatalLinkWarnings",
+                "Optimize",            -- DEPRECATED
+                "OptimizeSize",        -- DEPRECATED
                 p.X86,
                 p.X86_64,
                 myArch,
             },
             aliases = {
-                FatalWarnings = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
-                Optimise = 'Optimize',
+                FatalWarningsKey = { "FatalWarnings", "FatalCompileWarnings", "FatalLinkWarnings" },
+                OptimiseKey = 'Optimize',
+                OptimiseSizeKey = 'OptimizeSize',
                 x64 = p.x86_64,
             },
         }
@@ -274,16 +363,12 @@ function M.parse_premake_api(content, repo, commit_sha)
             -- capture the fields: name, scope, and kind.
             for field_id, field_node, _, _ in query_obj:iter_captures(node, content) do
                 local inner_capture_name = query_obj.captures[field_id]
-                -- local name = capture_fields(inner_capture_name, 'name', field_node, content)
-                -- p(name, 'name')
-                -- local scope = capture_fields(query_obj, inner_capture_name, 'scope', field_node, content, repo, commit_sha)
-                -- if scope then
-                --     gpdebug('scope:', scope)
-                -- end
-                -- local pathVars = capture_fields(query_obj, inner_capture_name, 'pathVars', field_node, content, repo, commit_sha)
-                local allowed = capture_fields(query_obj, inner_capture_name, 'allowed', field_node, content, repo, commit_sha)
-                if allowed then
-                    gpdebug('allowed:', allowed)
+                local allowed_fields = { 'name', 'scope', 'kind', 'allowed', 'aliases', 'pathVars', 'tokens', 'allowDuplicates' }
+                if vim.tbl_contains(allowed_fields, inner_capture_name) then
+                    local field = capture_fields(query_obj, inner_capture_name, field_node, content, repo, commit_sha)
+                    if field and (inner_capture_name == 'aliases' or inner_capture_name == 'allowed') then
+                        gpdebug(inner_capture_name .. ':', field)
+                    end
                 end
                 -- p(scope, 'scope')
             end
