@@ -83,6 +83,8 @@ M.TEST_CONTENT = [[
                 "FatalLinkWarnings",
                 "Optimize",            -- DEPRECATED
                 "OptimizeSize",        -- DEPRECATED
+                'C++11', -- DEPRECATED
+                'C++14', -- DEPRECATED
                 p.X86,
                 p.X86_64,
                 myArch,
@@ -117,6 +119,12 @@ M.TEST_CONTENT = [[
             end
         }
 
+        api.register({
+            name = 'buildaction',
+            scope = 'config',
+            kind = 'string',
+        })
+
         api.register {
             name = "buildcommands",
             scope = { "config", "rule" },
@@ -125,8 +133,125 @@ M.TEST_CONTENT = [[
             pathVars = true,
         }
 
+        api.register({
+            name = 'buildmessage',
+            scope = { 'config', 'rule' },
+            kind = 'string',
+            tokens = true,
+            pathVars = true,
+        })
+
+        api.register({
+            name = 'buildoutputs',
+            scope = { 'config', 'rule' },
+            kind = 'list:path',
+            tokens = true,
+            pathVars = false,
+        })
+
+        api.register({
+            name = 'cppdialect',
+            scope = 'config',
+            kind = 'string',
+            allowed = {
+                'Default',
+                'C++latest',
+                'C++98',
+                'C++0x',
+                'C++11',
+                'C++1y',
+                'C++14',
+                'C++1z',
+                'C++17',
+                'C++2a',
+                'C++20',
+                'gnu++98',
+                'gnu++0x',
+                'gnu++11',
+                'gnu++1y',
+                'gnu++14',
+                'gnu++1z',
+                'gnu++17',
+                'gnu++2a',
+                'gnu++20',
+            },
+        })
+
+        api.register({
+            name = 'symbols',
+            scope = 'config',
+            kind = 'string',
+            allowed = {
+                'Default',
+                'On',
+                'Off',
+                'FastLink', -- Visual Studio 2015+ only, considered 'On' for all other cases.
+                'Full', -- Visual Studio 2017+ only, considered 'On' for all other cases.
+            },
+        })
+
+        api.register({
+            name = 'vectorextensions',
+            scope = 'config',
+            kind = 'string',
+            allowed = {
+                'Default',
+                'AVX',
+                'AVX2',
+                'IA32',
+                'SSE',
+                'SSE2',
+                'SSE3',
+                'SSSE3',
+                'SSE4.1',
+                'SSE4.2',
+            },
+        })
+
         api.alias("buildcommands", "buildCommands")
-        api.alias("dotnetframework", "framework", "dotnet")
+        -- api.alias("dotnetframework", "framework", "dotnet")
+
+        api.deprecateField('buildrule', 'Use `buildcommands`, `buildoutputs`, and `buildmessage` instead.', function(value)
+            if value.description then
+                buildmessage(value.description)
+            end
+            buildcommands(value.commands)
+            buildoutputs(value.outputs)
+        end)
+
+        api.deprecateValue('flags', 'Component', 'Use `buildaction "Component"` instead.', function(value)
+            buildaction('Component')
+        end)
+
+        api.deprecateValue('flags', 'EnableSSE', 'Use `vectorextensions "SSE"` instead.', function(value)
+            vectorextensions('SSE')
+        end, function(value)
+            vectorextensions('Default')
+        end)
+
+        api.deprecateValue('flags', 'EnableSSE2', 'Use `vectorextensions "SSE2"` instead.', function(value)
+            vectorextensions('SSE2')
+        end, function(value)
+            vectorextensions('Default')
+        end)
+
+        api.deprecateValue('flags', 'Symbols', 'Use `symbols "On"` instead', function(value)
+            symbols('On')
+        end, function(value)
+            symbols('Default')
+        end)
+
+        api.deprecateValue('flags', 'C++11', 'Use `cppdialect "C++11"` instead', function(value)
+            cppdialect('C++11')
+        end, function(value)
+            cppdialect('Default')
+        end)
+
+        api.deprecateValue('flags', 'C++14', 'Use `cppdialect "C++14"` instead', function(value)
+            cppdialect('C++14')
+        end, function(value)
+            cppdialect('Default')
+        end)
     ]]
 
 return M
