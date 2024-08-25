@@ -39,8 +39,8 @@
   ) @alias_func
 
 (arguments
-(string) @alias_string
-)
+  (string) @alias_string
+  )
 
 ; Match api.register fields
 (field

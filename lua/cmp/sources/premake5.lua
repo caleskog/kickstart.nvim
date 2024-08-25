@@ -2,7 +2,7 @@
 ---@description Completion API for nvim-cmp regarding premake5.
 ---@version 0.0.1
 
-local premake = require('cmp.api.premake5')
+local premake = require('cmp.api.premake.premake5')
 
 ---Custom source for `nvim-cmp`
 ---Example: https://github.com/saadparwaiz1/cmp_luasnip/blob/master/lua/cmp_luasnip/init.lua
