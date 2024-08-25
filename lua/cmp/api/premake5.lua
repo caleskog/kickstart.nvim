@@ -112,33 +112,50 @@ local function ptsn(node, source)
     gprint(vim.treesitter.get_node_text(node, source))
 end
 
+---@class caleskog.premake5.ApiField
+---@field text string The text of the field.
+---@field type string The type of the field. Can be 'string', 'identifier', 'function', 'boolean', etc.
+---@field origin string The origin of the field. Can be 'local', 'static', 'premake', etc.
+---@field source? table<string> The source of the field. Can be a URL to the source code.
+---@field key? string The key of the field. Only used in tables.
+---@field values? table<caleskog.premake5.ApiField> The values of the field. Only used in tables.
+---@field function_definition? string The full function definition. Only used for functions.
+
+
 ---@param root TSNode the captured node
 ---@param content string The content of the file
+---@return caleskog.premake5.ApiField
 local function capture_string(root, content)
     local string_content = root:named_child(0)
 ---@diagnostic disable-next-line: param-type-mismatch
     local field_text = vim.treesitter.get_node_text(string_content, content)
     -- gprint('Field string:', node_text)
-    return {
+    ---@type caleskog.premake5.ApiField
+    local api_field = {
         text = field_text,
         type = 'string',
         origin = 'static',
     }
+    return api_field
 end
 
 ---@param root TSNode the captured node
 ---@param content string The content of the file
+---@return caleskog.premake5.ApiField
 local function capture_identifier(root, content)
     local identifier_name = vim.treesitter.get_node_text(root, content)
-    return {
+    ---@type caleskog.premake5.ApiField
+    local api_field = {
         text = identifier_name,
         type = 'identifier',
         origin = 'local',
     }
+    return api_field
 end
 
 ---@param root TSNode the captured node
 ---@param content string The content of the file
+---@return caleskog.premake5.ApiField
 local function capture_dotted_index_expression(root, content, repo, commit_sha)
 ---@diagnostic disable-next-line: param-type-mismatch
     local dotted_id_name = vim.treesitter.get_node_text(root:named_child(0), content)
@@ -147,23 +164,42 @@ local function capture_dotted_index_expression(root, content, repo, commit_sha)
     end
 ---@diagnostic disable-next-line: param-type-mismatch
     local identifier_name = vim.treesitter.get_node_text(root:named_child(1), content)
-    return {
-        source = "https://github.com/".. repo .."/blob/" .. commit_sha .. "/src/base/_foundation.lua#L26",
+    local api_field = {
+        source = {
+            "https://github.com/".. repo .."/blob/" .. commit_sha .. "/src/base/_foundation.lua#L26"
+        },
         text = identifier_name,
         type = 'identifier',
         origin = dotted_id_name,
     }
+    return api_field
 end
 
 ---@param root TSNode the captured node
 ---@param content string The content of the file
+---@return caleskog.premake5.ApiField
 local function capture_function_definition(root, content)
-    local function_name = vim.treesitter.get_node_text(root:named_child(0), content)
-    return {
-        text = 'function' .. function_name .. '\n...\nend',
+    -- Get the full function footprint without the body
+    local function_footprint = ''
+    ---@diagnostic disable-next-line: param-type-mismatch
+    local function_start = vim.treesitter.get_node_text(root:child(0), content)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    local parametr_list = vim.treesitter.get_node_text(root:named_child(0), content)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    local function_end = vim.treesitter.get_node_text(root:child(3), content)
+    function_footprint = function_start .. parametr_list .. ' ... ' .. function_end
+
+    local function_definition = vim.treesitter.get_node_text(root, content)
+    ---@type caleskog.premake5.ApiField
+    local api_field = {
+        text = function_footprint,
+        source = {
+            function_definition
+        },
         type = 'function',
         origin = 'local',
     }
+    return api_field
 end
 
 ---Cehck and return a capture field
@@ -172,17 +208,20 @@ end
 ---@param content string The content of the file
 ---@param repo string GitHub repository name in the form `username/repo`.
 ---@param commit_sha string The SHA commit of the `premake` binary used for retriveing the premake api functions.
----@return string|boolean|table|nil
+---@return table<caleskog.premake5.ApiField>
 local function capture_fields(query, name, node, content, repo, commit_sha)
     if node:type() == 'string_content' then
         local node_text = vim.treesitter.get_node_text(node, content)
-        return {
+        ---@type caleskog.premake5.ApiField
+        local api_field = {
             text = node_text,
             type = 'string',
             origin = 'static',
         }
+        return api_field
     elseif node:type() == 'table_constructor' then
         -- Make a table of strings from the node
+        ---@type table<caleskog.premake5.ApiField>
         local tbl = {}
         -- local param_opts = { '2', { rule = '<' } }
         -- gprint('Content:', '\n' .. content, { param_opts = param_opts })
@@ -212,6 +251,7 @@ local function capture_fields(query, name, node, content, repo, commit_sha)
                                 local lhs_node = root:parent():named_child(0)
                                 ---@diagnostic disable-next-line: param-type-mismatch
                                 local lhs_text = vim.treesitter.get_node_text(lhs_node, content)
+                                ---@type table<caleskog.premake5.ApiField>
                                 local rhs_fields = {}
                                 for rhs_id, rhs_nodes in pairs(match) do
                                     local rhs_capture_name = query.captures[rhs_id]
@@ -264,29 +304,42 @@ local function capture_fields(query, name, node, content, repo, commit_sha)
         ---@diagnostic disable-next-line: need-check-nil
         local value_node = parent:child(2)
         if not value_node then
-            return nil
+            return {
+                text = 'nil',
+                type = 'nil',
+                origin = 'static',
+            }
         end
         -- Ckeck if the value filed of the identifier is a false or true (indicating a boolean value)
         if value_node:type() == 'true' then
-            return {
+            ---@type caleskog.premake5.ApiField
+            local api_field = {
                 text = 'true',
                 type = 'boolean',
                 origin = 'static',
             }
+            return api_field
         end
         if value_node:type() == 'false' then
-            return {
+            ---@type caleskog.premake5.ApiField
+            local api_field = {
                 text = 'false',
                 type = 'boolean',
                 origin = 'static',
             }
+            return api_field
         end
         return capture_identifier(node, content)
     elseif node:type() == 'function_definition' then
-        local tbl = capture_function_definition(node, content)
-        return tbl
+        ---@type caleskog.premake5.ApiField
+        local api_field = capture_function_definition(node, content)
+        return api_field
     end
-    return nil
+    return {
+        text = 'nil',
+        type = 'nil',
+        origin = 'static',
+    }
 end
 
 --- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
@@ -363,6 +416,17 @@ function M.parse_premake_api(content, repo, commit_sha)
                 return value:upper()
             end
         }
+
+        api.register {
+            name = "buildcommands",
+            scope = { "config", "rule" },
+            kind = "list:string",
+            tokens = true,
+            pathVars = true,
+        }
+
+        api.alias("buildcommands", "buildCommands")
+        api.alias("dotnetframework", "framework", "dotnet")
     ]]
     -- Parse the file content using Tree-Sitter
     local parser = vim.treesitter.get_string_parser(content, 'lua')
@@ -401,13 +465,38 @@ function M.parse_premake_api(content, repo, commit_sha)
                 local inner_capture_name = query_obj.captures[field_id]
                 local allowed_fields = { 'name', 'scope', 'kind', 'allowed', 'aliases', 'pathVars', 'tokens', 'allowDuplicates' }
                 if vim.tbl_contains(allowed_fields, inner_capture_name) then
+                    ---@type table<caleskog.premake5.ApiField>
                     local field = capture_fields(query_obj, inner_capture_name, field_node, content, repo, commit_sha)
-                    if field and (inner_capture_name == 'aliases' or inner_capture_name == 'allowed') then
-                        gpdebug(inner_capture_name .. ':', field)
-                    end
+                    -- if inner_capture_name == 'allowed' then
+                    --     gpdebug(inner_capture_name .. ':', field)
+                    -- end
                 end
                 -- p(scope, 'scope')
             end
+        elseif capture_name == 'alias_func' then
+            local alias_original = ''
+            local alias_new = {}
+            for _, match, _ in query_obj:iter_matches(node, content, 0, -1, { all = true }) do
+                for alias_id, nodes in pairs(match) do
+                    local alias_capture_name = query_obj.captures[alias_id]
+                    if alias_capture_name == 'alias_string' then
+                        for _, alias_node in ipairs(nodes) do
+                            local inner_tbl = capture_string(alias_node, content)
+                            -- The first parameter is the original
+                            if alias_original == '' then
+                                alias_original = inner_tbl.text
+                            else
+                                table.insert(alias_new, inner_tbl)
+                            end
+                        end
+                    end
+                end
+            end
+            local aliases = {
+                original = alias_original,
+                aliases = alias_new,
+            }
+            gpdebug('Aliases:', aliases)
         end
     end
 

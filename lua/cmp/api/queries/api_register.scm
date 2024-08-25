@@ -1,21 +1,46 @@
 ; Match api.register or <identifier>.api.register calls
 (function_call
   name: (dot_index_expression
-    ; Could replace the table below with `table: (_)`
-    table: [
-        (dot_index_expression
+          ; Could replace the table below with `table: (_)`
           table: [
-                  (identifier)
-                  (dot_index_expression)
-                 ]
-          field: (identifier) ; @api
-        )
-        (identifier) ; @api
-    ]
-    field: (identifier) @func_name (#eq? @func_name "register")
-  )
+                  (dot_index_expression
+                    table: [
+                            (identifier)
+                            (dot_index_expression)
+                            ]
+                    field: (identifier) ; @api
+                    )
+                  (identifier) ; @api
+                  ]
+          field: (identifier) @register_func_name (#eq? @register_func_name "register")
+          )
   arguments: (arguments (table_constructor))
-) @register_func
+  ) @register_func
+
+; Match api.alias or <identifier>.api.alias calls
+(function_call
+  name: (dot_index_expression
+          ; Could replace the table below with `table: (_)`
+          table: [
+                  (dot_index_expression
+                    table: [
+                            (identifier)
+                            (dot_index_expression)
+                            ]
+                    field: (identifier) ; @api
+                    )
+                  (identifier) ; @api
+                  ]
+          field: (identifier) @alias_func_name (#eq? @alias_func_name "alias")
+          )
+  arguments: (arguments 
+            (string)+
+            )
+  ) @alias_func
+
+(arguments
+(string) @alias_string
+)
 
 ; Match api.register fields
 (field
