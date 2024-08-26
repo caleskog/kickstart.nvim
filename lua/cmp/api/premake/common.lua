@@ -208,6 +208,13 @@ M.TEST_CONTENT = [[
             },
         })
 
+        api.register({
+            name = 'buildrule', -- DEPRECATED
+            scope = 'config',
+            kind = 'table',
+            tokens = true,
+        })
+
         api.alias("buildcommands", "buildCommands")
         -- api.alias("dotnetframework", "framework", "dotnet")
 

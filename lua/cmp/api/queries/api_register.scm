@@ -1,3 +1,50 @@
+; Match api.deprecateField or <identifier>.api.deprecateField calls
+(function_call
+  name: (dot_index_expression
+          table: [
+                  (dot_index_expression
+                    table: [
+                            (identifier)
+                            (dot_index_expression)
+                            ]
+                    field: (identifier) ; @api
+                    )
+                  (identifier) ; @api
+                  ]
+          field: (identifier) @deprecateField_func_name (#eq? @deprecateField_func_name "deprecateField")
+          )
+  arguments: (arguments
+               (string) @deprecateField_name
+               (string) @deprecateField_message
+               (function_definition) @deprecateField_using
+               )
+  ) @deprecateField_func
+
+; Match api.deprecateValue or <identifier>.api.deprecateValue calls
+(function_call
+  name: (dot_index_expression
+          table: [
+                  (dot_index_expression
+                    table: [
+                            (identifier)
+                            (dot_index_expression)
+                            ]
+                    field: (identifier) ; @api
+                    )
+                  (identifier) ; @api
+                  ]
+          field: (identifier) @deprecateValue_func_name (#eq? @deprecateValue_func_name "deprecateValue")
+          )
+  arguments: (arguments
+               (string) @deprecateValue_from
+               (string) @deprecateValue_name
+               (string) @deprecateValue_message
+               (function_definition) @deprecateValue_using
+               (function_definition)? @deprecateValue_default
+               )
+  ) @deprecateValue_func
+
+
 ; Match api.register or <identifier>.api.register calls
 (function_call
   name: (dot_index_expression

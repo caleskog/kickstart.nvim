@@ -3,7 +3,7 @@
 ---@version 0.0.1
 
 local common = require('cmp.api.premake.common')
-local extractor = require('cmp.api.premake.extractor')
+local harvester = require('cmp.api.premake.harvester')
 local http = require('socket.http')
 
 local M = {
@@ -41,29 +41,6 @@ function M.extract_premake_api(path, repo)
     end
     return api_functions, content
 end
-
--- Function to get a specific line from a multi-line string
-local function code_range(str, row_start, col_start, row_end, col_end)
-    local lines = common.split(str, '\n') -- Split the string into lines
-    local code = ''
-    for i, line in ipairs(lines) do
-        if i >= row_start and i <= row_end then
-            if row_start == row_end then
-                line = line:sub(col_start + 1, col_end)
-            else
-                if i == row_start then
-                    line = line:sub(col_start + 1, -1)
-                end
-                if i == row_end then
-                    line = line:sub(1, col_end)
-                end
-            end
-            code = code .. line
-        end
-    end
-    return code
-end
-
 
 --- Parse the `_premake_init.lua` file with TreeSitter and extract `premake.api.register` call first arguments.
 ---@param content string The content of the `_premake_init.lua` file.
@@ -103,41 +80,29 @@ function M.parse_premake_api(content, repo, commit_sha)
     for id, node, _, _ in query_obj:iter_captures(root, content) do
         local capture_name = query_obj.captures[id]
         if capture_name == 'register_func' then
-            -- Print the code around the currect capture.
-            local start_row, start_col, end_row, end_col = node:range()
-            -- Get the correct line in content string of the capture
-            local code = code_range(content, start_row, start_col, end_row, end_col)
-            -- print('Code:', code)
-            -- As we are sure we are in the correct function call,
-            -- capture the fields: name, scope, and kind.
             for field_id, field_node, _, _ in query_obj:iter_captures(node, content) do
                 local inner_capture_name = query_obj.captures[field_id]
                 local allowed_fields = { 'name', 'scope', 'kind', 'allowed', 'aliases', 'pathVars', 'tokens', 'allowDuplicates' }
                 if vim.tbl_contains(allowed_fields, inner_capture_name) then
                     ---@type table<caleskog.premake5.ApiField>
-                    local field = extractor.capture_register_fields(query_obj, inner_capture_name, field_node, content, repo, commit_sha)
+                    local field = harvester.capture_register_fields(query_obj, inner_capture_name, field_node, content, repo, commit_sha)
                     -- if inner_capture_name == 'allowed' then
                     --     gpdebug(inner_capture_name .. ':', field)
                     -- end
                 end
-                -- p(scope, 'scope')
             end
         elseif capture_name == 'alias_func' then
             local alias_original = ''
             local alias_new = {}
-            for _, match, _ in query_obj:iter_matches(node, content, 0, -1, { all = true }) do
-                for alias_id, nodes in pairs(match) do
-                    local alias_capture_name = query_obj.captures[alias_id]
-                    if alias_capture_name == 'alias_string' then
-                        for _, alias_node in ipairs(nodes) do
-                            local inner_tbl = extractor.capture_string(alias_node, content)
-                            -- The first parameter is the original
-                            if alias_original == '' then
-                                alias_original = inner_tbl.text
-                            else
-                                table.insert(alias_new, inner_tbl)
-                            end
-                        end
+            for alias_id, alias_node, _, _ in query_obj:iter_captures(node, content) do
+                local alias_capture_name = query_obj.captures[alias_id]
+                if alias_capture_name == 'alias_string' then
+                    local inner_tbl = harvester.capture_string(alias_node, content)
+                    -- The first parameter is the original
+                    if alias_original == '' then
+                        alias_original = inner_tbl.text
+                    else
+                        table.insert(alias_new, inner_tbl.text)
                     end
                 end
             end
@@ -145,7 +110,41 @@ function M.parse_premake_api(content, repo, commit_sha)
                 original = alias_original,
                 aliases = alias_new,
             }
-            gpdebug('Aliases:', aliases)
+            -- gpdebug('Aliases:', aliases)
+        elseif capture_name == 'deprecateField_func' then
+            local deprecated = {}
+            for deprecated_id, deprecated_node, _, _ in query_obj:iter_captures(node, content) do
+                local deprecated_capture_name = query_obj.captures[deprecated_id]
+                if deprecated_capture_name == 'deprecateField_name' then
+                    deprecated['name'] = harvester.capture_string(deprecated_node, content).text
+                elseif deprecated_capture_name == 'deprecateField_message' then
+                    deprecated['message'] = harvester.capture_string(deprecated_node, content).text
+                elseif deprecated_capture_name == 'deprecateField_using' then
+                    local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
+                    deprecated['using'] = inner_tbl.source[1]
+                end
+            end
+            -- gpdebug('Deprecated:', deprecated)
+        elseif capture_name == 'deprecateValue_func' then
+            --- TODO: Remove duplicate captures. Need to add a deprecated table outside the top-level loop.
+            local deprecated = {}
+            for deprecated_id, deprecated_node, _, _ in query_obj:iter_captures(node, content) do
+                local deprecated_capture_name = query_obj.captures[deprecated_id]
+                if deprecated_capture_name == 'deprecateValue_from' then
+                    deprecated['from'] = harvester.capture_string(deprecated_node, content).text
+                elseif deprecated_capture_name == 'deprecateValue_name' then
+                    deprecated['name'] = harvester.capture_string(deprecated_node, content).text
+                elseif deprecated_capture_name == 'deprecateValue_message' then
+                    deprecated['message'] = harvester.capture_string(deprecated_node, content).text
+                elseif deprecated_capture_name == 'deprecateValue_using' then
+                    local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
+                    deprecated['using'] = inner_tbl.source[1]
+                elseif deprecated_capture_name == 'deprecateValue_default' then
+                    local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
+                    deprecated['default'] = inner_tbl.source[1]
+                end
+            end
+            gpdebug('Deprecated:', deprecated)
         end
     end
 
