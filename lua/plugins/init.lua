@@ -53,12 +53,12 @@ return {
     -- Highlight todo, notes, etc in comments
     {
         -- NOTE: adding a note
-        -- PERF: fully optimised
-        -- HACK: hmm, this looks a bit funky
         -- TODO: What else?
+        -- INPORTANT: This is really important
         -- FIX: this needs fixing
-        -- WARNING: ??
-
+        -- WARNING: be careful, it might break
+        -- HACK: hmm, this looks a bit funky
+        -- PERF: fully optimised
         -- HELP: Some kind of helpfull message
 
         'folke/todo-comments.nvim',
@@ -70,9 +70,44 @@ return {
         opts = {
             signs = false,
             keywords = {
+                INPORTANT = {
+                    icon = '',
+                    color = '#ff0000',
+                    alt = { 'IMPORTANT', 'CRIT', 'CRITICAL' },
+                },
+                FIX = {
+                    icon = '',
+                    color = '#b2182b',
+                    alt = { 'FIXME', 'BUG', 'FIX' },
+                },
+                WARN = {
+                    icon = '',
+                    color = '#fee08b',
+                    alt = { 'WARNING', 'CAUTION' },
+                },
+                HACK = {
+                    icon = '󰶯',
+                    color = '#ef8a62',
+                },
+                PERFORMACE = {
+                    icon = '󰅒',
+                    color = '#af8dc3',
+                    alt = { 'PERF', 'PERFORMANCE', 'OPTIM' },
+                },
+                TODO = {
+                    icon = '',
+                    color = '#2166ac',
+                    alt = { 'TODO' },
+                },
+                NOTE = {
+                    icon = '',
+                    color = '#458588',
+                    alt = { 'NOTE', 'INFO' },
+                },
                 HELP = {
-                    icon = '?',
-                    color = '#1e8704',
+                    icon = '󰞋',
+                    color = '#1b7837',
+                    alt = { 'HELP' },
                 },
             },
             merge_keywords = true,
