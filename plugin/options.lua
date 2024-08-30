@@ -12,7 +12,16 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 
 -- Enable true color support
-vim.opt.termguicolors = true
+-- Only set true color if it's supported
+local cmd = "bash -c 'source ~/.bashrc.d/shell/before/external_functions.sh; is_truecolor_supported"
+local handle = io.popen(cmd)
+local output = handle:read("*a")  -- Read all output
+local exit_code = handle:close()   -- Get the exit code
+if exit_code then
+    -- print("setting termguicolors")
+    -- Flickering problems is solved when removing this line: https://github.com/neovim/neovim/issues/2528#issuecomment-490734273
+    vim.opt.termguicolors = true
+end
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
