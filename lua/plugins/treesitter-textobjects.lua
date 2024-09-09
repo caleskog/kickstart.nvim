@@ -32,8 +32,8 @@ return {
                         keymaps = {
                             ['a='] = { query = '@assignment.outer', desc = 'Around Assignment' },
                             ['i='] = { query = '@assignment.inner', desc = 'Inner Assignment' },
-                            ['l='] = { query = '@assignment.lhs', desc = 'Assignment LHS' },
-                            ['r='] = { query = '@assignment.rhs', desc = 'Assignment RHS' },
+                            -- ['l='] = { query = '@assignment.lhs', desc = 'Assignment LHS' },
+                            -- ['r='] = { query = '@assignment.rhs', desc = 'Assignment RHS' },
 
                             ['aa'] = { query = '@parameter.outer', desc = 'Around Parameter' },
                             ['ia'] = { query = '@parameter.inner', desc = 'Inner Parameter' },
@@ -63,12 +63,12 @@ return {
                     swap = {
                         enable = true,
                         swap_next = {
-                            ['<leader>na'] = '@parameter.inner', -- swap parameter with next
-                            ['<leader>nm'] = '@function.outer', -- swap function with next
+                            ['<leader>;a'] = '@parameter.inner', -- swap parameter with next
+                            ['<leader>;m'] = '@function.outer', -- swap function with next
                         },
                         swap_previous = {
-                            ['<leader>pA'] = '@parameter.inner', -- swap parameter with previous
-                            ['<leader>pM'] = '@function.outer', -- swap function with previous
+                            ['<leader>,A'] = '@parameter.inner', -- swap parameter with previous
+                            ['<leader>,M'] = '@function.outer', -- swap function with previous
                         },
                     },
                     move = {

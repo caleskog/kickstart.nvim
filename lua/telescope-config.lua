@@ -27,7 +27,7 @@ M.system_default_html = function(sources, target)
         if entry.path or entry.filename then
             local filename = entry.path or entry.filename
             -- vim.notify(filename or 'Nil', vim.log.levels.INFO)
-            local util = require('../util')
+            local util = require('./util')
             util.open(vim.fn.fnameescape(filename), sources, target)
         end
         --[[ -- Use default open command

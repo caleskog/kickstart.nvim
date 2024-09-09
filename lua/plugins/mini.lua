@@ -79,17 +79,17 @@ return {
             -- - sd'   - [S]urround [D]elete [']quotes
             -- - sr)'  - [S]urround [R]eplace [)] [']
             require('mini.surround').setup({
-                -- Change the default key from 's' to '<leader>s'
+                -- Change the default key from 's' to 'S'
                 mappings = {
-                    add = '<leader>sa',
-                    delete = '<leader>sd',
-                    find = '<leader>sf',
-                    find_left = '<leader>sF',
-                    highlight = '<leader>sh',
-                    replace = '<leader>sr',
-                    update = '<leader>su',
-                    suffix_last = '<leader>s,',
-                    suffix_next = '<leader>s;',
+                    add = '<S-s>a',
+                    delete = '<S-s>d',
+                    find = '<S-s>f',
+                    find_left = '<S-s>F',
+                    highlight = '<S-s>h',
+                    replace = '<S-s>r',
+                    update = '<S-s>u',
+                    suffix_last = '<S-s>,',
+                    suffix_next = '<S-s>;',
                 },
             })
 
