@@ -294,12 +294,14 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
     -- Check if the file is a supported format for converting
     ---@diagnostic disable-next-line: param-type-mismatch
     if M.contains(filetypes, extension) then
+        local targetdir = Path:new(filepath):parent()
+        local logfilepath = targetdir .. '/convert.log'
         local targetpath = filepath:match('^(.+/.+)%.(.+)$')
         if to_all and type(targets) == 'table' and not overwrite then
             local target_paths = {}
             for _, t in ipairs(targets) do
                 local target = targetpath .. t
-                local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. target .. ' ' .. options_str .. ' &>/dev/null'
+                local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. target .. ' ' .. options_str .. ' &>' .. logfilepath
                 os.execute(cmd)
                 target_paths[#target_paths + 1] = target
             end
@@ -313,7 +315,7 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         end
         -- vim.notify('filepath: ' .. filepath, vim.log.levels.INFO)
         -- vim.notify('targetpath: ' .. targetpath, vim.log.levels.INFO)
-        local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' ' .. options_str .. ' &>/dev/null'
+        local cmd = '~/.bash.ext/converters/convert.sh ' .. filepath .. ' ' .. targetpath .. ' ' .. options_str .. ' &>' .. logfilepath
         -- vim.notify(cmd, vim.log.levels.INFO)
         -- local out = io.popen(cmd, 'r'):read('*a'):gsub('[\n\r]', '\n')
         -- vim.notify(out, vim.log.levels.DEBUG)
@@ -342,12 +344,159 @@ function M.open(filepath, filetypes, target)
         vim.notify('The path [' .. filepath .. '] does not exist', vim.log.levels.INFO)
         return
     elseif ecode == 3 then
-        vim.notify('Updateing complementary `' .. target .. '` file', vim.log.levels.INFO)
+        vim.notify('Updating complementary `' .. target .. '` file', vim.log.levels.INFO)
     elseif ecode == 4 then
         vim.notify('Creating complementary `' .. target .. '` file', vim.log.levels.INFO)
     end
-    vim.notify('Opening file', vim.log.levels.INFO)
-    vim.api.nvim_exec2('!xdg-open ' .. targetpath, { output = true })
+    -- Only open the file in the browser if it's not already open
+    ---@diagnostic disable-next-line: param-type-mismatch
+    -- local title = M.extract_title(targetpath, 'html')
+    -- vim.notify('Title: ' .. title, vim.log.levels.INFO)
+    ---@diagnostic disable-next-line: param-type-mismatch
+    -- if title and M.is_file_open_in_browser('firefox', title) then
+    ---@diagnostic disable-next-line: param-type-mismatch
+    if M.is_file_open_in_browser(targetpath) then
+        vim.notify('Updating file', vim.log.levels.INFO)
+        if not M.refresh_browser_tab('firefox') then
+            vim.notify('Failed to refresh browser tab', vim.log.levels.ERROR)
+        end
+    end
+    if not targetpath then
+        vim.notify('Cannot open file', vim.log.levels.ERROR)
+        return
+    end
+
+    if type(targetpath) == 'string' then
+        targetpath = { targetpath }
+    end
+
+    -- Open the file with the system default
+    for _, t in ipairs(targetpath) do
+        vim.notify('Opening file', vim.log.levels.INFO)
+        local system_obj = vim.ui.open(t)
+        if not system_obj then
+            vim.notify('Failed to open file', vim.log.levels.ERROR)
+        end
+    end
+end
+
+--- Extract the title of a file
+---@param filepath string The path to the file
+---@param filetype string The type of the file ('markdown' or 'html')
+---@return string|nil The title of the file or nil if the file could not be opened
+function M.extract_title(filepath, filetype)
+    local file = io.open(filepath, 'r')
+    if not file then
+        return nil
+    end
+    local title = nil
+    local line = file:read()
+    while line do
+        if filetype == 'markdown' then
+            if line:match('^# .+$') then
+                title = line:sub(3)
+                break
+            end
+        elseif filetype == 'html' then
+            if line:match('<title>.+</title>') then
+                title = line:match('<title>(.+)</title>')
+                break
+            end
+        end
+        line = file:read()
+    end
+    file:close()
+    return title
+end
+
+--- Check if a file is open in a browser (e.g. Firefox) using the recovery file.
+--- NOTE: This function only works for Firefox AND requires the lz4json tool.
+---
+---@param filepath_or_title string The path to the file or the title of the file
+---@return boolean
+function M.is_file_open_in_browser(filepath_or_title)
+    -- Using the firefox recovery file to check if the file is open in the browser
+    local firefox_dir = os.getenv('HOME') .. '/.mozilla/firefox'
+    local profiles_file = io.open(firefox_dir .. 'profiles.ini', 'r')
+    if not profiles_file then
+        return false
+    end
+
+    -- Get the names of the profiles
+    local profiles = {}
+    local line = profiles_file:read()
+    while line do
+        -- cat ~/.mozilla/firefox/profiles.ini | rg "^Default\=(.+)$" -or "\$1"
+        if line:match('^Default=.+$') then
+            local name = line:match('^Default=(.+)$')
+            profiles[#profiles + 1] = name
+        end
+        line = profiles_file:read()
+    end
+    profiles_file:close()
+
+    -- Find the recovery file for each profile
+    for _, profile in ipairs(profiles) do
+        local recovery_path = firefox_dir .. '/' .. profile .. '/sessionstore-backups/recovery.jsonlz4'
+        -- Chech if the recovery file exists
+        local recovery_file = io.open(recovery_path, 'r')
+        if not recovery_file then
+            goto continue
+        end
+        recovery_file:close()
+
+        -- Use the lz4json tool to unpack the recovery file
+        -- Tools can be found at: https://github.com/alichtman/lz4json
+        local handle = io.popen('lz4jsoncat ' .. recovery_path)
+        if not handle then
+            goto continue
+        end
+        local recovery_json = handle:read('*a')
+        handle:close()
+
+        -- Decode the json
+        local recovery = vim.fn.json_decode(recovery_json)
+
+        -- Check if the file is open in the browser
+        for _, window in ipairs(recovery.windows) do
+            for _, tab in ipairs(window.tabs) do
+                for _, entry in ipairs(tab.entries) do
+                    if entry.url == 'file://' .. filepath_or_title then
+                        return true
+                    elseif entry.title == filepath_or_title then
+                        return true
+                    end
+                end
+            end
+        end
+
+        ::continue::
+    end
+
+    return false
+end
+
+--- Refresh a open browser tab
+---@param browser string The name of the browser (e.g. 'firefox')
+---@return boolean
+function M.refresh_browser_tab(browser)
+    -- Get the window id of the browser
+    local handle = io.popen('xdotool search --onlyvisible --class ' .. browser .. ' | head -n 1')
+    if not handle then
+        return false
+    end
+    local window_id = handle:read('*a')
+    handle:close()
+
+    if window_id == '' then
+        return false
+    end
+
+    -- Activate the browser window
+    os.execute('xdotool windowactivate ' .. window_id)
+    -- Refresh the browser tab
+    os.execute('xdotool key ctrl+r')
+    return true
 end
 
 return M
