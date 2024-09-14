@@ -57,7 +57,7 @@ return {
 
                                 -- Convert filepath to HTML file if possible
                                 local targetpath, ecode = util.convert(filepath, { 'markdown' }, { '.html', '.pdf' }, false, false)
-                                vim.notify(tostring(ecode), vim.log.levels.INFO)
+                                -- vim.notify(tostring(ecode), vim.log.levels.INFO)
 
                                 -- If not a local file, then return
                                 if ecode == 1 then
