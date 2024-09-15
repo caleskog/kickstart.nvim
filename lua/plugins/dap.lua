@@ -2,6 +2,65 @@
 -- Author: caleskog
 -- Description: Some debugging configuration.
 
+---Keymaps for debugging.
+local keymaps = {
+    ['<leader>dc'] = { 'require("dap").continue()', 'Debug: Continue' },
+    ['<leader>dr'] = { 'require("dap").run_to_cursor()', 'Debug: Run to Cursor' },
+    ['<leader>dt'] = { 'require("dap").toggle_breakpoint()', 'Debug: Toggle Breakpoint' },
+    ['<leader>ds'] = { 'require("dap").step_into()', 'Debug: Step Into' },
+    ['<leader>dn'] = { 'require("dap").step_over()', 'Debug: Step Over' },
+    ['<leader>do'] = { 'require("dap").step_out()', 'Debug: Step Out' },
+    ['<leader>db'] = { 'require("dap").step_back()', 'Debug: Step Back' },
+    ['<leader>dT'] = { 'require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))', 'Debug: Set Breakpoint with Conditions' },
+    ['<leader>d?'] = { 'require("dapui").eval(nil, { enter = true })', 'Debug: Evaluate Under Cursor' },
+}
+
+local function setup_adapters()
+    return {
+        ['gdb'] = {
+            type = 'executable',
+            command = 'gdb',
+            name = 'gdb',
+            args = { '--interpreter=dap', '--eval-command', 'set print pretty on' },
+        },
+        ['lldb'] = {
+            type = 'executable',
+            command = '/usr/bin/lldb-vscode', -- Might be something else
+            name = 'lldb',
+        },
+    }
+end
+
+local function setup_cpp_configuration()
+    return {
+        ['cpp'] = {
+            {
+                name = 'Launch',
+                type = 'cpp',
+                request = 'launch',
+                program = function()
+                    return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+                end,
+                cwd = '${workspaceFolder}',
+                stopAtBeginningOfMainSubprogram = false,
+            },
+            {
+                name = 'Select and attach to process',
+                type = 'gdb',
+                request = 'attach',
+                program = function()
+                    return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+                end,
+                pid = function()
+                    local name = vim.fn.input('Executable name (filter): ')
+                    return require('dap.utils').pick_process({ filter = name })
+                end,
+                cwd = '${workspaceFolder}',
+            },
+        },
+    }
+end
+
 return {
     {
         'mfussenegger/nvim-dap',
@@ -16,28 +75,18 @@ return {
             local ui = require('dapui')
             local util = require('../util')
 
+            -- Setup DAP UI and virtual text.
             require('dapui').setup()
             require('nvim-dap-virtual-text').setup({})
 
-            util.map('n', '<leader>dc', dap.continue, 'Debug: Continue')
-            util.map('n', '<leader>dt', dap.run_to_cursor, 'Debug: Run to Cursor')
-            util.map('n', '<leader>dd', dap.toggle_breakpoint, 'Debug: Toggle Breakpoint')
-            util.map('n', '<leader>dD', function()
-                dap.set_breakpoint(vim.fn.input('Breakpoint condition: '))
-            end, 'Debug: Set Breakpoint with Conditions')
+            -- Setup adapters and configurations.
+            dap.adapters = setup_adapters()
+            dap.configurations = setup_cpp_configuration()
 
-            -- Eval var under cursor
-            util.map('n', '<leader>d?', function()
-                ---@diagnostic disable-next-line: missing-fields
-                require('dapui').eval(nil, { enter = true })
-            end, 'Debug: Evaluate Under Cursor')
-
-            util.map('n', '<F5>', dap.continue, 'Debug: Continue')
-            util.map('n', '<F11>', dap.step_into, 'Debug: Step Into')
-            util.map('n', '<F10>', dap.step_over, 'Debug: Step Over')
-            util.map('n', '<F12>', dap.step_out, 'Debug: Step Out')
-            util.map('n', '<F9>', dap.step_back, 'Debug: Step Back')
-            util.map('n', '<F6>', dap.restart, 'Debug: Restart')
+            -- Keybindings for debugging.
+            for key, value in pairs(keymaps) do
+                util.map('n', key, value[1], value[2])
+            end
 
             dap.listeners.before.attach.dapui_config = function()
                 ui.open()
