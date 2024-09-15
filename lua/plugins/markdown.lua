@@ -4,10 +4,9 @@
 -- Commented out for testing the `markdown-oxide`, link: https://github.com/Feel-ix-343/markdown-oxide
 return {
     {
-        'MeanderingProgrammer/markdown.nvim',
-        main = 'render-markdown',
+        -- Video: https://www.youtube.com/watch?v=DgKI4hZ4EEI
+        'MeanderingProgrammer/render-markdown.nvim',
         opts = {},
-        name = 'render-markdown', -- Only needed if you have another plugin named markdown.nvim
         dependencies = {
             'nvim-treesitter/nvim-treesitter',
             'kyazdani42/nvim-web-devicons',
@@ -38,7 +37,7 @@ return {
             },
         },
     },
-    --[[ {
+    --[[ { -- Video: https://www.youtube.com/watch?v=5ht8NYkU9wQ
         'epwalsh/obsidian.nvim',
         version = '*',
         lazy = true,
