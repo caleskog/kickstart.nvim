@@ -108,12 +108,12 @@ return {
                     { name = 'copilot' },
                     {
                         name = 'nvim_lsp',
-                        option = {
-                            -- markdown_oxide is as lsp server for markdown (see lua/plugins/lsp.lua)
-                            markdown_oxide = {
-                                keyword_pattern = [[\(\k\| \|\/\|#\)\+]],
-                            },
-                        },
+                        -- option = {
+                        --     -- markdown_oxide is as lsp server for markdown (see lua/plugins/lsp.lua)
+                        --     markdown_oxide = {
+                        --         keyword_pattern = [[\(\k\| \|\/\|#\)\+]],
+                        --     },
+                        -- },
                     },
                     { name = 'luasnip' },
                     { name = 'path' },

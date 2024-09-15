@@ -129,32 +129,6 @@ return {
     },
 
     {
-        'iamcco/markdown-preview.nvim',
-        cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-        ft = { 'markdown' },
-        build = function()
-            vim.fn['mkdp#util#install']()
-        end,
-        keys = {
-            {
-                '<leader>pmt',
-                '<Plug>MarkdownPreviewToggle',
-                desc = 'Toggle Markdown Preview',
-            },
-            {
-                '<leader>pmm',
-                '<Plug>MarkdownPreview',
-                desc = 'Start Markdown Preview',
-            },
-            {
-                '<leader>pms',
-                '<Plug>MarkdownPreviewStop',
-                desc = 'Stop Markdown Preview',
-            },
-        },
-    },
-
-    {
         'rcarriga/nvim-notify',
         opts = {},
         config = function()
