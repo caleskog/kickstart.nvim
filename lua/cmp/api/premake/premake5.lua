@@ -50,6 +50,7 @@ end
 function M.parse_premake_api(content, repo, commit_sha)
     ---@type table<caleskog.cmp.ApiFunction>
     local api = {}
+    local deprecated = {}
 
     -- Set test content for testing purposes
     content = common.TEST_CONTENT
@@ -112,39 +113,56 @@ function M.parse_premake_api(content, repo, commit_sha)
             }
             -- gpdebug('Aliases:', aliases)
         elseif capture_name == 'deprecateField_func' then
-            local deprecated = {}
+            local deprecated_field = {}
             for deprecated_id, deprecated_node, _, _ in query_obj:iter_captures(node, content) do
                 local deprecated_capture_name = query_obj.captures[deprecated_id]
                 if deprecated_capture_name == 'deprecateField_name' then
-                    deprecated['name'] = harvester.capture_string(deprecated_node, content).text
+                    deprecated_field['name'] = harvester.capture_string(deprecated_node, content).text
                 elseif deprecated_capture_name == 'deprecateField_message' then
-                    deprecated['message'] = harvester.capture_string(deprecated_node, content).text
+                    deprecated_field['message'] = harvester.capture_string(deprecated_node, content).text
                 elseif deprecated_capture_name == 'deprecateField_using' then
                     local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
-                    deprecated['using'] = inner_tbl.source[1]
+                    deprecated_field['using'] = inner_tbl.source[1]
                 end
             end
+            -- Add the deprecated field to the deprecated table
+            table.insert(deprecated, deprecated_field)
             -- gpdebug('Deprecated:', deprecated)
         elseif capture_name == 'deprecateValue_func' then
             --- TODO: Remove duplicate captures. Need to add a deprecated table outside the top-level loop.
-            local deprecated = {}
+            local deprecated_value = {}
             for deprecated_id, deprecated_node, _, _ in query_obj:iter_captures(node, content) do
                 local deprecated_capture_name = query_obj.captures[deprecated_id]
                 if deprecated_capture_name == 'deprecateValue_from' then
-                    deprecated['from'] = harvester.capture_string(deprecated_node, content).text
+                    deprecated_value['from'] = harvester.capture_string(deprecated_node, content).text
                 elseif deprecated_capture_name == 'deprecateValue_name' then
-                    deprecated['name'] = harvester.capture_string(deprecated_node, content).text
+                    deprecated_value['name'] = harvester.capture_string(deprecated_node, content).text
                 elseif deprecated_capture_name == 'deprecateValue_message' then
-                    deprecated['message'] = harvester.capture_string(deprecated_node, content).text
+                    deprecated_value['message'] = harvester.capture_string(deprecated_node, content).text
                 elseif deprecated_capture_name == 'deprecateValue_using' then
                     local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
-                    deprecated['using'] = inner_tbl.source[1]
+                    deprecated_value['using'] = inner_tbl.source[1]
                 elseif deprecated_capture_name == 'deprecateValue_default' then
                     local inner_tbl = harvester.capture_function_definition(deprecated_node, content)
-                    deprecated['default'] = inner_tbl.source[1]
+                    deprecated_value['default'] = inner_tbl.source[1]
                 end
             end
-            gpdebug('Deprecated:', deprecated)
+            table.insert(deprecated, deprecated_value)
+        end
+    end
+
+    -- Remove duplicates from the deprecated table
+    -- Duplicate are caused when the default field is present. Removing the depracated entry that does not contain the default field.
+    local unique_deprecated = {}
+    for _, value in ipairs(deprecated) do
+        local name = value.name
+        if value.from then
+            name = value.from .. '.' .. value.name
+        end
+        if not unique_deprecated[name] then
+            unique_deprecated[name] = value
+        elseif not unique_deprecated[name].default then
+            unique_deprecated[name] = value
         end
     end
 

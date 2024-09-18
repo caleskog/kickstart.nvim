@@ -65,7 +65,36 @@ M.setup = function()
                 ---@type lsp.CompletionItem
                 local item = {
                     label = api_item.name,
-                    detail = api_item.detail,
+                    detail = api_item.description,
+                    insertTextMode = 2, -- 1 = asIs, 2 = adjustIndentation
+                    insertTextFormat = 2, -- 1 = plainText, 2 = snippet
+                    -- One of the following:
+                    --  1 = Text
+                    --  2 = Method
+                    --  3 = Function
+                    --  4 = Constructor
+                    --  5 = Field
+                    --  6 = Variable
+                    --  7 = Class
+                    --  8 = Interface
+                    --  9 = Module
+                    -- 10 = Property
+                    -- 11 = Unit
+                    -- 12 = Value
+                    -- 13 = Enum
+                    -- 14 = Keyword
+                    -- 15 = Snippet
+                    -- 16 = Color
+                    -- 17 = File
+                    -- 18 = Reference
+                    -- 19 = Folder
+                    -- 20 = EnumMember
+                    -- 21 = Constant
+                    -- 22 = Struct
+                    -- 23 = Event
+                    -- 24 = Operator
+                    -- 25 = TypeParameter
+                    kind = 3
                 }
                 if api_item.deprecated then
                     item.deprecated = api_item.deprecated

@@ -17,6 +17,7 @@
 ---@field name string The API name of the new field. This is used to create a global function with the same name, and so should follow Lua symbol naming conventions.
 ---@field scope caleskog.cmp.Scope The scoping level at which this value can be used.
 ---@field kind caleskog.cmp.Kind The type of values that can be stored into this field.
+---@field lsp-kind lsp.CompletionItemKind The LSP completion kind to use for this field.
 ---@field allowed? table|function|nil An array of valid values for this field, or a function which accepts a value as input and returns the canonical value as a result, or nil if the input value is invalid.
 ---@field tokens? boolean A boolean indicating whether token expansion should be performed for this function.
 ---@field pathVars? boolean A boolean indicating whether path variables should be expanded for this function.
