@@ -35,9 +35,14 @@ util.map('n', '<leader>q', vim.diagnostic.setloclist, 'Open diagnostic Quickfix 
 util.map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 
 -- Can only use this keybinding if `plenary` is loaded.
-util.fmap('n', '<C-s>', function()
+util.fmap('n', '<leader>o', function()
     util.open()
 end, 'Open file w/ system default (possibly convert to HTML)')
+
+-- Can only use this keybinding if `plenary` is loaded.
+util.fmap('n', '<leader>pch', function()
+    util.convert(vim.api.nvim_buf_get_name(0), { 'markdown' }, '.html', true)
+end, 'Convert file to HTML')
 
 -- NOTE: See lua/plugins/navigation.lua
 --
