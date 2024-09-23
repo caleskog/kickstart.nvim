@@ -1,14 +1,33 @@
 ---@author caleskog
 ---@description Loading plugins that do fuzzy searches of files, lsp, etc.
 
+local ASSOCIATED_EXTENSIONS = {
+    'fzf',
+    'ui-select',
+    'undo',
+    'live_grep_args',
+    'luasnip',
+    'git_worktree',
+}
+
+-- File type to be associated with the previewer
+-- See `bat --list-languages` for a list of supported values
+local ASSOCIATE_FT = {
+    -- C header and source files before M4 preprocessing
+    ['c.in'] = 'c',
+    ['h.in'] = 'c',
+    -- C++ header and source files before M4 preprocessing
+    ['cpp.in'] = 'cpp',
+    ['hh.in'] = 'cpp',
+    ['cc.in'] = 'cpp',
+    ['hpp.in'] = 'cpp',
+}
+
 --- Enable Telescope extensions if they are installed
 local function load_extentions()
-    pcall(require('telescope').load_extension, 'fzf')
-    pcall(require('telescope').load_extension, 'ui-select')
-    pcall(require('telescope').load_extension('undo'))
-    pcall(require('telescope').load_extension('live_grep_args'))
-    pcall(require('telescope').load_extension('luasnip'))
-    pcall(require('telescope').load_extension('git_worktree'))
+    for _, ext in ipairs(ASSOCIATED_EXTENSIONS) do
+        pcall(require('telescope').load_extension, ext)
+    end
 end
 
 --- Set keymaps
@@ -88,6 +107,17 @@ return {
                             ['<C-k>'] = actions.cycle_history_prev, -- To search backwards of previous searches
                             ['<C-s>'] = custom_actions.system_default_html(),
                         },
+                    },
+                    preview = {
+                        -- For viewing pre-preprocessed files
+                        filetype_hook = function(filepath, bufnr, _)
+                            local ft = vim.fn.fnamemodify(filepath, ':e:e')
+                            if ASSOCIATE_FT[ft] then
+                                ft = ASSOCIATE_FT[ft]
+                                vim.bo[bufnr].filetype = ft
+                            end
+                            return true
+                        end,
                     },
                 },
                 pickers = {
