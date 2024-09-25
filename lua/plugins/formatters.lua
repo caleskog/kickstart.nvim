@@ -90,6 +90,7 @@ return {
                     cpp = { 'cppcheck', 'clang-fmt-pre', 'clang-format', 'clang-fmt-post' },
                     -- asm = { 'asmfmt' }, -- Disabled due to being specific to GO assembly rather than general assembly
                     cmake = { 'cmakelang' },
+                    go = { 'gofumpt', 'goimports-reviser' },
                     -- Conform can also run multiple formatters sequentially
                     -- python = { "isort", "black" },
                 },

@@ -42,6 +42,27 @@ return {
 
             --  HELP: See `:help lspconfig-all` for a list of all the pre-configured LSPs.
             local servers = {
+                gopls = { -- Go LSP
+                    cmd = { 'gopls' },
+                    filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+                    root_dir = lspconfig.util.root_pattern('go.work', 'go.mod', '.git'),
+                    settings = {
+                        gopls = {
+                            completeUnimported = true,
+                            -- usePlaceholders = true,
+                            analyses = {
+                                unusedparams = true,
+                                -- shadow = true,
+                            },
+                            -- staticcheck = true,
+                        },
+                    },
+                },
+                golangci_lint_ls = { -- Go Linter
+                    cmd = { 'golangci-lint-langserver' },
+                    filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+                    root_dir = lspconfig.util.root_pattern('go.work', 'go.mod', '.git'),
+                },
                 clangd = {
                     cmd = { 'clangd', '--offset-encoding=utf-16' },
                     filetypes = { 'c', 'c.in', 'cpp', 'cpp.in', 'h', 'h.in', 'hpp', 'hpp.in', 'hh', 'hh.in', 'objc', 'objcpp' },
@@ -110,6 +131,9 @@ return {
                 'clang-format',
                 'cmakelang', -- cmake-formatter
                 'codelldb', -- C/C++ debugger
+                'gofumpt', -- Go code formatter
+                'goimports-reviser', -- Go code formatter
+                'golangci-lint', -- Go linter
             }
 
             -- Ensure the servers and tools above are installed
