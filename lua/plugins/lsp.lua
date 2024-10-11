@@ -68,6 +68,7 @@ return {
                     filetypes = { 'c', 'c.in', 'cpp', 'cpp.in', 'h', 'h.in', 'hpp', 'hpp.in', 'hh', 'hh.in', 'objc', 'objcpp' },
                     root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
                 },
+                texlab = true,
                 pyright = true,
                 rust_analyzer = true,
                 asm_lsp = {

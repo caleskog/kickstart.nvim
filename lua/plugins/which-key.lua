@@ -15,6 +15,7 @@ return {
                 { '<leader>d', group = 'Debugger' },
                 { '<leader>g', group = 'Git' },
                 { '<leader>p', group = 'Programs' },
+                { '<localleader>l', group = 'LaTeX' },
                 { '<leader>pm', group = 'Markdown' },
                 { '<leader>pc', group = 'Convert' },
                 { '<leader>s', group = 'Surround' },
