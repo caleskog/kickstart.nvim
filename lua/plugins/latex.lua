@@ -14,6 +14,16 @@ return {
 
             -- Disable default mappings
             -- vim.g.vimtex_mappings_enabled = 0
+
+            vim.g.vimtex_compiler_latexmk = {
+                aux_dir = 'build',
+                options = {
+                    '-shell-escape',
+                    '-file-line-error',
+                    '-synctex=1',
+                    '-interaction=nonstopmode',
+                },
+            }
         end,
         -- Don't work, must be placed in the init function
         -- keys = {
