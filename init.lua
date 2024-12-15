@@ -69,4 +69,7 @@ require('lazy').setup({
             lazy = '💤 ',
         },
     },
+    rocks = {
+        hererocks = false, -- assuming global installation of Lua 5.1 on system
+    },
 })
