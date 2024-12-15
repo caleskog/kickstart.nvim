@@ -99,7 +99,7 @@ return {
         opts = {},
         keys = { -- NOTE: Flash can search treesitter nodes too.
             {
-                's',
+                '\\',
                 mode = { 'n', 'x', 'o' },
                 function()
                     require('flash').jump()
