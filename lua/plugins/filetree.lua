@@ -92,11 +92,16 @@ return {
                 delet_to_trash = true,
                 skip_confirm_for_simple_edits = true,
                 keymaps = {
+                    ['<CR>'] = 'actions.select',
+                    ['<C-s>'] = { 'actions.select', opts = { vertical = true }, desc = 'Open the entry in a vertical split' },
+                    ['<C-h>'] = { 'actions.select', opts = { horizontal = true }, desc = 'Open the entry in a horizontal split' },
+                    ['<C-t>'] = { 'actions.select', opts = { tab = true }, desc = 'Open the entry in new tab' },
                     -- Overriding the default 'gx' as I want to convert
                     -- markdown files to html and open the html file.
                     ['gx'] = {
                         function()
                             local oil = require('oil')
+                            ---@diagnostic disable-next-line: different-requires
                             local util = require('../util')
                             local entry = oil.get_cursor_entry()
                             local dir = oil.get_current_dir()
