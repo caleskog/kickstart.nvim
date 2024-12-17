@@ -222,6 +222,7 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
     local extension = filetype.detect(filepath, {})
     -- Opsions table when converting the file with the bash script
     local options = {}
+    local hasMetadata = false
 
     -- If filetype is 'markdown' then retrieve the conversion metadata and place it in the options table
     if extension == 'markdown' then
@@ -240,13 +241,16 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
                 end
                 line = mdfile:read()
             end
-            local yaml = require('tinyyaml')
-            local metadata = yaml.parse(metadata_content)
-            -- Find the convert table in the metadata
-            if metadata and metadata.convert then
-                -- append the metadata to the options table
-                for k, v in pairs(metadata.convert) do
-                    options[k] = v
+            if metadata_content ~= '' then
+                hasMetadata = true
+                local yaml = require('tinyyaml')
+                local metadata = yaml.parse(metadata_content)
+                -- Find the convert table in the metadata
+                if metadata and metadata.convert then
+                    -- append the metadata to the options table
+                    for k, v in pairs(metadata.convert) do
+                        options[k] = v
+                    end
                 end
             end
             -- Close the file
@@ -281,7 +285,20 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
         end
     end
 
-    -- Check if bandoc_metatable is not empty
+    -- If no metadata file is found then add default.
+    if not hasMetadata then
+        -- Default options
+        gpdbg('No metadata found! Setting defaults...')
+        gpdbg('filepath: ', filepath)
+        local defaults = {
+            title = filepath:match('^.+/(.+)%..+$'),
+        }
+        gpdbg('defaults: ', defaults)
+        -- Keep the existing options
+        pandoc_metatable = vim.tbl_extend('keep', pandoc_metatable, defaults)
+    end
+
+    -- Check if pandoc_metatable is not empty
     if pandoc_metatable then
         -- Tell convesion script to passthrough the following options
         options_str = options_str .. ' --'
@@ -290,6 +307,8 @@ function M.convert(filepath, filetypes, targets, overwrite, to_all)
             options_str = options_str .. ' --metadata ' .. k .. '=' .. tostring(v)
         end
     end
+
+    gpdbg('options_str: ', options_str)
 
     -- Check if the file is a supported format for converting
     ---@diagnostic disable-next-line: param-type-mismatch
