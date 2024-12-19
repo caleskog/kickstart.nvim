@@ -118,6 +118,7 @@ return {
                     { name = 'luasnip' },
                     { name = 'path' },
                     { name = 'nvim_lsp_signature_helper' },
+                    { name = 'render-markdown' },
                 },
                 ---@diagnostic disable-next-line: missing-fields
                 formatting = {
