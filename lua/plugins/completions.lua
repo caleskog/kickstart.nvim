@@ -7,7 +7,7 @@ return {
         -- GitHub Copilot
         'zbirenbaum/copilot.lua',
         cmd = 'Copilot',
-        event = 'InsertEnter',
+        lazy = false,
         config = function()
             require('copilot').setup({
                 suggestion = { enabled = false },
@@ -18,6 +18,7 @@ return {
     {
         -- nvim-cmp source for Copilot
         'zbirenbaum/copilot-cmp',
+        event = 'InsertEnter',
         dependencies = {
             'zbirenbaum/copilot.lua',
         },
@@ -28,6 +29,7 @@ return {
     {
         -- Snippet Engine
         'L3MON4D3/LuaSnip',
+        event = 'InsertEnter',
         dependencies = {
             -- Premade snippets for many languages (https://github.com/rafamadriz/friendly-snippets)
             'rafamadriz/friendly-snippets',

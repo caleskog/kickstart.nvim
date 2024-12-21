@@ -21,7 +21,8 @@ end
 return {
     {
         'nvim-treesitter/nvim-treesitter-textobjects',
-        lazy = true,
+        event = 'VeryLazy',
+        enable = true,
         config = function()
             ---@diagnostic disable-next-line: missing-fields
             require('nvim-treesitter.configs').setup({
@@ -105,6 +106,28 @@ return {
                     },
                 },
             })
+
+            ---Taken from LazyVim: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/treesitter.lua
+            -- When in diff mode, we want to use the default
+            -- vim text objects c & C instead of the treesitter ones.
+            local move = require('nvim-treesitter.textobjects.move') ---@type table<string,fun(...)>
+            local configs = require('nvim-treesitter.configs')
+            for name, fn in pairs(move) do
+                if name:find('goto') == 1 then
+                    move[name] = function(q, ...)
+                        if vim.wo.diff then
+                            local config = configs.get_module('textobjects.move')[name] ---@type table<string,string>
+                            for key, query in pairs(config or {}) do
+                                if q == query and key:find('[%]%[][cC]') then
+                                    vim.cmd('normal! ' .. key)
+                                    return
+                                end
+                            end
+                        end
+                        return fn(q, ...)
+                    end
+                end
+            end
 
             -- Dosen't work due to conflict with folke/flash.nvim
             -- local ts_repeat_move = require('nvim-treesitter.textobjects.repeatable_move')
