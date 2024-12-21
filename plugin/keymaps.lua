@@ -42,13 +42,35 @@ util.map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 
 -- Can only use this keybinding if `plenary` is loaded.
 util.fmap('n', '<leader>o', function()
-    util.open()
+    if pcall(require, 'plenary') then
+        util.open()
+    else
+        vim.ui.open(vim.api.nvim_buf_get_name(0))
+    end
 end, 'Open file w/ system default (possibly convert to HTML)')
 
 -- Can only use this keybinding if `plenary` is loaded.
 util.fmap('n', '<leader>pch', function()
-    util.convert(vim.api.nvim_buf_get_name(0), { 'markdown' }, '.html', true)
+    local name = vim.api.nvim_buf_get_name(0)
+    if pcall(require, 'plenary') then
+        util.convert(name, { 'markdown' }, '.html', true)
+    else
+        vim.notify('Install plenary.nvim for this feature', 'warn', { title = 'Missing plugin' })
+    end
 end, 'Convert file to HTML')
+
+-- Buffer keymaps
+util.map('n', '<leader>Bc', ':bd<CR>', 'Close current buffer')
+util.map('n', '<leader>Bo', ':%bd|e#<CR>', 'Close other buffers')
+util.map('n', '<leader>Ba', ':%bd<CR>', 'Close all buffers')
+util.map('n', '<leader>Bh', function()
+    local buffers = vim.api.nvim_list_bufs()
+    for _, buf in ipairs(buffers) do
+        if vim.api.nvim_buf_get_name(buf) == '' then
+            vim.api.nvim_buf_delete(buf, { force = true })
+        end
+    end
+end, 'Close nameless buffers')
 
 -- NOTE: See lua/plugins/navigation.lua
 --

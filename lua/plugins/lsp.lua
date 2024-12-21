@@ -33,12 +33,6 @@ return {
             local ok, cmp = pcall(require, 'cmp_nvim_lsp')
             if ok then
                 capabilities = vim.tbl_deep_extend('force', capabilities, cmp.default_capabilities())
-                -- -- Ensure that dynamicRegistration is enabled! (for `markdown_oxide`)
-                -- capabilities.workspace = {
-                --     didChangeWatchedFiles = {
-                --         dynamicRegistration = true,
-                --     },
-                -- }
             end
 
             -- LSP servers to install
@@ -91,18 +85,8 @@ return {
                     -- Highlight references of the word under your cursor after hover for a little while.
                     autocmd.lsp_highlight(client, event, 'caleskog-lsp-highlight', 'caleskog-lsp-detach')
 
-                    -- -- Refresh codelens on TextChanged and InsertLeave as well (Markdow Oxide)
-                    -- if client and client.server_capabilities.codeLensProvider then
-                    --     vim.api.nvim_create_autocmd({ 'TextChanged', 'InsertLeave', 'CursorHold', 'LspAttach', 'BufEnter' }, {
-                    --         buffer = event.buf,
-                    --         callback = function()
-                    --             vim.lsp.codelens.refresh({ bufnr = 0 })
-                    --         end,
-                    --     })
-                    -- end
-
-                    -- The following code creates a keymap to toggle inlay hints in your
-                    -- code, if the language server you are using supports them (e.g. rust)
+                    -- The following code creates a keymap to toggle inlay hints in the code,
+                    -- if the language server supports them (e.g. rust)
                     if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                         map('<leader>th', function()
                             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
