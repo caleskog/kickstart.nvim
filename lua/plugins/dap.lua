@@ -73,7 +73,7 @@ return {
         config = function()
             local dap = require('dap')
             local ui = require('dapui')
-            local util = require('../util')
+            local util = require('util')
 
             -- Setup DAP UI and virtual text.
             require('dapui').setup()

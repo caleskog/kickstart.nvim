@@ -32,7 +32,7 @@ end
 
 --- Set keymaps
 local function keymaps()
-    local util = require('../util')
+    local util = require('util')
 
     -- See `:help telescope.builtin`
     local builtin = require('telescope.builtin')

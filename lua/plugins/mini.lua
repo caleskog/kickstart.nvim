@@ -1,7 +1,7 @@
 -- File: plugins/mini.lua
 -- Author: caleskog
 -- Description: Usefull plugins/modules for improving overall Neovim experience.
-local util = require('../util')
+local util = require('util')
 
 local function which_key_spec(mode)
     local desc_t = {

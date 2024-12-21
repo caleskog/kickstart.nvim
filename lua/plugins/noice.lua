@@ -1,7 +1,7 @@
 ---@name plugins/noice.lua
 ---@author caleskog
 
-local util = require('../util')
+local util = require('util')
 
 return {
     {
@@ -22,7 +22,7 @@ return {
         keys = {
             { '<leader>fH', '<CMD>Noice telescope<CR>', desc = 'Notification history' },
         },
-        config = function(_opts)
+        config = function(_)
             require('noice').setup({
                 lsp = {
                     -- override markdown rendering so that **cmp** and other plugins use **Treesitter**

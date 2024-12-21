@@ -6,7 +6,7 @@ return {
         'stevearc/conform.nvim',
         config = function()
             local conform = require('conform')
-            local util = require('../util')
+            local util = require('util')
 
             -- In normal mode it will apply to the whole file
             -- In visual mode it will apply to the selected text.

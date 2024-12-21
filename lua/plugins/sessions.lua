@@ -1,7 +1,7 @@
 -- File: plugins/sessions.lua
 -- Author: caleskog
 
-local util = require('../util')
+local util = require('util')
 
 return {
     {

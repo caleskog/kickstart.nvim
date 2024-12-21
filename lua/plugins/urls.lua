@@ -41,7 +41,7 @@ return {
                         handle = function(mode, line, _)
                             local helper = require('gx.helper')
                             local Path = require('plenary.path')
-                            local util = require('../util')
+                            local util = require('util')
 
                             -- Need to be in normal mode
                             if mode ~= 'n' then

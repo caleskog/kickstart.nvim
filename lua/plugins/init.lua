@@ -124,7 +124,7 @@ return {
             'rcarriga/nvim-notify',
         },
         config = function()
-            local util = require('../util')
+            local util = require('util')
             util.cmap('n', '<leader>fu', 'Telescope undo', 'UndoList')
         end,
     },
@@ -180,7 +180,7 @@ return {
                 end
                 return table.concat(lines, '\n')
             end
-            ---Parsing the custom options for the prin function
+            ---Parsing the custom options for the print function
             ---@param params table A list of parameters to be printed
             ---@param options table Options for the print function
             local parse_param_options = function(params, options)
@@ -195,7 +195,7 @@ return {
                 else -- If not a number, return the params
                     return params
                 end
-                -- Check correct nukber of options
+                -- Check correct number of options
                 if #options == 1 then
                     return params
                 end

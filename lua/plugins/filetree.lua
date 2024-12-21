@@ -34,7 +34,7 @@ return {
     --             system_open = function(state)
     --                 local node = state.tree:get_node()
     --                 local path = node:get_id()
-    --                 local util = require('../util')
+    --                 local util = require('util')
     --                 util.open(path)
     --             end,
     --         },
@@ -102,7 +102,7 @@ return {
                         function()
                             local oil = require('oil')
                             ---@diagnostic disable-next-line: different-requires
-                            local util = require('../util')
+                            local util = require('util')
                             local entry = oil.get_cursor_entry()
                             local dir = oil.get_current_dir()
                             if not entry or not dir then

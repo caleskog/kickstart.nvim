@@ -10,7 +10,7 @@ return {
             'nvim-telescope/telescope.nvim', -- or "ibhagwan/fzf-lua"
         },
         config = function()
-            local util = require('../util')
+            local util = require('util')
             local neogit = require('neogit')
             local telescope = require('telescope.builtin')
 
