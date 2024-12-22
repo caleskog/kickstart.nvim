@@ -61,7 +61,26 @@ end, 'Convert file to HTML')
 
 -- Buffer keymaps
 util.map('n', '<leader>Bc', ':bd<CR>', 'Close current buffer')
-util.map('n', '<leader>Bo', ':%bd|e#<CR>', 'Close other buffers')
+util.map('n', '<leader>Bo', function()
+    -- Can also use `:%bd|e#<CR>` to close all buffers except the current one
+    local current = vim.api.nvim_get_current_buf()
+    local buffers = vim.api.nvim_list_bufs()
+    local strs = {}
+    for _, buf in ipairs(buffers) do
+        if buf ~= current and vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_name(buf) ~= '' then
+            -- Remove prorect dir from buffer name
+            local name = vim.api.nvim_buf_get_name(buf)
+            name = name:gsub(vim.fn.getcwd() .. '/', '')
+            -- Set up buffer object
+            local b = { id = buf, name = name }
+            strs[#strs + 1] = 'Closing buffer ' .. b.name .. '[' .. b.id .. ']'
+            -- Close buffer
+            vim.api.nvim_buf_delete(buf, { force = true })
+        end
+    end
+    -- Notify user of closed buffers
+    vim.notify(table.concat(strs, '\n'), 'info', { title = 'Closed buffers' })
+end, 'Close other buffers')
 util.map('n', '<leader>Ba', ':%bd<CR>', 'Close all buffers')
 util.map('n', '<leader>Bh', function()
     local buffers = vim.api.nvim_list_bufs()
