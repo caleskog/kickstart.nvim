@@ -7,10 +7,14 @@ return {
     {
         -- Video: https://www.youtube.com/watch?v=DgKI4hZ4EEI
         'MeanderingProgrammer/render-markdown.nvim',
+        ft = 'markdown',
+        event = 'VeryLazy',
         dependencies = {
             'nvim-treesitter/nvim-treesitter',
             'kyazdani42/nvim-web-devicons',
         },
+        ---@module 'render-markdown'
+        ---@type render.md.UserConfig
         opts = {
             latex = { enabled = false },
             win_options = { conceallevel = { rendered = 2 } },
