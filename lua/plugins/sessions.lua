@@ -1,25 +1,29 @@
 -- File: plugins/sessions.lua
 -- Author: caleskog
 
-local util = require('util')
-
 return {
     {
         'rmagatti/auto-session',
-        config = function()
-            require('auto-session').setup({
-                auto_session_suppress_dirs = { '~/', '~/projects', '~/Downloads', '/' },
+        lazy = false,
+        ---Enable autocomplete for opts
+        ---@module "auto-session"
+        ---@type AutoSession.Config
+        opts = {
+            suppressed_dirs = { '~/', '~/projects', '~/Downloads', '/' },
 
-                -- Telescope integration
-                session_lens = {
-                    buftypes_to_ignore = {},
-                    load_on_setup = true,
-                    theme_conf = { border = true },
-                    previewer = false,
-                },
-                util.fmap('n', '<leader>wS', require('auto-session.session-lens').search_session, 'List Sessions', { noremap = true }),
-            })
-        end,
+            -- Telescope integration
+            session_lens = {
+                path_display = { 'shorten' },
+                load_on_setup = true,
+                theme_conf = { border = true },
+                previewer = false,
+            },
+        },
+        keys = {
+            { '<leader>wl', '<cmd>SessionSearch<CR>', desc = 'List sessions' },
+            { '<leader>wS', '<cmd>SessionSave<CR>', desc = 'Save session' },
+            { '<leader>wa', '<cmd>SessionToggleAutoSave<CR>', desc = 'Toggle autosave' },
+        },
     },
     -- {
     --     'jedrzejboczar/possession.nvim',
