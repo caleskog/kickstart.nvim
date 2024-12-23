@@ -3,7 +3,26 @@
 
 -- Commented out for testing the `markdown-oxide`, link: https://github.com/Feel-ix-343/markdown-oxide
 return {
-    { 'jbyuki/nabla.nvim' }, -- Render LaTeX equations in any filetype
+    {
+        'jbyuki/nabla.nvim', -- Render LaTeX equations in any filetype
+        event = 'VeryLazy',
+        keys = {
+            {
+                '<leader>pmv',
+                function()
+                    require('nabla').toggle_virt({ autogen = true })
+                end,
+                desc = 'Enable virtual text',
+            },
+            {
+                '<leader>m',
+                function()
+                    require('nabla').popup()
+                end,
+                desc = 'Popup LaTeX equations',
+            },
+        },
+    },
     {
         -- Video: https://www.youtube.com/watch?v=DgKI4hZ4EEI
         'MeanderingProgrammer/render-markdown.nvim',
@@ -19,7 +38,6 @@ return {
             latex = { enabled = false },
             win_options = { conceallevel = { rendered = 2 } },
             on = {
-                -- TODO: Dosen't work. But do when `enable_virt` is called manually.
                 attach = function()
                     require('nabla').enable_virt({ autogen = true })
                 end,
