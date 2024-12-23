@@ -6,6 +6,7 @@ local util = require('util')
 return {
     {
         'aserowy/tmux.nvim',
+        event = 'VimEnter',
         config = function()
             -- Allow arrow keys to move between panes
             util.fmap('n', '<C-Left>', function()

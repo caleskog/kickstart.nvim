@@ -7,7 +7,7 @@ return {
         -- GitHub Copilot
         'zbirenbaum/copilot.lua',
         cmd = 'Copilot',
-        lazy = false,
+        event = 'LazyFile',
         config = function()
             require('copilot').setup({
                 suggestion = { enabled = false },
