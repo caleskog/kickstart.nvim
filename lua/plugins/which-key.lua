@@ -18,8 +18,8 @@ return {
                 { '<leader>B', group = 'Buffers' },
                 { '<localleader>l', group = 'LaTeX' },
                 { '<leader>p', group = 'Programs' },
-                { '<leader>pm', group = 'Markdown' },
                 { '<leader>pc', group = 'Convert' },
+                { '<leader>k', group = 'Current document' }, -- filetype specific keymaps
                 { 'z', group = 'View, Folds, Misc.' },
                 { 'z=', group = 'Spelling suggestions' },
                 { '<C-t>', desc = 'Jump back (tag)' },

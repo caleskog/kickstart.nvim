@@ -8,10 +8,11 @@ return {
         event = 'VeryLazy',
         keys = {
             {
-                '<leader>pmv',
+                '<leader>kv',
                 function()
                     require('nabla').toggle_virt({ autogen = true })
                 end,
+                ft = { 'markdown' },
                 desc = 'Enable virtual text',
             },
             {
@@ -19,6 +20,7 @@ return {
                 function()
                     require('nabla').popup()
                 end,
+                ft = { 'markdown' },
                 desc = 'Popup LaTeX equations',
             },
         },
@@ -37,34 +39,39 @@ return {
         opts = {
             latex = { enabled = false },
             win_options = { conceallevel = { rendered = 2 } },
-            on = {
-                attach = function()
-                    require('nabla').enable_virt({ autogen = true })
-                end,
-            },
+            ---Disabled due to parsing of LaTeX math environments when they don't exist in document.
+            ---Exaample: usage of `$HOME/ [...] $HOME` will be parsed as LaTeX math. Thereby messing up the rendering.
+            -- on = {
+            --     attach = function()
+            --         require('nabla').enable_virt({ autogen = true })
+            --     end,
+            -- },
         },
     },
     {
         'iamcco/markdown-preview.nvim',
         cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
-        ft = { 'markdown' },
+        event = 'VeryLazy',
         build = function()
             vim.fn['mkdp#util#install']()
         end,
         keys = {
             {
-                '<leader>pmt',
+                '<leader>kt',
                 '<Plug>MarkdownPreviewToggle',
+                ft = { 'markdown' },
                 desc = 'Toggle Markdown Preview',
             },
             {
-                '<leader>pmm',
+                '<leader>km',
                 '<Plug>MarkdownPreview',
+                ft = { 'markdown' },
                 desc = 'Start Markdown Preview',
             },
             {
-                '<leader>pms',
+                '<leader>ks',
                 '<Plug>MarkdownPreviewStop',
+                ft = { 'markdown' },
                 desc = 'Stop Markdown Preview',
             },
         },
