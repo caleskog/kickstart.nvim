@@ -22,9 +22,6 @@ util.map('nv', '<Right>', 'l')
 
 -- Source current file
 util.map('n', '<leader><space>x', ':source %<CR>', 'Source current file')
--- Run current line (assumes Lua code)
-util.map('n', '<leader>x', ':.lua<CR>', 'Lua: run line')
-util.map('v', '<space>x', ':lua<CR>', 'Lua: run selection')
 
 -- Diagnostic keymaps
 util.map('n', '[d', vim.diagnostic.goto_prev, 'Go to previous Diagnostic message')

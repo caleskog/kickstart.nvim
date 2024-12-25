@@ -18,7 +18,7 @@ local notify = require('notify')
 ---@class Modes
 M.Mode = setmetatable({
     -- See :h mode()
-    _modes = { 'n', 'i', 'v', 'V', 'W', 's', 'S', 'Z', 'R', 't' },
+    _modes = { 'n', 'i', 'v', 'V', 'W', 's', 'S', 'Z', 'R', 't', 'o', 'x' },
 }, {
     ---Index function
     ---@param self table
