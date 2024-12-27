@@ -20,7 +20,7 @@ end
 
 ---Register all text objects with which-key
 ---
----Taken from LazyVim: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/util/mini.lua
+---Taken from LazyVim: [LazyVim/LazyVim](https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/util/mini.lua)
 ---@param opts table Options table from `mini.ai`
 function M.ai_whichkey(opts)
     local objects = {

@@ -59,9 +59,14 @@ return {
         'folke/snacks.nvim',
         priority = 1000,
         lazy = false,
+        ---@module 'snacks'
+        ---@type snacks.Config
         opts = {
             toggle = {
                 enabled = true,
+            },
+            notifier = {
+                enabled = true, -- FIX: This is not working. Change to nvim-notify or try to fix
             },
         },
         config = function(_, opts)

@@ -66,6 +66,13 @@ return {
         },
         keys = {
             { '<leader>fH', '<CMD>Noice telescope<CR>', desc = 'Notification history' },
+            {
+                '"',
+                function()
+                    gprint('Noice', 'This is a notification')
+                end,
+                desc = 'Test notification view',
+            },
         },
         config = function(_, opts)
             -- HACK: noice shows messages from before it was enabled,
