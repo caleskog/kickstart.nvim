@@ -32,23 +32,23 @@ end
 
 --- Set keymaps
 local function keymaps()
-    local util = require('util')
+    local key = Core.utils.keymap
 
     -- See `:help telescope.builtin`
     local builtin = require('telescope.builtin')
-    util.map('n', '<leader>fh', builtin.help_tags, 'Help')
-    util.map('n', '<leader>fk', builtin.keymaps, 'Keymaps')
-    util.map('n', '<leader>ff', builtin.find_files, 'Files')
-    -- util.cmap('n', '<leader>sS', builtin.builtin, { desc = 'Search Select Telescope' })
-    util.map('n', '<leader>fw', builtin.grep_string, 'Word')
-    util.map('n', '<leader>fd', builtin.diagnostics, 'Diagnostics')
-    -- util.cmap('n', '<leader>sr', builtin.resume, 'Search Resume' )
-    util.map('n', '<leader>fr', builtin.oldfiles, 'Recent Files')
-    util.map('n', '<leader>b', builtin.buffers, 'Find Buffers')
-    -- util.cmap('n', '<leader>ga', 'AdvancedGitSearch', 'AdvancedGitSearch')
+    key.map('n', '<leader>fh', builtin.help_tags, 'Help')
+    key.map('n', '<leader>fk', builtin.keymaps, 'Keymaps')
+    key.map('n', '<leader>ff', builtin.find_files, 'Files')
+    -- key.cmap('n', '<leader>sS', builtin.builtin, { desc = 'Search Select Telescope' })
+    key.map('n', '<leader>fw', builtin.grep_string, 'Word')
+    key.map('n', '<leader>fd', builtin.diagnostics, 'Diagnostics')
+    -- key.cmap('n', '<leader>sr', builtin.resume, 'Search Resume' )
+    key.map('n', '<leader>fr', builtin.oldfiles, 'Recent Files')
+    key.map('n', '<leader>b', builtin.buffers, 'Find Buffers')
+    -- key.cmap('n', '<leader>ga', 'AdvancedGitSearch', 'AdvancedGitSearch')
 
     -- Slightly advanced example of overriding default behavior and theme
-    util.map('n', '<leader>/', function()
+    key.map('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown({
             winblend = 10,
@@ -57,16 +57,16 @@ local function keymaps()
     end, 'Buffer | Fuzzily search')
 
     -- Shortcut for searching your Neovim configuration files
-    util.map('n', '<leader>fn', function()
+    key.map('n', '<leader>fn', function()
         builtin.find_files({ cwd = vim.fn.stdpath('config') })
     end, 'Neovim')
 
     ---------------------- Extensions' Keymaps ----------------------
     -- Live grep
-    util.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
-    -- util.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
+    key.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
+    -- key.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
     -- Search for snippets
-    util.cmap('n', '<leader>fl', 'Telescope luasnip', "Luasnip's Snippets")
+    key.cmap('n', '<leader>fl', 'Telescope luasnip', "Luasnip's Snippets")
 end
 
 ---------------------------------------------------------------------------

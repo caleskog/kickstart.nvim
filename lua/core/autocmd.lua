@@ -1,13 +1,5 @@
+---@class caleskog.nvim.core.Autocmd
 local M = {}
-
---- @class caleskog.nvim.autocmd.callback_event
---- @field id number autocommand id
---- @field event string name of the triggered event `autocmd-events`
---- @field group number|nil autocommand group id, if any
---- @field match string expanded value of <amatch>
---- @field buf number expanded value of <abuf>
---- @field file string expanded value of <afile>
---- @field data any arbitrary data passed from `nvim_exec_autocmds()`
 
 ---Create an autocmd group that handles LSP highlights in the current buffer, and clears them when the LSP detaches.
 ---The autocmd group is only created if the LSP client supports the `textDocument/documentHighlight` method.

@@ -1,37 +1,35 @@
 -- File: navigation.lua
 -- Author: caleskog
 
-local util = require('util')
-
 return {
     {
         'aserowy/tmux.nvim',
         event = 'VimEnter',
         config = function()
             -- Allow arrow keys to move between panes
-            util.fmap('n', '<C-Left>', function()
+            Core.utils.keymap.fmap('n', '<C-Left>', function()
                 require('tmux').move_left()
             end, 'Move to the left')
-            util.fmap('n', '<C-Down>', function()
+            Core.utils.keymap.fmap('n', '<C-Down>', function()
                 require('tmux').move_bottom()
             end, 'Move to the bottom', { noremap = true })
-            util.fmap('n', '<C-Up>', function()
+            Core.utils.keymap.fmap('n', '<C-Up>', function()
                 require('tmux').move_top()
             end, 'Move to the top', { noremap = true })
-            util.fmap('n', '<C-Right>', function()
+            Core.utils.keymap.fmap('n', '<C-Right>', function()
                 require('tmux').move_right()
             end, 'Move to the right')
 
-            util.fmap('n', '<A-Left>', function()
+            Core.utils.keymap.fmap('n', '<A-Left>', function()
                 require('tmux').resize_left()
             end, 'Resize to the left')
-            util.fmap('n', '<A-Down>', function()
+            Core.utils.keymap.fmap('n', '<A-Down>', function()
                 require('tmux').resize_bottom()
             end, 'Resize to the bottom')
-            util.fmap('n', '<A-Up>', function()
+            Core.utils.keymap.fmap('n', '<A-Up>', function()
                 require('tmux').resize_top()
             end, 'Resize to the top')
-            util.fmap('n', '<A-Right>', function()
+            Core.utils.keymap.fmap('n', '<A-Right>', function()
                 require('tmux').resize_right()
             end, 'Resize to the right')
 

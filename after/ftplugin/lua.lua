@@ -1,7 +1,7 @@
 --- Set up keybindings for Lua files
-local util = require('util')
-util.map('n', '<leader>x', ':.lua<CR>', 'Lua: run line')
-util.map('v', '<space>x', ':lua<CR>', 'Lua: run selection')
+local key = Core.utils.keymap
+key.map('n', '<leader>x', ':.lua<CR>', 'Lua: run line')
+key.map('v', '<space>x', ':lua<CR>', 'Lua: run selection')
 
 --- Set up Premake autocompletion
 -- local cmp_premake = require('cmp/sources/premake5')

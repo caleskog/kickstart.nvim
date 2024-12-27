@@ -41,7 +41,7 @@ return {
         },
         config = function(_, opts)
             -- set highlight groups
-            vim.api.nvim_set_hl(0, 'CAleskogStatuslineRecord', { bg = '#1d2021', fg = '#fbf1c7', bold = true })
+            vim.api.nvim_set_hl(0, 'CAleskogStatuslineRecord', { bg = '#3b4261', fg = '#fbf1c7', bold = true })
 
             local statusline = require('mini.statusline')
             statusline.setup(opts)

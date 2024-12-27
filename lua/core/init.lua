@@ -1,6 +1,9 @@
----@class caleskog.nvim.core.Core
----@field mini caleskog.nvim.core.Mini
+---@class caleskog.nvim.Core
 ---@field config caleskog.nvim.core.Config
+---@field autocmd caleskog.nvim.core.Autocmd
+---@field utils caleskog.nvim.core.Utils
+---@field mini caleskog.nvim.core.Mini
+---@field whichkey caleskog.nvim.core.WhichKey
 local M = {}
 
 setmetatable(M, {

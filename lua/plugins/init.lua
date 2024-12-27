@@ -144,12 +144,12 @@ return {
 
     {
         'mbbill/undotree',
-        dependencies = {
-            'rcarriga/nvim-notify',
-        },
+        event = 'VeryLazy',
+        -- dependencies = {
+        --     'rcarriga/nvim-notify',
+        -- },
         config = function()
-            local util = require('util')
-            util.cmap('n', '<leader>fu', 'Telescope undo', 'UndoList')
+            Core.utils.keymap.cmap('n', '<leader>fu', 'Telescope undo', 'UndoList')
         end,
     },
 }

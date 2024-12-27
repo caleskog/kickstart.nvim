@@ -74,7 +74,6 @@ return {
         config = function()
             local dap = require('dap')
             local ui = require('dapui')
-            local util = require('util')
 
             -- Setup DAP UI and virtual text.
             require('dapui').setup()
@@ -86,7 +85,7 @@ return {
 
             -- Keybindings for debugging.
             for key, value in pairs(keymaps) do
-                util.map('n', key, value[1], value[2])
+                Core.utils.keymap.map('n', key, value[1], value[2])
             end
 
             dap.listeners.before.attach.dapui_config = function()

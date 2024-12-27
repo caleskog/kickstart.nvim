@@ -1,40 +1,42 @@
 -- Author: caleskog
 
-local util = require('util')
+local tbl = Core.utils.tbl
 
 local function which_key_spec(mode)
+    local key = Core.whichkey
     local desc_t = {
-        util.WhichKey_ai(mode, '[a]rgument/parameter'),
-        util.WhichKey_ai(mode, '[f]unction call'),
-        util.WhichKey_ai(mode, '[m]unction'),
-        util.WhichKey_ai(mode, 'cond[i]tional'),
-        util.WhichKey_ai(mode, '[c]lass'),
-        util.WhichKey_ai(mode, '[S]tatement'),
-        util.WhichKey_ai(mode, '[l]oop'),
+        key.gen_ai(mode, '[a]rgument/parameter'),
+        key.gen_ai(mode, '[f]unction call'),
+        key.gen_ai(mode, '[m]unction'),
+        key.gen_ai(mode, 'cond[i]tional'),
+        key.gen_ai(mode, '[c]lass'),
+        key.gen_ai(mode, '[S]tatement'),
+        key.gen_ai(mode, '[l]oop'),
     }
-    -- util.dump_dict(desc_t, 'desc_t_before.dump')
-    desc_t = util.flatten(desc_t)
-    -- util.dump_dict(desc_t, 'desc_t_after.dump')
+    -- tbl.dump_dict(desc_t, 'desc_t_before.dump')
+    desc_t = tbl.flatten(desc_t)
+    -- tbl.dump_dict(desc_t, 'desc_t_after.dump')
     return desc_t
 end
 
 local function which_key_spec2(mode)
+    local key = Core.whichkey
     local desc_t = {
-        util.WhichKey_ai(mode, '[a]rgument/parameter'),
-        -- util.WhichKey_ai(mode, '[f]unction call'),
-        util.WhichKey_ai(mode, '[f]unction'),
-        util.WhichKey_ai(mode, 'Cond[i]tional'),
-        util.WhichKey_ai(mode, '[c]lass'),
-        util.WhichKey_ai(mode, '[S]tatement'),
-        util.WhichKey_ai(mode, '[l]oop'),
-        -- util.WhichKey_ai('[b]lock'),    --TODO: 'ab' and 'ib' doeen't show up in which-key. I don't know if it uses the treesitter version or not?
+        key.gen_ai(mode, '[a]rgument/parameter'),
+        -- key.gen_ai(mode, '[f]unction call'),
+        key.gen_ai(mode, '[f]unction'),
+        key.gen_ai(mode, 'Cond[i]tional'),
+        key.gen_ai(mode, '[c]lass'),
+        key.gen_ai(mode, '[S]tatement'),
+        key.gen_ai(mode, '[l]oop'),
+        -- key.gen_ai('[b]lock'),    --TODO: 'ab' and 'ib' doeen't show up in which-key. I don't know if it uses the treesitter version or not?
 
         -- The following didn't work due to errors in which-key on start-up
         -- B = false, -- Disabling aB and iB as treesitter is a better option for block searches
     }
-    -- util.dump_dict(desc_t, 'desc_t_before.dump')
-    desc_t = util.flatten(desc_t)
-    -- util.dump_dict(desc_t, 'desc_t_after.dump')
+    -- tbl.dump_dict(desc_t, 'desc_t_before.dump')
+    desc_t = tbl.flatten(desc_t)
+    -- tbl.dump_dict(desc_t, 'desc_t_after.dump')
     return desc_t
 end
 
@@ -55,7 +57,7 @@ local function mini_ai()
             inside_last = 'i,',
         },
     }
-    if util.module_mxists('nvim-treesitter-textobjects') then
+    if Core.utils.module.module_mxists('nvim-treesitter-textobjects') then
         local spec_treesitter = require('mini.ai').gen_spec.treesitter
         setup_tlb['custom_textobjects'] = {
             a = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),

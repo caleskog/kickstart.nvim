@@ -41,7 +41,7 @@ return {
                         handle = function(mode, line, _)
                             local helper = require('gx.helper')
                             local Path = require('plenary.path')
-                            local util = require('util')
+                            local file = Core.utils.file
 
                             -- Need to be in normal mode
                             if mode ~= 'n' then
@@ -56,7 +56,7 @@ return {
                                 local filepath = Path:new(filename):expand()
 
                                 -- Convert filepath to HTML file if possible
-                                local targetpath, ecode = util.convert(filepath, { 'markdown' }, { '.html', '.pdf' }, false, false)
+                                local targetpath, ecode = file.convert(filepath, { 'markdown' }, { '.html', '.pdf' }, false, false)
                                 -- vim.notify(tostring(ecode), vim.log.levels.INFO)
 
                                 -- If not a local file, then return

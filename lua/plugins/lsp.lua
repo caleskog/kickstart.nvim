@@ -24,7 +24,6 @@ return {
             { 'b0o/SchemaStore.nvim' },
         },
         config = function()
-            local util = require('util')
             local lspconfig = require('lspconfig')
 
             -- Capabilities for LSP servers
@@ -66,7 +65,7 @@ return {
                 group = vim.api.nvim_create_augroup('caleskog-lsp-attach', { clear = true }),
                 callback = function(event)
                     local map = function(keys, func, desc)
-                        util.map('n', keys, func, 'LSP: ' .. desc, { buffer = event.buf })
+                        Core.utils.keymap.map('n', keys, func, 'LSP: ' .. desc, { buffer = event.buf })
                     end
 
                     -- Jump to the definition of the word under your cursor.
@@ -81,10 +80,9 @@ return {
                     map('K', vim.lsp.buf.hover, 'Hover Documentation')
                     map('gD', vim.lsp.buf.declaration, 'Goto Declaration')
 
-                    local autocmd = require('cond_autocmd')
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
                     -- Highlight references of the word under your cursor after hover for a little while.
-                    autocmd.lsp_highlight(client, event, 'caleskog-lsp-highlight', 'caleskog-lsp-detach')
+                    Core.autocmd.lsp_highlight(client, event, 'caleskog-lsp-highlight', 'caleskog-lsp-detach')
 
                     -- The following code creates a keymap to toggle inlay hints in the code,
                     -- if the language server supports them (e.g. rust)
