@@ -44,10 +44,6 @@ return {
                 lsp_doc_border = true, -- add a border to hover docs and signature help
             },
             routes = {
-                { -- show @recording messages as a notify message
-                    view = 'notify',
-                    filter = { event = 'msg_showmode' },
-                },
                 { -- Hide search virtual text
                     filter = {
                         event = 'msg_show',

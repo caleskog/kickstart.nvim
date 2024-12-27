@@ -17,13 +17,14 @@ return {
                     local location = '%2l:%-2v'
                     local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
 
-                    local recording = ''
-                    if Core.has('noice') then
-                        ---@diagnostic disable-next-line: undefined-field
-                        if require('noice').api.status.mode.has() then
-                            recording = 'Recording'
+                    local recording_macro = function()
+                        if vim.fn.reg_recording() ~= '' then
+                            return 'Recording @' .. vim.fn.reg_recording()
+                        else
+                            return ''
                         end
                     end
+                    local recording = recording_macro()
 
                     return MiniStatusline.combine_groups({
                         { hl = mode_hl, strings = { mode } },
