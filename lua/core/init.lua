@@ -92,4 +92,24 @@ function M.opts(name)
     return Plugin.values(plugin, 'opts', false)
 end
 
+---Get spec filenames from a directory contained in the plugins directory
+---@param dirname string The name of the directory
+function M.spec_files(dirname)
+    local loading = {}
+    local dir = 'plugins/' .. dirname
+    local dot_dir = dir:gsub('/', '.')
+    -- Check names of all files in the directory
+    local path = vim.fn.stdpath('config') .. '/lua/' .. dir
+    vim.notify('Loading `' .. dot_dir .. '`', 'debug')
+    for _, file in ipairs(vim.fn.readdir(path)) do
+        local filepath = path .. '/' .. file
+        if vim.fn.isdirectory(filepath) == 0 and file ~= 'init.lua' then
+            -- remove the extension
+            local filename = file:match('(.+)%..+')
+            table.insert(loading, dot_dir .. '.' .. filename)
+        end
+    end
+    return loading
+end
+
 return M

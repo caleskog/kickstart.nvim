@@ -82,6 +82,7 @@ end
 return {
     {
         'echasnovski/mini.ai',
+        version = '*',
         event = 'VeryLazy',
         opts = function()
             local ai = require('mini.ai')
@@ -108,10 +109,8 @@ return {
         end,
         config = function(_, opts)
             require('mini.ai').setup(opts)
-            Core.on_load('which-key.nvim', function()
-                vim.schedule(function()
-                    Core.mini.ai_whichkey(opts)
-                end)
+            Core.schedule_on_load('which-key.nvim', function()
+                Core.mini.ai_whichkey(opts)
             end)
         end,
     },

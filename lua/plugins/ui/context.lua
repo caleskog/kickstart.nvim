@@ -1,6 +1,6 @@
 return {
     'nvim-treesitter/nvim-treesitter-context',
-    enable = false,
+    enable = true,
     event = 'LazyFile',
     opts = function()
         local tsc = require('treesitter-context')
