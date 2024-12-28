@@ -59,6 +59,14 @@ return {
                             { find = '%d+L, %d+B' }, -- written
                             { find = '; after #%d+' }, -- after
                             { find = '; before #%d+' }, -- before
+                        },
+                    },
+                    view = 'mini',
+                },
+                {
+                    filter = {
+                        event = 'notify.info',
+                        any = {
                             { find = 'Neogit' }, -- neogit
                         },
                     },
