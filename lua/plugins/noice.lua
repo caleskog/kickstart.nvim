@@ -59,6 +59,7 @@ return {
                             { find = '%d+L, %d+B' }, -- written
                             { find = '; after #%d+' }, -- after
                             { find = '; before #%d+' }, -- before
+                            { find = 'Neogit' }, -- neogit
                         },
                     },
                     view = 'mini',
