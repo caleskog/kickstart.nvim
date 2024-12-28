@@ -2,6 +2,22 @@
 -- Author: caleskog
 
 return {
+    { -- Adds git related signs to the gutter, as well as utilities for managing changes
+        'lewis6991/gitsigns.nvim',
+        event = 'LazyFile',
+        ---@module 'gitsigns'
+        ---@type Gitsigns.Config
+        ---@diagnostic disable: missing-fields
+        opts = {
+            signs = {
+                add = { text = '+' },
+                change = { text = '~' },
+                delete = { text = '_' },
+                topdelete = { text = '‾' },
+                changedelete = { text = '~' },
+            },
+        },
+    },
     {
         'NeogitOrg/neogit',
         dependencies = {
