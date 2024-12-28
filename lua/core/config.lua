@@ -1,6 +1,28 @@
 ---@class caleskog.nvim.core.Config
 local M = {}
 
+---@class caleskog.nvim.core.config.Config
+---@field notifier "snacks" | "nvim-notify"
+
+--- Default configuration
+---@type caleskog.nvim.core.config.Config
+M.default = {
+    -- The default value for the notifier
+    notifier = 'snacks',
+}
+---User configuration
+M.config = {}
+
+setmetatable(M, {
+    __index = function(_, key)
+        if M.config[key] == nil then
+            error('Config key ' .. key .. ' not found')
+        end
+        return M.config[key]
+    end,
+    __newindex = nil,
+})
+
 function M.icons()
     return vim.g.have_nerd_font and {}
         or {
@@ -171,7 +193,7 @@ function M.custom_notifications()
         -- Define the arguments
         local args = define_args(false, options, pre_args)
         vim.notify(table.concat(args, ' '), 'info', {
-            title = 'Print',
+            title = 'Info',
         })
     end
 
@@ -186,7 +208,7 @@ function M.custom_notifications()
         -- Define the arguments
         local args = define_args(true, options, pre_args)
         vim.notify(table.concat(args, ' '), 'debug', {
-            title = 'Print',
+            title = 'Debug',
         })
     end
     --- Alias for gpdbg function
@@ -203,7 +225,7 @@ function M.custom_notifications()
         -- Define the arguments
         local args = define_args(false, options, pre_args)
         vim.notify(table.concat(args, ' '), 'warning', {
-            title = 'Print [Warning]',
+            title = 'Warning',
         })
     end
 
@@ -219,19 +241,30 @@ function M.custom_notifications()
         -- Define the arguments
         local args = define_args(false, options, pre_args)
         vim.notify(table.concat(args, ' '), 'error', {
-            title = 'Print [Error]',
+            title = 'Error',
         })
     end
 end
 
 M.did_init = false
-function M.init()
+---Initialize the configuration
+---@param config? caleskog.nvim.core.config.Config
+function M.init(config)
     if M.did_init then
         return
     end
     M.did_init = true
     M.lazy_notify()
     M.custom_notifications()
+
+    -- Set the configurations
+    ---@type caleskog.nvim.core.config.Config
+    config = config or {}
+    M.config = vim.tbl_deep_extend('force', M.default, config)
+end
+
+function M.is(key, value)
+    return M.config[key] == value
 end
 
 return M

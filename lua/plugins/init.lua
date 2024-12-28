@@ -3,7 +3,9 @@
 -- Description: Miscellaneous plugins that doen't require much configuration.
 
 -- Load the core configuration first
-Core.config.init()
+Core.config.init({
+    notifier = 'snacks',
+})
 
 return {
     -- Use `opts = {}` to force a plugin to be loaded.
@@ -48,7 +50,9 @@ return {
                 enabled = true,
             },
             notifier = {
-                enabled = true, -- FIX: This is not working. Change to nvim-notify or try to fix
+                enabled = Core.config.is('notifier', 'snacks'),
+                style = 'fancy',
+                level = 'info',
             },
         },
         config = function(_, opts)

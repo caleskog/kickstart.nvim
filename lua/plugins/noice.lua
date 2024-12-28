@@ -2,18 +2,19 @@
 ---@author caleskog
 
 return {
-    -- {
-    --     'rcarriga/nvim-notify',
-    --     opts = {},
-    --     config = function()
-    --         local notify = require('notify')
-    --         vim.notify = notify
-    --         ---@diagnostic disable-next-line: missing-fields
-    --         notify.setup({
-    --             stages = 'fade',
-    --         })
-    --     end,
-    -- },
+    {
+        'rcarriga/nvim-notify',
+        enable = Core.config.is('notifier', 'nvim-notify'), -- disable if snacks.notifier is enabled
+        opts = {
+            stages = 'fade',
+        },
+        config = function(_, opts)
+            local notify = require('notify')
+            vim.notify = notify
+            ---@diagnostic disable-next-line: missing-fields
+            notify.setup(opts)
+        end,
+    },
     {
         'folke/noice.nvim',
         event = 'VeryLazy',
@@ -70,6 +71,7 @@ return {
                 '"',
                 function()
                     gprint('Noice', 'This is a notification')
+                    gpdbg('Noice', 'This is a notification with debug')
                 end,
                 desc = 'Test notification view',
             },
