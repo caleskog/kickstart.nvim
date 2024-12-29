@@ -27,15 +27,6 @@ return {
         end,
     },
     {
-        -- Snippet Engine
-        'L3MON4D3/LuaSnip',
-        event = 'InsertEnter',
-        dependencies = {
-            -- Premade snippets for many languages (https://github.com/rafamadriz/friendly-snippets)
-            'rafamadriz/friendly-snippets',
-        },
-    },
-    {
         -- VSCode-like pictograms
         'onsails/lspkind.nvim',
         config = function()
@@ -69,6 +60,7 @@ return {
             -- nvim-cmp sources
             'hrsh7th/cmp-nvim-lsp', -- nvim-lsp
             'hrsh7th/cmp-path', -- file/folder paths
+            'hrsh7th/cmp-buffer', -- buffer
             'hrsh7th/cmp-nvim-lsp-signature-help', -- signature help
             -- Visual enhancements
             'onsails/lspkind.nvim',
@@ -93,8 +85,6 @@ return {
                     ['<C-y>'] = cmp.mapping.confirm({ select = true }),
                     ['<C-e>'] = cmp.mapping.abort(),
                     ['<C-Space>'] = cmp.mapping.complete({}), -- Manually trigger a completion from nvim-cmp.
-                    ['<C-f>'] = nil,
-                    ['<C-b>'] = nil,
                 }),
                 sources = {
                     { name = 'lazydev', group_index = 0 }, -- lower group_index = higher priority
@@ -122,29 +112,45 @@ return {
             }
         end,
     },
-    -- Snippets
+    -- Snippet Engine
     {
-        'hrsh7th/nvim-cmp',
+        'L3MON4D3/LuaSnip',
+        event = 'InsertEnter',
         dependencies = {
-            'L3MON4D3/LuaSnip', -- Snippet Engine
             'saadparwaiz1/cmp_luasnip', -- nvim-cmp sources
+            'rafamadriz/friendly-snippets', -- Premade snippets for many languages
         },
-        opts = function(_, opts)
+        config = function(_, opts)
             local luasnip = require('luasnip')
+            luasnip.setup(opts)
+
             require('luasnip.loaders.from_vscode').lazy_load()
             luasnip.filetype_extend('cpp', { 'unreal', 'cppdoc' })
             luasnip.filetype_extend('c', { 'cdoc' })
             luasnip.filetype_extend('lua', { 'luadoc' })
             luasnip.filetype_extend('rust', { 'rustdoc' })
+        end,
+    },
+    -- Snippets
+    {
+        'hrsh7th/nvim-cmp',
+        dependencies = {
+            'L3MON4D3/LuaSnip', -- Snippet Engine
+        },
+        opts = function(_, opts)
+            local luasnip = require('luasnip')
 
             opts.snippet = {
                 expand = function(args)
                     luasnip.lsp_expand(args.body)
                 end,
             }
-            if Core.has('LuaSnip') then
+            if Core.has('LuaSnip') and Core.has('cmp_luasnip') then
+                -- Add nvim-cmp source for luasnip
+                table.insert(opts.sources, { name = 'luasnip' })
+                -- Add keymaps for luasnip
                 local cmp = require('cmp')
-                table.insert(opts.mapping, {
+                opts.mapping = Core.cmp.merge_keymaps(opts.mapping, {
                     ['<C-f>'] = cmp.mapping(function()
                         if luasnip.expand_or_locally_jumpable() then
                             luasnip.expand_or_jump()
@@ -156,9 +162,6 @@ return {
                         end
                     end, { 'i', 's' }),
                 })
-                if Core.has('cmp_luasnip') then
-                    table.insert(opts.sources, { name = 'luasnip' })
-                end
             end
             -- if Core.has('nvim-snippets') then
             --     table.insert(opts.sources, { name = 'snippets' })

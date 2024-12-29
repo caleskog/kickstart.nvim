@@ -196,6 +196,8 @@ function M.custom_notifications()
             title = 'Info',
         })
     end
+    --- Alias for gprint function
+    _G.gp = _G.gprint
 
     --- Add global function for printing DEBUG messages
     _G.gpdbg = function(...)
@@ -213,6 +215,7 @@ function M.custom_notifications()
     end
     --- Alias for gpdbg function
     _G.gpdebug = _G.gpdbg
+    _G.gpd = _G.gpdbg
 
     --- Add global function for printing WARNING messages
     _G.gpwarning = function(...)

@@ -70,7 +70,7 @@ key.map('n', '<leader>Bo', function()
             name = name:gsub(vim.fn.getcwd() .. '/', '')
             -- Set up buffer object
             local b = { id = buf, name = name }
-            strs[#strs + 1] = 'Closing buffer ' .. b.name .. '\\[' .. b.id .. '\\]'
+            strs[#strs + 1] = 'Closing buffer ' .. b.name .. ' `' .. b.id .. '`'
             -- Close buffer
             vim.api.nvim_buf_delete(buf, { force = true })
         end
@@ -85,7 +85,7 @@ key.map('n', '<leader>Bh', function()
     for _, buf in ipairs(buffers) do
         if vim.api.nvim_buf_get_name(buf) == '' then
             -- Set up buffer object
-            strs[#strs + 1] = 'Closing buffer \\[' .. buf .. '\\]'
+            strs[#strs + 1] = 'Closing buffer `' .. buf .. '`'
             vim.api.nvim_buf_delete(buf, { force = true })
         end
     end
