@@ -25,7 +25,12 @@ return {
             'sindrets/diffview.nvim', -- optional - Diff integration
             'nvim-telescope/telescope.nvim', -- or "ibhagwan/fzf-lua"
         },
-        config = function()
+        ---@module 'neogit'
+        ---@type NeogitConfig
+        opts = {
+            kind = 'floating',
+        },
+        config = function(_, opts)
             local key = Core.utils.keymap
             local neogit = require('neogit')
             local telescope = require('telescope.builtin')
@@ -43,7 +48,7 @@ return {
             key.cmap('n', '<leader>gw', "lua require('telescope').extensions.git_worktree.git_worktrees()", 'Git Worktrees')
             key.cmap('n', '<leader>gW', "lua require('telescope').extensions.git_worktree.create_git_worktree()", 'Create Git Worktree')
 
-            neogit.setup({})
+            neogit.setup(opts)
         end,
     },
 }
