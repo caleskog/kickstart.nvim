@@ -64,32 +64,44 @@ return {
             vim.api.nvim_create_autocmd('LspAttach', {
                 group = vim.api.nvim_create_augroup('caleskog-lsp-attach', { clear = true }),
                 callback = function(event)
-                    local map = function(keys, func, desc)
-                        Core.utils.keymap.map('n', keys, func, 'LSP: ' .. desc, { buffer = event.buf })
+                    local bnmap = function(keys, func, desc)
+                        Core.utils.keymap.bmap(event.buf, 'n', keys, func, 'LSP: ' .. desc)
                     end
 
                     -- Jump to the definition of the word under your cursor.
-                    map('gd', require('telescope.builtin').lsp_definitions, 'Goto Definition')
-                    map('gr', require('telescope.builtin').lsp_references, 'Goto References')
-                    map('gI', require('telescope.builtin').lsp_implementations, 'Goto Implementation')
-                    map('gy', require('telescope.builtin').lsp_type_definitions, 'Goto Type Definition')
-                    map('<leader>cs', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
-                    map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
-                    map('<leader>r', vim.lsp.buf.rename, 'Rename')
-                    map('<leader>a', vim.lsp.buf.code_action, 'Code Action')
-                    map('K', vim.lsp.buf.hover, 'Hover Documentation')
-                    map('gD', vim.lsp.buf.declaration, 'Goto Declaration')
+                    bnmap('gd', require('telescope.builtin').lsp_definitions, 'Goto Definition')
+                    bnmap('gr', require('telescope.builtin').lsp_references, 'Goto References')
+                    bnmap('gI', require('telescope.builtin').lsp_implementations, 'Goto Implementation')
+                    bnmap('gy', require('telescope.builtin').lsp_type_definitions, 'Goto Type Definition')
+                    bnmap('<leader>cs', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
+                    bnmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
+                    bnmap('<leader>r', vim.lsp.buf.rename, 'Rename')
+                    bnmap('<leader>a', vim.lsp.buf.code_action, 'Code Action')
+                    bnmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+                    bnmap('gD', vim.lsp.buf.declaration, 'Goto Declaration')
 
+                    -- Client
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
+
                     -- Highlight references of the word under your cursor after hover for a little while.
                     Core.autocmd.lsp_highlight(client, event, 'caleskog-lsp-highlight', 'caleskog-lsp-detach')
 
                     -- The following code creates a keymap to toggle inlay hints in the code,
                     -- if the language server supports them (e.g. rust)
                     if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-                        map('<leader>th', function()
-                            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-                        end, '[T]oggle Inlay [H]ints')
+                        local filter = { bufnr = event.buf } ---@type vim.lsp.inlay_hint.enable.Filter
+                        Core.snacks
+                            .btoggle({
+                                bufnr = event.buf,
+                                name = 'LSP Inlay Hints',
+                                get = function()
+                                    return vim.lsp.inlay_hint.is_enabled(filter)
+                                end,
+                                set = function(_)
+                                    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
+                                end,
+                            })
+                            :map('<leader>th', { buffer = event.buf })
                     end
                 end,
             })

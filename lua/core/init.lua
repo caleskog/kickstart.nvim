@@ -4,6 +4,7 @@
 ---@field utils caleskog.nvim.core.Utils
 ---@field mini caleskog.nvim.core.Mini
 ---@field whichkey caleskog.nvim.core.WhichKey
+---@field snacks caleskog.nvim.core.Snacks
 local M = {}
 
 setmetatable(M, {
