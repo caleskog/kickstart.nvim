@@ -49,11 +49,6 @@ return {
             toggle = {
                 enabled = true,
             },
-            notifier = {
-                enabled = Core.config.is('notifier', 'snacks'),
-                style = 'fancy',
-                level = 'info',
-            },
         },
         config = function(_, opts)
             local notify = vim.notify

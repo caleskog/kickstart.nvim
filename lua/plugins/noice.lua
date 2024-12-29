@@ -16,6 +16,18 @@ return {
         end,
     },
     {
+        'snacks.nvim',
+        ---@module 'snacks'
+        ---@type snacks.Config
+        opts = {
+            notifier = {
+                enabled = Core.config.is('notifier', 'snacks'),
+                style = 'fancy',
+                level = 'info',
+            },
+        },
+    },
+    {
         'folke/noice.nvim',
         event = 'VeryLazy',
         dependencies = {
