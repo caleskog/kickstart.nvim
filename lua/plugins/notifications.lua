@@ -1,4 +1,3 @@
----@name plugins/noice.lua
 ---@author caleskog
 
 return {
@@ -77,10 +76,8 @@ return {
                 },
                 {
                     filter = {
-                        event = 'notify.info',
-                        any = {
-                            { find = 'Neogit' }, -- neogit
-                        },
+                        event = 'notify',
+                        find = 'Neogit', -- neogit
                     },
                     view = 'mini',
                 },
