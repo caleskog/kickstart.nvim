@@ -197,6 +197,7 @@ function M.custom_notifications()
         })
     end
     --- Alias for gprint function
+    ---@type fun(...)
     _G.gp = _G.gprint
 
     --- Add global function for printing DEBUG messages

@@ -178,12 +178,12 @@ return {
                 -- Add keymaps for luasnip
                 local cmp = require('cmp')
                 opts.mapping = Core.cmp.merge_keymaps(opts.mapping, {
-                    ['<C-k>'] = cmp.mapping(function()
+                    ['<C-f>'] = cmp.mapping(function()
                         if ls.expand_or_locally_jumpable() then
                             ls.expand_or_jump()
                         end
                     end, { 'i', 's' }),
-                    ['<C-j>'] = cmp.mapping(function()
+                    ['<C-b>'] = cmp.mapping(function()
                         if ls.locally_jumpable(-1) then
                             ls.jump(-1)
                         end
@@ -199,9 +199,6 @@ return {
                     require('luasnip.loaders.from_lua').load({ paths = { '~/.config/nvim/luasnippets/' } })
                 end, 'Reload custom snippets')
             end
-            -- if Core.has('nvim-snippets') then
-            --     table.insert(opts.sources, { name = 'snippets' })
-            -- end
         end,
     },
 }

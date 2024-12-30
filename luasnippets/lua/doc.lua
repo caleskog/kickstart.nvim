@@ -4,18 +4,23 @@
 return {
     s({
         trig = '--ca',
-        name = 'File header',
-        desc = 'Author and file information',
+        name = 'File-Header',
+        desc = 'File information',
     }, {
-        t({ '---@author caleskog ' }),
-        f(function(_, _)
+        c(1, {
+            t({ '-- Copyright (c) 2024 caleskog. All Rights Reserved.' }),
+            t({ '---@author caleskog ' }),
+        }),
+        ---@diagnostic disable-next-line: unused-local
+        f(function(args, parent, user_args)
             local handle = io.popen('git config user.email')
             if not handle then
                 return ''
             end
             local email = handle:read('*a')
             handle:close()
-            return '(' .. email:gsub('\n', '') .. ')\n'
+            email = email:gsub('\n', '')
+            return { '(' .. email .. ')', '' }
         end, {}),
         f(function(_, snip)
             local filename = snip.env.TM_FILENAME
@@ -25,6 +30,6 @@ return {
             return '---@file ' .. path .. '/' .. filename
         end, {}),
         t({ '', '---@description ' }),
-        i(1, 'description'),
+        i(2, 'description'),
     }),
 }
