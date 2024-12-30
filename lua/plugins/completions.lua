@@ -43,6 +43,8 @@ return {
         'folke/lazydev.nvim',
         ft = 'lua',
         cmd = 'LazyDev',
+        ---@module 'lazydev'
+        ---@type lazydev.Config
         opts = {
             library = {
                 -- Load luvit types when the `vim.uv` word is found
@@ -91,6 +93,7 @@ return {
                     { name = 'copilot' },
                     { name = 'nvim_lsp' },
                     { name = 'path' },
+                    { name = 'buffer' },
                     { name = 'nvim_lsp_signature_helper' },
                     { name = 'render-markdown' },
                 },
@@ -120,15 +123,39 @@ return {
             'saadparwaiz1/cmp_luasnip', -- nvim-cmp sources
             'rafamadriz/friendly-snippets', -- Premade snippets for many languages
         },
+        opts = {
+            keep_roots = true,
+            link_roots = true,
+            link_children = true,
+
+            update_events = 'TextChanged,TextChangedI',
+            -- Remove snippets when text is changed, useful when `history` is enabled.
+            delete_check_events = 'TextChanged',
+
+            enable_autosnippets = true,
+        },
         config = function(_, opts)
-            local luasnip = require('luasnip')
-            luasnip.setup(opts)
+            local ls = require('luasnip')
+            local types = require('luasnip.util.types')
+            opts.ext_opts = {
+                [types.choiceNode] = {
+                    active = {
+                        virt_text = { { '', 'Error' } }, --- TODO: Does this work?
+                    },
+                },
+            }
+
+            ls.setup(opts)
 
             require('luasnip.loaders.from_vscode').lazy_load()
-            luasnip.filetype_extend('cpp', { 'unreal', 'cppdoc' })
-            luasnip.filetype_extend('c', { 'cdoc' })
-            luasnip.filetype_extend('lua', { 'luadoc' })
-            luasnip.filetype_extend('rust', { 'rustdoc' })
+            ls.filetype_extend('cpp', { 'unreal', 'cppdoc' })
+            ls.filetype_extend('c', { 'cdoc' })
+            ls.filetype_extend('lua', { 'luadoc' })
+            ls.filetype_extend('rust', { 'rustdoc' })
+
+            -- Load custom snippets (`paths` can be skipped as the
+            -- snippets are in the default path, `~/.config/nvim/luasnippets`)
+            require('luasnip.loaders.from_lua').lazy_load()
         end,
     },
     -- Snippets
@@ -138,11 +165,11 @@ return {
             'L3MON4D3/LuaSnip', -- Snippet Engine
         },
         opts = function(_, opts)
-            local luasnip = require('luasnip')
+            local ls = require('luasnip')
 
             opts.snippet = {
                 expand = function(args)
-                    luasnip.lsp_expand(args.body)
+                    ls.lsp_expand(args.body)
                 end,
             }
             if Core.has('LuaSnip') and Core.has('cmp_luasnip') then
@@ -151,17 +178,26 @@ return {
                 -- Add keymaps for luasnip
                 local cmp = require('cmp')
                 opts.mapping = Core.cmp.merge_keymaps(opts.mapping, {
-                    ['<C-f>'] = cmp.mapping(function()
-                        if luasnip.expand_or_locally_jumpable() then
-                            luasnip.expand_or_jump()
+                    ['<C-k>'] = cmp.mapping(function()
+                        if ls.expand_or_locally_jumpable() then
+                            ls.expand_or_jump()
                         end
                     end, { 'i', 's' }),
-                    ['<C-b>'] = cmp.mapping(function()
-                        if luasnip.locally_jumpable(-1) then
-                            luasnip.jump(-1)
+                    ['<C-j>'] = cmp.mapping(function()
+                        if ls.locally_jumpable(-1) then
+                            ls.jump(-1)
                         end
                     end, { 'i', 's' }),
+                    ['<C-l>'] = cmp.mapping(function() -- Selecting within a list of options
+                        if ls.choice_active() then
+                            ls.change_choice(1)
+                        end
+                    end, { 'i' }),
                 })
+
+                Core.utils.keymap.fmap('n', '<leader><leader>s', function()
+                    require('luasnip.loaders.from_lua').load({ paths = { '~/.config/nvim/luasnippets/' } })
+                end, 'Reload custom snippets')
             end
             -- if Core.has('nvim-snippets') then
             --     table.insert(opts.sources, { name = 'snippets' })
