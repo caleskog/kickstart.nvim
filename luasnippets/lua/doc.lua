@@ -29,6 +29,13 @@ local function filepath(env)
     return path
 end
 
+---Wrap `filepath` in a snippet function
+local function sfilepath()
+    return f(function(_, parent)
+        return filepath(parent.env)
+    end)
+end
+
 return {
     s(
         {
@@ -41,15 +48,35 @@ return {
         -- Copyright (c) 2024 {author}. All Rights Reserved.
         ---@author {author} ({email})
         ---@file {file}
-        ---@description {desc}
+        {}
         ]],
             {
                 author = t(gitv('user.name')),
                 email = t(gitv('user.email')),
-                file = f(function(_, parent)
-                    return filepath(parent.env)
-                end, {}),
-                desc = i(1, 'description'),
+                file = sfilepath(),
+                c(1, {
+                    sn(nil, fmt('---@description {}', { i(1) })),
+                    t(''),
+                }),
+            }
+        )
+    ),
+    s(
+        'top',
+        fmt(
+            [[
+        ---@author {} ({})
+        ---@file {}
+        {}
+        ]],
+            {
+                t(gitv('user.name')),
+                t(gitv('user.email')),
+                sfilepath(),
+                c(1, {
+                    sn(nil, fmt('---@description {}', { i(1) })),
+                    t(''),
+                }),
             }
         )
     ),

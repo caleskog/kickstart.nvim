@@ -188,16 +188,15 @@ return {
                             ls.jump(-1)
                         end
                     end, { 'i', 's' }),
-                    ['<C-l>'] = cmp.mapping(function() -- Selecting within a list of options
+                    ['<C-t>'] = cmp.mapping(function() -- Selecting within a list of options
                         if ls.choice_active() then
                             ls.change_choice(1)
                         end
                     end, { 'i' }),
+                    ['<C-l>'] = cmp.mapping(function() -- Selecting within a list of options
+                        require('luasnip.extras.select_choice')()
+                    end, { 'i' }),
                 })
-
-                Core.utils.keymap.fmap('n', '<leader><leader>s', function()
-                    require('luasnip.loaders.from_lua').load({ paths = { '~/.config/nvim/luasnippets/' } })
-                end, 'Reload custom snippets')
             end
         end,
     },
