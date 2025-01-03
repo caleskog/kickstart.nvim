@@ -24,10 +24,11 @@ local servers = {
         root_dir = lspconfig.util.root_pattern('go.work', 'go.mod', '.git'),
     },
     clangd = {
-        cmd = { 'clangd', '--offset-encoding=utf-16', '--compile-commands-dir=build/compile_commands.json' },
+        cmd = { 'clangd', '--offset-encoding=utf-16', '--compile-commands-dir=./build/' },
         filetypes = { 'c', 'c.in', 'cpp', 'cpp.in', 'h', 'h.in', 'hpp', 'hpp.in', 'hh', 'hh.in', 'objc', 'objcpp' },
         root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
-        on_attach = function(_, bufnr)
+        -- root_dir = lspconfig.util.root_pattern('compile_commands.json', 'compile_flags.txt', '.git'),
+        --[[ on_attach = function(_, bufnr)
             -- Check if the current filename ends with '.m4.cpp' (e.g. main.m4.cpp would be .m4.cpp)
             local m4_path = vim.fn.expand('%:p')
             gprint('m4_path: ' .. m4_path)
@@ -47,7 +48,7 @@ local servers = {
                     text = vim.fn.readfile(comdined_path),
                 })
             end
-        end,
+        end, ]]
     },
     texlab = {},
     pyright = {},

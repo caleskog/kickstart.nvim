@@ -62,7 +62,7 @@ return {
             -- nvim-cmp sources
             'hrsh7th/cmp-nvim-lsp', -- nvim-lsp
             'hrsh7th/cmp-path', -- file/folder paths
-            'hrsh7th/cmp-buffer', -- buffer
+            -- 'hrsh7th/cmp-buffer', -- buffer
             'hrsh7th/cmp-nvim-lsp-signature-help', -- signature help
             -- Visual enhancements
             'onsails/lspkind.nvim',
@@ -93,7 +93,7 @@ return {
                     { name = 'copilot' },
                     { name = 'nvim_lsp' },
                     { name = 'path' },
-                    { name = 'buffer' },
+                    -- { name = 'buffer' },
                     { name = 'nvim_lsp_signature_helper' },
                     { name = 'render-markdown' },
                 },
