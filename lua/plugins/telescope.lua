@@ -40,11 +40,18 @@ local function keymaps()
     key.map('n', '<leader>fk', builtin.keymaps, 'Keymaps')
     key.map('n', '<leader>ff', builtin.find_files, 'Files')
     -- key.cmap('n', '<leader>sS', builtin.builtin, { desc = 'Search Select Telescope' })
-    key.map('n', '<leader>fw', builtin.grep_string, 'Word')
+    key.map('n', '<leader>fg', builtin.live_grep, 'Grep')
     key.map('n', '<leader>fd', builtin.diagnostics, 'Diagnostics')
     -- key.cmap('n', '<leader>sr', builtin.resume, 'Search Resume' )
-    key.map('n', '<leader>fr', builtin.oldfiles, 'Recent Files')
-    key.map('n', '<leader>b', builtin.buffers, 'Find Buffers')
+    -- key.map('n', '<leader>fr', builtin.oldfiles, 'Recent files')
+    key.map('n', '<leader>fr', function()
+        local picker = require('plugins.pickers.oldfiles')
+        picker.oldfiles({
+            cwd_only = true,
+            always_include_current_session = true,
+        })
+    end, 'Recent files')
+    key.map('n', '<leader>b', builtin.buffers, 'Buffers')
     -- key.cmap('n', '<leader>ga', 'AdvancedGitSearch', 'AdvancedGitSearch')
 
     -- Slightly advanced example of overriding default behavior and theme
@@ -63,10 +70,10 @@ local function keymaps()
 
     ---------------------- Extensions' Keymaps ----------------------
     -- Live grep
-    key.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
+    -- key.cmap('n', '<leader>fg', "lua require('telescope').extensions.live_grep_args.live_grep_args()", 'Grep')
     -- key.cmap('n', '<leader>fG', 'lua require("telescope.builtin").live_grep({ glob_pattern = "!{spec,test}"})', 'Grep (Code)')
     -- Search for snippets
-    key.cmap('n', '<leader>fl', 'Telescope luasnip', "Luasnip's Snippets")
+    key.cmap('n', '<leader>fl', 'Telescope luasnip', 'Snippets')
 end
 
 ---------------------------------------------------------------------------
