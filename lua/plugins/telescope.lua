@@ -45,7 +45,7 @@ local function keymaps()
     -- key.cmap('n', '<leader>sr', builtin.resume, 'Search Resume' )
     -- key.map('n', '<leader>fr', builtin.oldfiles, 'Recent files')
     key.map('n', '<leader>fr', function()
-        local picker = require('plugins.pickers.oldfiles')
+        local picker = require('plugins.telescope.pickers.oldfiles')
         picker.oldfiles({
             cwd_only = true,
             always_include_current_session = true,
@@ -102,7 +102,7 @@ return {
         },
         config = function()
             local actions = require('telescope.actions')
-            local custom_actions = require('../telescope-config')
+            local custom_actions = require('plugins.telescope.actions.system-defaults')
             require('telescope').setup({
                 -- You can put your default mappings / updates / etc. in here
                 --  All the info you're looking for is in `:help telescope.setup()`

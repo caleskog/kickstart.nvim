@@ -40,7 +40,7 @@ key.map('t', '<Esc><Esc>', '<C-\\><C-n>', 'Exit terminal mode')
 -- Can only use this keybinding if `plenary` is loaded.
 key.fmap('n', '<leader>o', function()
     if pcall(require, 'plenary') then
-        require('util').open()
+        Core.utils.file.open()
     else
         vim.ui.open(vim.api.nvim_buf_get_name(0))
     end
@@ -50,7 +50,7 @@ end, 'Open file w/ system default (possibly convert to HTML)')
 key.fmap('n', '<leader>pch', function()
     local name = vim.api.nvim_buf_get_name(0)
     if pcall(require, 'plenary') then
-        require('util').convert(name, { 'markdown' }, '.html', true)
+        Core.utils.file.convert(name, { 'markdown' }, '.html', true)
     else
         vim.notify('Install plenary.nvim for this feature', 'warn', { title = 'Missing plugin' })
     end

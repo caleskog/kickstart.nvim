@@ -102,14 +102,14 @@ return {
                         function()
                             local oil = require('oil')
                             ---@diagnostic disable-next-line: different-requires
-                            local util = require('util')
+                            local file = Core.utils.file
                             local entry = oil.get_cursor_entry()
                             local dir = oil.get_current_dir()
                             if not entry or not dir then
                                 return
                             end
                             local path = dir .. entry.name
-                            util.open(path)
+                            file.open(path)
                         end,
                         mode = 'n',
                         desc = "Open file with system's default",

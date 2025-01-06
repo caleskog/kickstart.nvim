@@ -1,5 +1,6 @@
--- @author caleskog
--- @description Extra configurations for `telescope`.
+---@author caleskog (christoffer.aleskog@gmail.com)
+---@file lua/telescope-config.lua
+---@description Custom actions for 'Telescope'
 
 local actions = require('telescope.actions')
 local transform_mod = require('telescope.actions.mt').transform_mod
@@ -27,8 +28,8 @@ M.system_default_html = function(sources, target)
         if entry.path or entry.filename then
             local filename = entry.path or entry.filename
             -- vim.notify(filename or 'Nil', vim.log.levels.INFO)
-            local util = require('util')
-            util.open(vim.fn.fnameescape(filename), sources, target)
+            local file = Core.utils.file
+            file.open(vim.fn.fnameescape(filename), sources, target)
         end
         --[[ -- Use default open command
         local action_set = require('telescope.actions.set')
