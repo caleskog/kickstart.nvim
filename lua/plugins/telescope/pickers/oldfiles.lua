@@ -79,7 +79,8 @@ M.oldfiles = function(opts)
         for _, file in ipairs(always_results) do
             -- Disallow duplicates
             if not vim.tbl_contains(results, file) then
-                table.insert(results, file)
+                -- Insert at the top
+                table.insert(results, 1, file)
             end
         end
     end
