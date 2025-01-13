@@ -8,25 +8,12 @@ Core.config.init({
 })
 
 return {
-    -- Use `opts = {}` to force a plugin to be loaded.
-    --
-    --  This is equivalent to:
-    --    require('Comment').setup({})
-
     { -- "gc" to comment visual regions/lines
         'numToStr/Comment.nvim',
         event = 'VeryLazy',
         opts = {},
     },
 
-    -- {
-    --     'EdenEast/nightfox.nvim',
-    --     priority = 1000,
-    --     init = function()
-    --         vim.cmd.colorscheme('nightfox')
-    --     end,
-    --     opt = true,
-    -- },
     {
         -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
         'folke/tokyonight.nvim',
@@ -39,6 +26,7 @@ return {
             -- vim.cmd.hi('Comment gui=none')
         end,
     },
+
     {
         'folke/snacks.nvim',
         priority = 1000,
@@ -59,83 +47,51 @@ return {
                 vim.notify = notify
             end
         end,
+        -- stylua: ignore
+        keys = {
+            { '<leader>un', function() Snacks.notifier.hide() end, desc = 'Hide notifications' },
+        },
     },
 
     -- Highlight todo, notes, etc in comments
     {
-        -- NOTE: adding a note
-        -- TODO: What else?
-        -- INPORTANT: This is really important
-        -- FIX: this needs fixing
-        -- WARNING: be careful, it might break
-        -- HACK: hmm, this looks a bit funky
-        -- PERF: fully optimised
-        -- HELP: Some kind of helpfull message
-
         'folke/todo-comments.nvim',
-        event = 'VimEnter',
+        cmd = { 'TodoTelescope' },
+        event = 'LazyFile',
         dependencies = {
             'nvim-lua/plenary.nvim',
             'nvim-telescope/telescope.nvim',
         },
         opts = {
             signs = false,
+            -- stylua: ignore
             keywords = {
-                INPORTANT = {
-                    icon = '',
-                    color = '#ff0000',
-                    alt = { 'IMPORTANT', 'CRIT', 'CRITICAL' },
-                },
-                FIX = {
-                    icon = '',
-                    color = '#b2182b',
-                    alt = { 'FIXME', 'BUG', 'FIX' },
-                },
-                WARN = {
-                    icon = '',
-                    color = '#fee08b',
-                    alt = { 'WARNING', 'CAUTION' },
-                },
-                HACK = {
-                    icon = '󰶯',
-                    color = '#ef8a62',
-                },
-                PERFORMACE = {
-                    icon = '󰅒',
-                    color = '#af8dc3',
-                    alt = { 'PERF', 'PERFORMANCE', 'OPTIM' },
-                },
-                TODO = {
-                    icon = '',
-                    color = '#2166ac',
-                    alt = { 'TODO' },
-                },
-                NOTE = {
-                    icon = '',
-                    color = '#458588',
-                    alt = { 'NOTE', 'INFO' },
-                },
-                HELP = {
-                    icon = '󰞋',
-                    color = '#1b7837',
-                    alt = { 'HELP' },
-                },
+                INPORTANT = { icon = '', color = '#ff0000', alt = { 'IMPORTANT', 'CRIT', 'CRITICAL' } },
+                FIX = { icon = '', color = '#b2182b', alt = { 'FIXME', 'BUG', 'FIX' } },
+                WARN = { icon = '', color = '#fee08b', alt = { 'WARNING', 'CAUTION' } },
+                HACK = { icon = '󰶯', color = '#ef8a62' },
+                PERFORMACE = { icon = '󰅒', color = '#af8dc3', alt = { 'PERF', 'PERFORMANCE', 'OPTIM' } },
+                TODO = { icon = '', color = '#2166ac', alt = { 'TODO' } },
+                NOTE = { icon = '', color = '#458588', alt = { 'NOTE', 'INFO' } },
+                HELP = { icon = '󰞋', color = '#1b7837', alt = { 'HELP' } },
             },
             merge_keywords = true,
         },
+        -- stylua: ignore
         keys = {
-            { '<leader>ft', '<cmd>TodoTelescope<cr>', desc = 'TodotList' }, -- Using Telescope
+            { ']t', function() require('todo-comments').jump_next() end, desc = 'Next Todo Comment' },
+            { '[t', function() require('todo-comments').jump_prev() end, desc = 'Previous Todo Comment' },
+            -- Using Telescope
+            { '<leader>st', '<cmd>TodoTelescope<cr>', desc = 'Todo' },
+            { '<leader>sT', '<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>', desc = 'Todo/Fix/Fixme' },
         },
     },
 
     {
         'mbbill/undotree',
         event = 'VeryLazy',
-        -- dependencies = {
-        --     'rcarriga/nvim-notify',
-        -- },
         config = function()
-            Core.utils.keymap.cmap('n', '<leader>fu', 'Telescope undo', 'UndoList')
+            Core.utils.keymap.cmap('n', '<leader>su', 'Telescope undo', 'UndoList')
         end,
     },
 }

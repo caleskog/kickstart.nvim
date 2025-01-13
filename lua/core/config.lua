@@ -1,16 +1,20 @@
 ---@class caleskog.nvim.core.Config
 local M = {}
 
----@class caleskog.nvim.core.config.Config
+---@class caleskog.nvim.core.config.Config User configuration
 ---@field notifier "snacks" | "nvim-notify"
 
+---@alias UserConfig caleskog.nvim.core.config.Config
+
 --- Default configuration
----@type caleskog.nvim.core.config.Config
+---@type UserConfig
 M.default = {
     -- The default value for the notifier
     notifier = 'snacks',
 }
+
 ---User configuration
+---@diagnostic disable-next-line: missing-fields
 M.config = {}
 
 setmetatable(M, {

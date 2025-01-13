@@ -6,15 +6,15 @@ return {
         version = '*',
         opts = {
             mappings = {
-                add = 'sa',
-                delete = 'sd',
-                find = 'sf',
-                find_left = 'sF',
-                highlight = 'sh',
-                replace = 'sr',
-                update = 'su',
-                suffix_last = 's,',
-                suffix_next = 's;',
+                add = 'gsa',
+                delete = 'gsd',
+                find = 'gsf',
+                find_left = 'gsF',
+                highlight = 'gsh',
+                replace = 'gsr',
+                update = 'gsu',
+                suffix_last = 'gs,',
+                suffix_next = 'gs;',
             },
         },
         config = function(opts)
@@ -25,5 +25,8 @@ return {
             -- - sr)'  - [S]urround [R]eplace [)] [']
             require('mini.surround').setup({ opts })
         end,
+        keys = {
+            { 'gs', '', desc = '+surround' },
+        },
     },
 }

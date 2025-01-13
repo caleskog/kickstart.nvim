@@ -3,7 +3,7 @@
 return {
     {
         'rcarriga/nvim-notify',
-        enable = Core.config.is('notifier', 'nvim-notify'), -- disable if snacks.notifier is enabled
+        enabled = Core.config.is('notifier', 'nvim-notify'), -- disable if snacks.notifier is enabled
         opts = {
             stages = 'fade',
         },
@@ -22,8 +22,12 @@ return {
             notifier = {
                 enabled = Core.config.is('notifier', 'snacks'),
                 style = 'fancy',
-                level = 'info',
+                -- level = vim.log.levels.INFO,
             },
+        },
+        -- stylua: ignore
+        keys = {
+            { '<leader>n', function() Snacks.notifier.show_history() end, desc = 'Notification History' },
         },
     },
     {
@@ -31,12 +35,8 @@ return {
         event = 'VeryLazy',
         dependencies = {
             -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-            'MunifTanjim/nui.nvim',
-            -- OPTIONAL:
-            --   `nvim-notify` is only needed, if you want to use the notification view.
-            --   If not available, we use `mini` as the fallback
-            -- 'rcarriga/nvim-notify',
-            'nvim-telescope/telescope.nvim', -- Already loaded at VimEnter, see `telescope.lua`
+            -- 'MunifTanjim/nui.nvim', -- Loaded see `ui/ui.lua`
+            -- 'nvim-telescope/telescope.nvim', -- Already loaded at VimEnter, see `telescope.lua`
         },
         opts = {
             lsp = {
@@ -74,25 +74,36 @@ return {
                     },
                     view = 'mini',
                 },
-                {
-                    filter = {
-                        event = 'notify',
-                        find = 'Neogit', -- neogit
-                    },
-                    view = 'mini',
-                },
+                -- The following doesn't work (never triggers)
+                -- {
+                --     filter = {
+                --         event = 'notify',
+                --         find = 'Neogit', -- neogit
+                --     },
+                --     view = 'mini',
+                -- },
             },
         },
+        -- stylua: ignore
         keys = {
-            { '<leader>fH', '<CMD>Noice telescope<CR>', desc = 'Notification history' },
-            -- {
-            --     '"',
-            --     function()
-            --         gprint('Noice', 'This is a notification')
-            --         gpdbg('Noice', 'This is a notification with debug')
-            --     end,
-            --     desc = 'Test notification view',
-            -- },
+            { '<leader>sn', '', desc = '+noice' },
+            { '<leader>sna', function() require('noice').cmd('all') end, desc = 'Noice All' },
+            { '<leader>snd', function() require('noice').cmd('dismiss') end, desc = 'Noice Dismiss' },
+            { '<leader>snl', function() require('noice').cmd('last') end, desc = 'Noice Last Message' },
+            { '<leader>snh', function() require('noice').cmd('history') end, desc = 'Noice history' },
+            { '<leader>snt', function() require('noice').cmd('pick') end, desc = 'Noice Picker (Telescope)' },
+            -- TODO: Doesn't seem to work correctly.
+            { '<c-f>', function() if not require('noice.lsp').scroll(4) then return '<c-f>' end end, silent = true, expr = true, desc = 'Scroll Forward', mode = { 'i', 'n', 's' } },
+            -- TODO: Doesn't seem to work correctly.
+            { '<c-b>', function() if not require('noice.lsp').scroll(-4) then return '<c-b>' end end, silent = true, expr = true, desc = 'Scroll Backward', mode = { 'i', 'n', 's' } },
+
+            { '"',
+                function()
+                    gprint('Noice', 'This is a notification')
+                    gpdbg('Noice', 'This is a notification with debug')
+                end,
+                desc = 'Test notification view',
+            },
         },
         config = function(_, opts)
             -- HACK: noice shows messages from before it was enabled,

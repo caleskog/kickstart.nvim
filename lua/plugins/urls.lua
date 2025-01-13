@@ -7,7 +7,7 @@
 return {
     {
         'chrishrb/gx.nvim',
-        keys = { { 'gx', '<cmd>Browse<cr>', mode = { 'n', 'x' }, desc = 'Open URIs, Github Repos, etc.' } },
+        keys = { { 'gx', '<cmd>Browse<cr>', mode = { 'n', 'x' }, desc = 'Open with system app' } },
         cmd = { 'Browse' },
         init = function()
             vim.g.netrw_nogx = 1 -- disable netrw gx

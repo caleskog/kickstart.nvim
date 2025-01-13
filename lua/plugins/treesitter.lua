@@ -82,7 +82,7 @@ return {
     {
         'nvim-treesitter/nvim-treesitter-textobjects',
         event = 'VeryLazy',
-        enable = true,
+        enabled = true,
         config = function()
             -- If treesitter is already loaded, we need to run config again for textobjects
             if Core.is_loaded('nvim-treesitter') then
