@@ -84,7 +84,7 @@ return {
             gitbrowse = { enabled = true, }, -- correct?
             -- lazygit = { enabled = true, }, -- correct?
         },
-        -- IMPORTANT: Might not work to have 'config' here too, as it exists in plugins/init.lua
+        -- IMPORTANT: Can't recognize commits done in subrepos. Need to check if its can be changed in lazygit's config
         config = function(_, _)
             -- stylua: ignore start
             if vim.fn.executable('lazygit') == 1 then
