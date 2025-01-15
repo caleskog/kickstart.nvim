@@ -83,7 +83,7 @@ return {
             -- lazygit = { enabled = true, }, -- correct?
         },
         -- IMPORTANT: Might not work to have 'config' here too, as it exists in plugins/init.lua
-        --[[ config = function(_, _)
+        config = function(_, _)
             -- stylua: ignore start
             if vim.fn.executable('lazygit') == 1 then
                 local git_root = git()
@@ -94,7 +94,7 @@ return {
                 key.fmap("n", "<leader>gL", function() Snacks.lazygit.log() end, "Lazygit Log (cwd)" )
             end
             -- stylua: ignore end
-        end, ]]
+        end,
         -- stylua: ignore
         -- TODO: This does not work!! Why?
         keys = {
