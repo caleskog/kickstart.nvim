@@ -3,10 +3,12 @@
 
 local key = Core.utils.keymap
 
-local function git()
-    local root = vim.fn.expand('%:p:h')
-    local git_root = vim.fs.find('.git', { path = root, upward = true })[1]
-    local ret = git_root and vim.fn.fnamemodify(git_root, ':h') or root
+---Get the root directory of the current git repository. Taking into git-subrepos into account.
+---@return string # The root directory of the current git repository
+local function git_root()
+    local current_dir = vim.fn.expand('%:p:h')
+    local root = vim.fs.find({ '.gitrepo', '.git' }, { path = current_dir, upward = true })[1]
+    local ret = root and vim.fn.fnamemodify(root, ':h') or current_dir
     return ret
 end
 
@@ -86,11 +88,11 @@ return {
         config = function(_, _)
             -- stylua: ignore start
             if vim.fn.executable('lazygit') == 1 then
-                local git_root = git()
-                key.fmap("n", "<leader>gg", function() Snacks.lazygit( { cwd = git_root }) end, "Lazygit (Root Dir)" )
+                local root = git_root()
+                key.fmap("n", "<leader>gg", function() Snacks.lazygit( { cwd = root }) end, "Lazygit (Root Dir)" )
                 key.fmap("n", "<leader>gG", function() Snacks.lazygit() end, "Lazygit (cwd)" )
                 key.fmap("n", "<leader>gf", function() Snacks.lazygit.log_file() end, "Lazygit Current File History" )
-                key.fmap("n", "<leader>gl", function() Snacks.lazygit.log({ cwd = git_root }) end, "Lazygit Log" )
+                key.fmap("n", "<leader>gl", function() Snacks.lazygit.log({ cwd = root }) end, "Lazygit Log" )
                 key.fmap("n", "<leader>gL", function() Snacks.lazygit.log() end, "Lazygit Log (cwd)" )
             end
             -- stylua: ignore end
