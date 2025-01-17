@@ -19,6 +19,7 @@ return {
                 'cmake',
                 'diff',
                 'html',
+                'dockerfile',
                 'javascript',
                 'jsdoc',
                 'json',

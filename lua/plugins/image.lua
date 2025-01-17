@@ -5,6 +5,7 @@
 return {
     {
         '3rd/image.nvim',
+        enabled = false,
         ft = { 'markdown' },
         config = function()
             ---@module 'image'

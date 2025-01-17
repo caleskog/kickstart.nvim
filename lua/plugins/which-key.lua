@@ -18,7 +18,7 @@ return {
                 { '<leader>gh', group = 'hunks' },
                 { '<leader>t', group = 'toggle' },
                 { '<leader>B', group = 'buffers' },
-                { '<localleader>l', group = 'LaTeX' }, -- LaTeX specific keymap
+                -- { '<localleader>l', group = 'LaTeX' }, -- LaTeX specific keymap
                 { '<leader>p', group = 'programs' },
                 { '<leader>pc', group = 'convert' },
                 { '<leader>k', group = 'current document' }, -- filetype specific keymaps

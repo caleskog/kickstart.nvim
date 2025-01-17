@@ -4,6 +4,7 @@ return {
     {
         -- [[Autoformatting]]
         'stevearc/conform.nvim',
+        event = { "BufReadPre", "BufNewFile" },
         config = function()
             local conform = require('conform')
 
