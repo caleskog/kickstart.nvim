@@ -96,6 +96,11 @@ return {
                     ['<C-s>'] = { 'actions.select', opts = { vertical = true }, desc = 'Open the entry in a vertical split' },
                     ['<C-h>'] = { 'actions.select', opts = { horizontal = true }, desc = 'Open the entry in a horizontal split' },
                     ['<C-t>'] = { 'actions.select', opts = { tab = true }, desc = 'Open the entry in new tab' },
+                    -- Scroll preview
+                    ['<C-u>'] = { 'actions.preview_scroll_up', desc = 'Scroll preview up' },
+                    ['<C-d>'] = { 'actions.preview_scroll_down', desc = 'Scroll preview down' },
+                    -- Close by double escape
+                    ['<esc><esc>'] = { 'actions.close', desc = 'Close Oil' },
                     -- Overriding the default 'gx' as I want to convert
                     -- markdown files to html and open the html file.
                     ['gx'] = {
