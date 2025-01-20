@@ -4,33 +4,37 @@
 
 return {
     {
-        "mfussenegger/nvim-lint",
-        event = "LazyFile",
+        'mfussenegger/nvim-lint',
+        event = 'LazyFile',
         opts = {
-            events = { "BufWritePost", "BufReadPost", "InsertLeave" },
+            events = { 'BufWritePost', 'BufReadPost', 'InsertLeave' },
             linters_by_ft = {
-                dockerfile = { "hadolint" },
-                c = { "clang-tidy" },
-                cpp = { "clang-tidy" },
-            }
+                dockerfile = { 'hadolint' },
+                c = { 'clang-tidy' },
+                cpp = { 'clangtidy' },
+            },
         },
         config = function(_, opts)
-            local lint = require("lint")
+            local lint = require('lint')
 
             lint.linters_by_ft = opts.linters_by_ft
 
             vim.api.nvim_create_autocmd(opts.events, {
-                group = vim.api.nvim_create_augroup("nvim-lint", {clear = true}),
-                callback = function ()
+                group = vim.api.nvim_create_augroup('nvim-lint', { clear = true }),
+                callback = function()
                     lint.try_lint()
-                end
+                end,
             })
         end,
         keys = {
-            { "<leader>l", function()
-                local lint = require("lint")
-                lint.try_lint()
-            end, desc = "Trigger linting for current file"}
-        }
-    }
+            {
+                '<leader>l',
+                function()
+                    local lint = require('lint')
+                    lint.try_lint()
+                end,
+                desc = 'Trigger linting for current file',
+            },
+        },
+    },
 }

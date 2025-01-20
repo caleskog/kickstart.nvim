@@ -3,7 +3,7 @@ local tools = {
     -- 'asmfmt', -- Disabled due to GO assembly specific
     -- 'lua_ls', -- Already specified in 'servers_to_install'
     'stylua',
-    'clang-format',
+    'clang-format', -- C/C++ formatter
     'cmakelang', -- cmake-formatter
     'codelldb', -- C/C++ debugger
     'gofumpt', -- Go code formatter
