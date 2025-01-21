@@ -10,7 +10,7 @@ return {
             events = { 'BufWritePost', 'BufReadPost', 'InsertLeave' },
             linters_by_ft = {
                 dockerfile = { 'hadolint' },
-                c = { 'clang-tidy' },
+                c = { 'clangtidy' },
                 cpp = { 'clangtidy' },
             },
         },
